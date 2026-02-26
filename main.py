@@ -1,3 +1,4 @@
+app = FastAPI()
 MANAGER_MAPPING = {
     "Mihai": "Mike",
     "Chirila": "Pui",
