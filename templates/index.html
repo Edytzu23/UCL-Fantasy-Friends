@@ -1,794 +1,285 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
-<title>UCL Fantasy Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
-:root {
-  --bg:        #090d18;
-  --surface:   #0f1525;
-  --card:      #151d30;
-  --border:    #1e2d47;
-  --accent:    #00c8ff;
-  --fire:      #ff6200;
-  --fire2:     #ffaa00;
-  --gold:      #f5c518;
-  --text:      #e2e8f0;
-  --muted:     #4a6080;
-  --gk:        #f59e0b;
-  --def:       #10b981;
-  --mid:       #3b82f6;
-  --fwd:       #ef4444;
-  --radius:    10px;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCL Fantasy Pro Hub - LIVE</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #cbd5e1; --highlight: #f97316; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; text-align: center; }
+        
+        /* Navigatie & Selectoare */
+        .nav-container { background: var(--card); padding: 15px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin: 0 auto 30px auto; border: 1px solid #334155; width: 92%; max-width: 1400px; box-sizing: border-box; }
+        .user-select-container { text-align: left; min-width: 180px; }
+        .user-dropdown { background: linear-gradient(145deg, #1e293b, #0f172a); color: var(--accent); border: 1px solid #334155; padding: 10px; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; }
+        .tab-btn { background: #334155; color: #94a3b8; border: none; padding: 10px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; margin: 0 5px; transition: 0.3s; }
+        .tab-btn.active { background: var(--accent); color: #0f172a; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+        .sub-btn { background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 8px 18px; border-radius: 20px; cursor: pointer; margin: 5px; font-size: 0.9em; }
+        .sub-btn.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
 
-/* ── HEADER ── */
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
-.header-logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--accent);letter-spacing:2px;white-space:nowrap;}
-.manager-select{flex:1;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300c8ff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
-.refresh-btn{background:var(--accent);color:#000;border:none;border-radius:var(--radius);padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
-.refresh-btn:hover{opacity:.85;}
-.refresh-btn.loading{opacity:.5;pointer-events:none;}
-.last-updated{font-size:0.7rem;color:var(--muted);white-space:nowrap;}
+        /* Containere si Carduri */
+        .container { display: none; width: 95%; max-width: 1400px; margin: 0 auto; }
+        .container.active { display: block; }
+        .card { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid #334155; margin-bottom: 20px; }
+        .grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
 
-/* ── TABS ── */
-.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
-.tabs::-webkit-scrollbar{display:none;}
-.tab{padding:12px 18px;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;letter-spacing:.5px;}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+        /* Tabele */
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; border-bottom: 1px solid #334155; text-align: center; }
+        th { background: #162030; color: #94a3b8; text-transform: uppercase; font-size: 0.85em; cursor: pointer; }
+        .highlight-user { background: rgba(56, 189, 248, 0.1) !important; }
+        
+        /* Teren Fotbal (TOTW) */
+        .pitch-container { position: relative; width: 100%; height: 580px; background-color: #15803d; border: 3px solid white; border-radius: 12px; overflow: hidden; background-image: repeating-linear-gradient(0deg, #166534, #166534 60px, #15803d 60px, #15803d 120px); margin-top: 10px; }
+        .pitch-line { position: absolute; border: 1.5px solid rgba(255,255,255,0.5); }
+        .mid-circle { top: 50%; left: 50%; width: 100px; height: 100px; border-radius: 50%; transform: translate(-50%, -50%); }
+        .mid-line { top: 50%; left: 0; width: 100%; height: 0; }
+        
+        /* Carduri Jucatori pe Teren */
+        .totw-player { position: absolute; width: 90px; transform: translate(-50%, -50%); text-align: center; z-index: 10; }
+        .totw-card { background: #1e293b; padding: 6px; border-radius: 6px; border: 2px solid var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .totw-card.owned-by-me { border-color: var(--highlight); box-shadow: 0 0 15px rgba(249, 115, 22, 0.6); background: linear-gradient(145deg, #ea580c, #9a3412); }
+        .totw-name { font-weight: bold; font-size: 0.75em; color: white; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .totw-pts { background: var(--accent); color: #0f172a; font-weight: 800; font-size: 0.85em; padding: 1px 5px; border-radius: 4px; }
+        
+        /* Pozitii pe teren */
+        .row-fwd { bottom: 80%; } .row-mid { bottom: 55%; } .row-def { bottom: 30%; } .row-gk { bottom: 8%; }
 
-/* ── MD SELECTOR ── */
-.md-bar{display:flex;gap:6px;padding:12px 14px;overflow-x:auto;scrollbar-width:none;background:var(--surface);border-bottom:1px solid var(--border);}
-.md-bar::-webkit-scrollbar{display:none;}
-.md-pill{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:.2s;}
-.md-pill.active{background:var(--accent);color:#000;border-color:var(--accent);}
+        /* Badge-uri Puncte */
+        .badge { padding: 4px 10px; border-radius: 5px; font-weight: bold; font-size: 0.8em; }
+        .pk-green { background: #22c55e; color: #052e16; }
+        .pk-orange { background: #f97316; color: white; }
+        .pos-badge { font-size: 0.7em; padding: 3px 6px; border-radius: 3px; color: white; margin-right: 5px; font-weight: bold; }
+        .pos-GK { background: #a855f7; } .pos-DEF { background: #22c55e; } .pos-MID { background: #3b82f6; } .pos-FWD { background: #ef4444; }
 
-/* ── VIEWS ── */
-.view{display:none;padding:14px;}
-.view.active{display:block;}
-
-/* ── CLASAMENT ── */
-.rankings-table{width:100%;border-collapse:collapse;}
-.rankings-table th{text-align:left;padding:8px 10px;font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);}
-.rankings-table td{padding:10px;font-size:0.85rem;border-bottom:1px solid rgba(30,45,71,.5);}
-.rank-badge{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;}
-.rank-1{background:var(--gold);color:#000;}
-.rank-2{background:#c0c0c0;color:#000;}
-.rank-3{background:#cd7f32;color:#000;}
-.rank-other{background:var(--card);color:var(--muted);}
-.manager-row.is-me td{background:rgba(0,200,255,.04);}
-.manager-row.is-me .mgr-name::after{content:" 👑";font-size:.8em;}
-.pts-md{font-weight:700;color:var(--accent);}
-.pts-ov{color:var(--text);}
-.global-rank{font-size:0.72rem;color:var(--muted);}
-
-/* ── SCOUTING ── */
-.scout-filters{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
-.scout-search{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:10px 14px;font-size:0.9rem;width:100%;font-family:'DM Sans',sans-serif;}
-.scout-search:focus{outline:none;border-color:var(--accent);}
-.filter-row{display:flex;gap:6px;flex-wrap:wrap;}
-.filter-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:0.76rem;font-weight:600;cursor:pointer;transition:.2s;}
-.filter-chip.active{background:var(--accent);color:#000;border-color:var(--accent);}
-.filter-chip.pos-GK.active{background:var(--gk);border-color:var(--gk);color:#000;}
-.filter-chip.pos-DEF.active{background:var(--def);border-color:var(--def);color:#000;}
-.filter-chip.pos-MID.active{background:var(--mid);border-color:var(--mid);color:#fff;}
-.filter-chip.pos-FWD.active{background:var(--fwd);border-color:var(--fwd);color:#fff;}
-
-.mgr-toggles{display:flex;gap:5px;flex-wrap:wrap;}
-.mgr-toggle{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:0.72rem;font-weight:600;cursor:pointer;transition:.2s;}
-.mgr-toggle.active{background:var(--surface);color:var(--text);border-color:var(--accent);}
-.mgr-toggle.is-me.active{border-color:var(--fire);color:var(--fire);}
-
-.scout-table{width:100%;border-collapse:collapse;}
-.scout-table th{text-align:left;padding:8px 8px;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
-.scout-table th.sort-asc::after{content:" ↑";}
-.scout-table th.sort-desc::after{content:" ↓";}
-.scout-table td{padding:8px 8px;font-size:0.82rem;border-bottom:1px solid rgba(30,45,71,.4);}
-.scout-table tr:hover td{background:rgba(255,255,255,.02);}
-.player-name-cell{display:flex;flex-direction:column;}
-.player-main{font-weight:600;}
-.player-sub{font-size:0.7rem;color:var(--muted);}
-.pos-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:0.68rem;font-weight:700;letter-spacing:.5px;}
-.pos-GK{background:rgba(245,158,11,.15);color:var(--gk);}
-.pos-DEF{background:rgba(16,185,129,.15);color:var(--def);}
-.pos-MID{background:rgba(59,130,246,.15);color:var(--mid);}
-.pos-FWD{background:rgba(239,68,68,.15);color:var(--fwd);}
-.local-bar{display:flex;align-items:center;gap:4px;}
-.local-pct{font-size:0.78rem;font-weight:600;min-width:28px;}
-.owned-dots{display:flex;gap:2px;flex-wrap:wrap;}
-.dot{width:6px;height:6px;border-radius:50%;}
-.dot-owned{background:var(--accent);}
-.dot-me-owned{background:var(--fire);}
-.dot-empty{background:var(--border);}
-.status-badge{font-size:0.68rem;padding:1px 5px;border-radius:3px;}
-.status-A{color:var(--def);}
-.status-I,.status-D{color:var(--fwd);}
-.status-PQ{color:var(--gold);}
-
-/* ── TOTW PITCH ── */
-.totw-tabs{display:flex;gap:8px;margin-bottom:14px;}
-.totw-tab{flex:1;text-align:center;padding:9px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:0.8rem;font-weight:700;cursor:pointer;transition:.2s;}
-.totw-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
-
-.pitch{background:linear-gradient(180deg,#0d3318 0%,#0d4020 40%,#0a3818 100%);border-radius:12px;padding:16px 10px;position:relative;overflow:hidden;min-height:440px;}
-.pitch::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 1px,transparent 1px,transparent 10%);pointer-events:none;}
-.pitch-line{position:absolute;left:10%;right:10%;height:1px;background:rgba(255,255,255,.15);}
-.pitch-line.center{top:50%;}
-.pitch-center-circle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;border:1px solid rgba(255,255,255,.15);pointer-events:none;}
-
-.pitch-row{display:flex;justify-content:space-around;align-items:center;margin-bottom:10px;}
-.pitch-row:last-child{margin-bottom:0;}
-
-.player-pin{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;min-width:54px;}
-.player-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:700;text-align:center;border:2px solid rgba(255,255,255,.2);position:relative;transition:.15s;}
-.player-circle.is-mine{border-color:var(--fire)!important;box-shadow:0 0 12px rgba(255,98,0,.5);}
-.player-circle.pos-GK{background:rgba(245,158,11,.3);border-color:var(--gk);}
-.player-circle.pos-DEF{background:rgba(16,185,129,.3);border-color:var(--def);}
-.player-circle.pos-MID{background:rgba(59,130,246,.3);border-color:var(--mid);}
-.player-circle.pos-FWD{background:rgba(239,68,68,.3);border-color:var(--fwd);}
-.player-pin-name{font-size:0.62rem;font-weight:600;text-align:center;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);}
-.player-pin-pts{font-size:0.68rem;font-weight:700;color:var(--gold);}
-.player-pin-pts.is-mine{color:var(--fire);}
-.mom-star{position:absolute;top:-3px;right:-3px;font-size:.6rem;}
-.captain-marker{position:absolute;top:-3px;left:-3px;background:var(--gold);color:#000;border-radius:50%;width:13px;height:13px;font-size:0.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;}
-
-.fire-tag{display:inline-block;font-size:.55rem;background:linear-gradient(135deg,var(--fire),var(--fire2));color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;letter-spacing:.3px;}
-
-/* ── TOOLTIPS / MODAL ── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:flex-end;}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:14px 14px 0 0;padding:20px;width:100%;max-height:70vh;overflow-y:auto;}
-.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
-.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:1px;}
-.modal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0 4px;}
-.modal-stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.85rem;}
-.modal-stat:last-child{border-bottom:none;}
-.modal-stat-val{font-weight:700;color:var(--accent);}
-
-/* ── LOADING ── */
-.loading-state{text-align:center;padding:60px 20px;color:var(--muted);}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
-@keyframes spin{to{transform:rotate(360deg);}}
-
-/* ── UTILITIES ── */
-.section-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--accent);margin-bottom:12px;}
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
-.empty{text-align:center;padding:30px;color:var(--muted);font-size:0.85rem;}
-
-/* Scrollable table wrapper */
-.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.table-scroll::-webkit-scrollbar{height:3px;}
-.table-scroll::-webkit-scrollbar-thumb{background:var(--border);}
-</style>
+        /* Loading Spinner */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
+    <div id="loader"><div class="spinner"></div></div>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-logo">UCL ⚽</div>
-  <select class="manager-select" id="managerSelect">
-    <option value="">Se încarcă...</option>
-  </select>
-  <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">↻ Refresh</button>
-</div>
-<div style="background:var(--surface);padding:3px 14px 6px;border-bottom:1px solid var(--border);">
-  <span class="last-updated" id="lastUpdated">Se încarcă datele...</span>
-</div>
-
-<!-- MD SELECTOR -->
-<div class="md-bar" id="mdBar"></div>
-
-<!-- TABS -->
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('clasament')">🏆 Clasament</div>
-  <div class="tab" onclick="switchTab('scouting')">🔍 Scouting</div>
-  <div class="tab" onclick="switchTab('totw-intern')">⚡ TOTW Intern</div>
-  <div class="tab" onclick="switchTab('totw-global')">🌍 TOTW Global</div>
-</div>
-
-<!-- CLASAMENT -->
-<div class="view active" id="view-clasament">
-  <div id="clasamentContent"><div class="loading-state"><div class="spinner"></div>Se încarcă...</div></div>
-</div>
-
-<!-- SCOUTING -->
-<div class="view" id="view-scouting">
-  <div class="scout-filters">
-    <input class="scout-search" id="scoutSearch" placeholder="Caută jucător sau echipă..." oninput="renderScouting()"/>
-    <div class="filter-row" id="posFilters">
-      <span class="filter-chip active" data-pos="ALL" onclick="togglePosFilter(this)">Toți</span>
-      <span class="filter-chip pos-GK" data-pos="GK" onclick="togglePosFilter(this)">GK</span>
-      <span class="filter-chip pos-DEF" data-pos="DEF" onclick="togglePosFilter(this)">DEF</span>
-      <span class="filter-chip pos-MID" data-pos="MID" onclick="togglePosFilter(this)">MID</span>
-      <span class="filter-chip pos-FWD" data-pos="FWD" onclick="togglePosFilter(this)">FWD</span>
-    </div>
-    <div style="font-size:.72rem;color:var(--muted);margin-bottom:2px;">Filtrează proprietari locali:</div>
-    <div class="mgr-toggles" id="mgrToggles"></div>
-  </div>
-  <div class="table-scroll">
-    <table class="scout-table" id="scoutTable">
-      <thead>
-        <tr>
-          <th onclick="sortScout('name')">Jucător</th>
-          <th onclick="sortScout('totPts')">Pts</th>
-          <th onclick="sortScout('curGDPts')">MD Pts</th>
-          <th onclick="sortScout('goals')">G</th>
-          <th onclick="sortScout('assists')">A</th>
-          <th onclick="sortScout('selPer')">%G</th>
-          <th onclick="sortScout('localOwnership')">%L</th>
-          <th onclick="sortScout('value')">Val</th>
-        </tr>
-      </thead>
-      <tbody id="scoutBody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- TOTW INTERN -->
-<div class="view" id="view-totw-intern">
-  <div id="totwInternContent"></div>
-</div>
-
-<!-- TOTW GLOBAL -->
-<div class="view" id="view-totw-global">
-  <div id="totwGlobalContent"></div>
-</div>
-
-<!-- PLAYER MODAL -->
-<div class="modal-overlay" id="playerModal" onclick="closeModal(event)">
-  <div class="modal" id="modalContent"></div>
-</div>
-
-<script>
-// ─── STATE ───
-let appData = null;
-let currentMD = 10;
-let currentManagerGuid = null;
-let currentTab = 'clasament';
-let scoutSort = { col: 'totPts', dir: -1 };
-let activePosFilter = 'ALL';
-let activeMgrFilters = new Set(); // active = included in local count
-const mdCache = {};
-
-// ─── BOOT ───
-window.onload = () => loadData(10);
-
-async function loadData(md) {
-  currentMD = md;
-  showLoading();
-  try {
-    const r = await fetch(`/api/data?md=${md}`);
-    appData = await r.json();
-    mdCache[md] = appData;
-    setupMDBar();
-    setupManagerSelect();
-    setupMgrToggles();
-    renderCurrentTab();
-    updateLastUpdated();
-  } catch(e) {
-    document.getElementById('lastUpdated').textContent = '❌ Eroare la încărcare';
-  }
-}
-
-async function manualRefresh() {
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('loading');
-  btn.textContent = '↻ ...';
-  try {
-    await fetch(`/api/refresh?md=${currentMD}`, { method: 'POST' });
-    await loadData(currentMD);
-  } finally {
-    btn.classList.remove('loading');
-    btn.textContent = '↻ Refresh';
-  }
-}
-
-function showLoading() {
-  ['clasamentContent','scoutBody','totwInternContent','totwGlobalContent'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = '<div class="loading-state"><div class="spinner"></div>Se încarcă...</div>';
-  });
-}
-
-function updateLastUpdated() {
-  if (!appData) return;
-  const d = new Date(appData.lastUpdated);
-  const fmt = d.toLocaleString('ro-RO', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-  document.getElementById('lastUpdated').textContent = `Actualizat: ${fmt}`;
-}
-
-// ─── MD BAR ───
-function setupMDBar() {
-  const bar = document.getElementById('mdBar');
-  bar.innerHTML = '';
-  for (let i = 1; i <= 12; i++) {
-    const p = document.createElement('div');
-    p.className = 'md-pill' + (i === currentMD ? ' active' : '');
-    p.textContent = `MD${i}`;
-    p.onclick = () => switchMD(i);
-    bar.appendChild(p);
-  }
-}
-
-function switchMD(md) {
-  if (md === currentMD) return;
-  document.querySelectorAll('.md-pill').forEach((p, i) => {
-    p.classList.toggle('active', i + 1 === md);
-  });
-  if (mdCache[md]) {
-    appData = mdCache[md];
-    currentMD = md;
-    renderCurrentTab();
-    updateLastUpdated();
-  } else {
-    loadData(md);
-  }
-}
-
-// ─── MANAGER SELECT ───
-function setupManagerSelect() {
-  const sel = document.getElementById('managerSelect');
-  const prev = currentManagerGuid;
-  sel.innerHTML = '';
-  if (!appData) return;
-  appData.managers.forEach(m => {
-    const opt = document.createElement('option');
-    opt.value = m.guid;
-    opt.textContent = `${m.username} — ${m.teamName}`;
-    sel.appendChild(opt);
-  });
-  if (prev && appData.managers.find(m => m.guid === prev)) {
-    sel.value = prev;
-    currentManagerGuid = prev;
-  } else {
-    // default to Eduard
-    const edu = appData.managers.find(m => m.username === 'Eduard');
-    if (edu) sel.value = edu.guid;
-    currentManagerGuid = sel.value;
-  }
-  sel.onchange = () => {
-    currentManagerGuid = sel.value;
-    renderCurrentTab();
-  };
-}
-
-function getMyManager() {
-  if (!appData) return null;
-  return appData.managers.find(m => m.guid === currentManagerGuid) || appData.managers[0];
-}
-
-// ─── MGR TOGGLES (SCOUTING) ───
-function setupMgrToggles() {
-  const container = document.getElementById('mgrToggles');
-  if (!appData) return;
-  container.innerHTML = '';
-  activeMgrFilters = new Set(appData.managers.map(m => m.username));
-  appData.managers.forEach(m => {
-    const isMe = m.guid === currentManagerGuid;
-    const btn = document.createElement('div');
-    btn.className = `mgr-toggle active${isMe ? ' is-me' : ''}`;
-    btn.dataset.mgr = m.username;
-    btn.textContent = m.username;
-    btn.onclick = () => {
-      btn.classList.toggle('active');
-      if (btn.classList.contains('active')) activeMgrFilters.add(m.username);
-      else activeMgrFilters.delete(m.username);
-      renderScouting();
-    };
-    container.appendChild(btn);
-  });
-}
-
-// ─── TABS ───
-function switchTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  const tabs = document.querySelectorAll('.tab');
-  const map = { clasament: 0, scouting: 1, 'totw-intern': 2, 'totw-global': 3 };
-  tabs[map[tab]].classList.add('active');
-  document.getElementById(`view-${tab}`).classList.add('active');
-  renderCurrentTab();
-}
-
-function renderCurrentTab() {
-  if (!appData) return;
-  if (currentTab === 'clasament') renderClasament();
-  else if (currentTab === 'scouting') renderScouting();
-  else if (currentTab === 'totw-intern') renderTOTWIntern();
-  else if (currentTab === 'totw-global') renderTOTWGlobal();
-}
-
-// ─── CLASAMENT ───
-function renderClasament() {
-  const me = getMyManager();
-  const managers = [...appData.managers].sort((a, b) => b.ovPoints - a.ovPoints);
-  const mdRanked = [...appData.managers].sort((a, b) => b.gdPoints - a.gdPoints);
-
-  let html = `<div class="section-title">CLASAMENT MD${currentMD}</div>`;
-  html += `<div class="table-scroll"><table class="rankings-table">
-    <thead><tr>
-      <th>#</th><th>Manager</th><th>Pts MD</th><th>Pts Total</th><th>Rank Global</th>
-    </tr></thead><tbody>`;
-
-  managers.forEach((m, i) => {
-    const rank = i + 1;
-    const mdRank = mdRanked.findIndex(x => x.guid === m.guid) + 1;
-    const isMe = m.guid === currentManagerGuid;
-    const badgeClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
-    html += `<tr class="manager-row${isMe ? ' is-me' : ''}" onclick="showManagerDetail('${m.guid}')">
-      <td><span class="rank-badge ${badgeClass}">${rank}</span></td>
-      <td>
-        <div class="mgr-name" style="font-weight:600;">${m.username}</div>
-        <div style="font-size:.72rem;color:var(--muted);">${m.teamName}</div>
-      </td>
-      <td class="pts-md">${m.gdPoints}</td>
-      <td class="pts-ov">${m.ovPoints}</td>
-      <td class="global-rank">#${m.ovRank?.toLocaleString()}</td>
-    </tr>`;
-  });
-
-  html += `</tbody></table></div>`;
-  document.getElementById('clasamentContent').innerHTML = html;
-}
-
-function showManagerDetail(guid) {
-  const m = appData.managers.find(x => x.guid === guid);
-  if (!m) return;
-  const starters = m.players.filter(p => p.isStarter).sort((a, b) => {
-    const posOrder = { GK: 0, DEF: 1, MID: 2, FWD: 3 };
-    return posOrder[a.posCode] - posOrder[b.posCode];
-  });
-  const bench = m.players.filter(p => !p.isStarter).sort((a, b) => a.benchPosition - b.benchPosition);
-
-  let html = `<div class="modal-header">
-    <div>
-      <div class="modal-title">${m.username}</div>
-      <div style="color:var(--muted);font-size:.8rem;">${m.teamName}</div>
-    </div>
-    <button class="modal-close" onclick="document.getElementById('playerModal').classList.remove('open')">✕</button>
-  </div>`;
-
-  html += `<div style="display:flex;gap:16px;margin-bottom:14px;">
-    <div class="card" style="flex:1;text-align:center;">
-      <div style="font-size:1.6rem;font-weight:700;color:var(--accent);">${m.gdPoints}</div>
-      <div style="font-size:.72rem;color:var(--muted);">MD${currentMD} Pts</div>
-    </div>
-    <div class="card" style="flex:1;text-align:center;">
-      <div style="font-size:1.6rem;font-weight:700;">${m.ovPoints}</div>
-      <div style="font-size:.72rem;color:var(--muted);">Total Pts</div>
-    </div>
-    <div class="card" style="flex:1;text-align:center;">
-      <div style="font-size:1.1rem;font-weight:700;">#${m.ovRank?.toLocaleString()}</div>
-      <div style="font-size:.72rem;color:var(--muted);">Rank Global</div>
-    </div>
-  </div>`;
-
-  html += `<div style="font-size:.72rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px;">Titulari</div>`;
-  starters.forEach(p => {
-    const cap = p.isCaptain ? ' <span style="color:var(--gold);">(C)</span>' : '';
-    html += `<div class="modal-stat">
-      <div><span class="pos-badge pos-${p.posCode}">${p.posCode}</span> ${p.name}${cap}
-        <div style="font-size:.72rem;color:var(--muted);">${p.team}</div>
-      </div>
-      <div class="modal-stat-val">${p.mdPoints} pts</div>
-    </div>`;
-  });
-
-  html += `<div style="font-size:.72rem;color:var(--muted);margin:10px 0 6px;text-transform:uppercase;letter-spacing:.8px;">Bancă</div>`;
-  bench.forEach(p => {
-    html += `<div class="modal-stat" style="opacity:.6;">
-      <div><span class="pos-badge pos-${p.posCode}">${p.posCode}</span> ${p.name}
-        <div style="font-size:.72rem;color:var(--muted);">${p.team}</div>
-      </div>
-      <div class="modal-stat-val">${p.mdPoints} pts</div>
-    </div>`;
-  });
-
-  document.getElementById('modalContent').innerHTML = html;
-  document.getElementById('playerModal').classList.add('open');
-}
-
-// ─── SCOUTING ───
-function togglePosFilter(el) {
-  document.querySelectorAll('#posFilters .filter-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  activePosFilter = el.dataset.pos;
-  renderScouting();
-}
-
-let scoutSortCol = 'totPts';
-let scoutSortDir = -1;
-
-function sortScout(col) {
-  if (scoutSortCol === col) scoutSortDir *= -1;
-  else { scoutSortCol = col; scoutSortDir = -1; }
-  document.querySelectorAll('.scout-table th').forEach(th => {
-    th.classList.remove('sort-asc','sort-desc');
-  });
-  renderScouting();
-}
-
-function renderScouting() {
-  if (!appData) return;
-  const search = document.getElementById('scoutSearch')?.value?.toLowerCase() || '';
-  const me = getMyManager();
-
-  // compute local ownership based on active mgr filters
-  let players = appData.allPlayers.map(p => {
-    const filteredOwners = p.ownedBy.filter(name => activeMgrFilters.has(name));
-    return {
-      ...p,
-      filteredLocal: filteredOwners.length,
-      filteredPer: Math.round(filteredOwners.length / Math.max(activeMgrFilters.size, 1) * 100),
-      filteredOwners,
-      isMine: me?.players.some(mp => mp.id === p.id)
-    };
-  });
-
-  if (activePosFilter !== 'ALL') players = players.filter(p => p.posCode === activePosFilter);
-  if (search) players = players.filter(p =>
-    p.name.toLowerCase().includes(search) ||
-    p.fullName.toLowerCase().includes(search) ||
-    p.team.toLowerCase().includes(search)
-  );
-
-  // sort
-  const col = scoutSortCol;
-  const dir = scoutSortDir;
-  players.sort((a, b) => {
-    let av = col === 'localOwnership' ? a.filteredLocal : (a[col] ?? 0);
-    let bv = col === 'localOwnership' ? b.filteredLocal : (b[col] ?? 0);
-    if (typeof av === 'string') return dir * av.localeCompare(bv);
-    return dir * (bv - av);
-  });
-
-  // update sort headers
-  const headers = document.querySelectorAll('.scout-table th');
-  const colMap = ['name','totPts','curGDPts','goals','assists','selPer','localOwnership','value'];
-  headers.forEach((th, i) => {
-    th.classList.remove('sort-asc','sort-desc');
-    if (colMap[i] === col) th.classList.add(dir === 1 ? 'sort-asc' : 'sort-desc');
-  });
-
-  const tbody = document.getElementById('scoutBody');
-  if (!players.length) {
-    tbody.innerHTML = '<tr><td colspan="8" class="empty">Niciun jucător găsit</td></tr>';
-    return;
-  }
-
-  const totalMgrs = activeMgrFilters.size || 1;
-
-  tbody.innerHTML = players.slice(0, 200).map(p => {
-    const statusHtml = p.status !== 'A'
-      ? `<span class="status-badge status-${p.status}">${p.status === 'I' ? '🤕' : p.status === 'PQ' ? '❓' : p.status}</span>`
-      : '';
-
-    // build dots for each active manager
-    const dots = [...appData.managers]
-      .filter(m => activeMgrFilters.has(m.username))
-      .map(m => {
-        const owns = p.ownedBy.includes(m.username);
-        const isMe2 = m.guid === currentManagerGuid;
-        const cls = owns ? (isMe2 ? 'dot dot-me-owned' : 'dot dot-owned') : 'dot dot-empty';
-        return `<span class="${cls}" title="${m.username}"></span>`;
-      }).join('');
-
-    const mineTag = p.isMine ? `<span class="fire-tag">🔥 mio</span>` : '';
-
-    return `<tr onclick="showPlayerModal(${p.id})">
-      <td>
-        <div class="player-name-cell">
-          <div class="player-main">${p.name} ${statusHtml}</div>
-          <div class="player-sub">${p.team} ${mineTag}</div>
+    <div class="nav-container">
+        <div class="user-select-container">
+            <span style="font-size: 0.7em; color: #94a3b8; font-weight: bold;">CINE EȘTI?</span>
+            <select id="user-dropdown" class="user-dropdown" onchange="updateUser(this.value)">
+                <option value="">Alege manager...</option>
+            </select>
         </div>
-        <span class="pos-badge pos-${p.posCode}">${p.posCode}</span>
-      </td>
-      <td style="font-weight:700;color:var(--accent);">${p.totPts}</td>
-      <td>${p.curGDPts || '-'}</td>
-      <td>${p.goals}</td>
-      <td>${p.assists}</td>
-      <td style="font-size:.78rem;">${p.selPer}%</td>
-      <td>
-        <div class="local-bar">
-          <span class="local-pct" style="color:${p.filteredLocal > 0 ? 'var(--accent)' : 'var(--muted)'};">${p.filteredPer}%</span>
-          <div class="owned-dots">${dots}</div>
-        </div>
-      </td>
-      <td style="font-size:.78rem;">€${p.value}M</td>
-    </tr>`;
-  }).join('');
-}
-
-// ─── TOTW ───
-function pickTOTW(players, preferGuid) {
-  const slots = { GK: 1, DEF: 4, MID: 3, FWD: 3 };
-  const byPos = { GK: [], DEF: [], MID: [], FWD: [] };
-  players.forEach(p => {
-    if (byPos[p.posCode]) byPos[p.posCode].push(p);
-  });
-
-  const result = [];
-  Object.entries(slots).forEach(([pos, count]) => {
-    const sorted = [...(byPos[pos] || [])].sort((a, b) => {
-      if (b.mdPoints !== a.mdPoints) return b.mdPoints - a.mdPoints;
-      // tiebreaker: prefer selected manager's player
-      const aPref = (a.managerGuid === preferGuid || a.ownedBy?.includes(getMyManager()?.username)) ? 1 : 0;
-      const bPref = (b.managerGuid === preferGuid || b.ownedBy?.includes(getMyManager()?.username)) ? 1 : 0;
-      return bPref - aPref;
-    });
-    result.push(...sorted.slice(0, count));
-  });
-  return result;
-}
-
-function renderTOTWIntern() {
-  const me = getMyManager();
-  // Collect all starters from all managers (deduplicated by best points, prefer me on tie)
-  const playerMap = {};
-  appData.managers.forEach(m => {
-    m.players.filter(p => p.isStarter).forEach(p => {
-      const key = p.id;
-      if (!playerMap[key]) {
-        playerMap[key] = { ...p };
-      } else {
-        // Keep highest points, prefer me on tie
-        const existing = playerMap[key];
-        if (p.mdPoints > existing.mdPoints ||
-           (p.mdPoints === existing.mdPoints && m.guid === currentManagerGuid)) {
-          playerMap[key] = { ...p };
-        }
-      }
-    });
-  });
-
-  const allStarters = Object.values(playerMap);
-  const totw = pickTOTW(allStarters, currentManagerGuid);
-
-  document.getElementById('totwInternContent').innerHTML =
-    renderPitchHTML(totw, currentManagerGuid, 'intern');
-}
-
-function renderTOTWGlobal() {
-  const me = getMyManager();
-  const myPlayerIds = new Set(me?.players.map(p => p.id) || []);
-
-  // Use allPlayers from public JSON with curGDPts as mdPoints
-  const players = appData.allPlayers.map(p => ({
-    ...p,
-    mdPoints: p.curGDPts || 0,
-    isMine: myPlayerIds.has(p.id),
-    isStarter: true,
-    managerGuid: myPlayerIds.has(p.id) ? currentManagerGuid : null,
-  }));
-
-  const totw = pickTOTW(players, currentManagerGuid);
-  document.getElementById('totwGlobalContent').innerHTML =
-    renderPitchHTML(totw, currentManagerGuid, 'global');
-}
-
-function renderPitchHTML(players, managerGuid, type) {
-  const me = getMyManager();
-  const myPlayerIds = new Set(me?.players.map(p => p.id) || []);
-
-  const byPos = { GK: [], DEF: [], MID: [], FWD: [] };
-  players.forEach(p => { if (byPos[p.posCode]) byPos[p.posCode].push(p); });
-
-  const rows = [
-    { pos: 'FWD', players: byPos.FWD },
-    { pos: 'MID', players: byPos.MID },
-    { pos: 'DEF', players: byPos.DEF },
-    { pos: 'GK',  players: byPos.GK },
-  ];
-
-  let pitchHtml = `<div class="pitch">
-    <div class="pitch-line center"></div>
-    <div class="pitch-center-circle"></div>`;
-
-  rows.forEach(row => {
-    pitchHtml += `<div class="pitch-row">`;
-    row.players.forEach(p => {
-      const isMine = myPlayerIds.has(p.id);
-      const fireClass = isMine ? ' is-mine' : '';
-      const momStar = p.momFlag ? '<span class="mom-star">⭐</span>' : '';
-      const capMark = p.isCaptain ? '<span class="captain-marker">C</span>' : '';
-      pitchHtml += `
-        <div class="player-pin" onclick="showPlayerModal(${p.id})">
-          <div class="player-circle pos-${p.posCode}${fireClass}">
-            ${momStar}${capMark}
-            ${p.teamCode || p.posCode}
-          </div>
-          <div class="player-pin-name">${p.name}</div>
-          <div class="player-pin-pts${isMine ? ' is-mine' : ''}">${p.mdPoints} pts</div>
-        </div>`;
-    });
-    pitchHtml += `</div>`;
-  });
-
-  pitchHtml += `</div>`;
-
-  // Player list below pitch
-  let listHtml = `<div style="margin-top:12px;">`;
-  const posOrder = ['GK','DEF','MID','FWD'];
-  posOrder.forEach(pos => {
-    (byPos[pos] || []).forEach(p => {
-      const isMine = myPlayerIds.has(p.id);
-      const fireStyle = isMine ? 'border-left: 3px solid var(--fire);padding-left:8px;' : '';
-      listHtml += `<div class="modal-stat" style="${fireStyle}" onclick="showPlayerModal(${p.id})">
         <div>
-          <span class="pos-badge pos-${p.posCode}">${p.posCode}</span>
-          <span style="font-weight:${isMine?700:400};">${p.name}</span>
-          ${isMine ? '<span class="fire-tag">🔥</span>' : ''}
-          <div style="font-size:.72rem;color:var(--muted);">${p.team}</div>
+            <div style="margin-bottom: 8px;">
+                <button class="tab-btn active" onclick="changeMD(10, this)">MD 10</button>
+                <button class="tab-btn" onclick="changeMD(9, this)">MD 9</button>
+            </div>
+            <div>
+                <button class="sub-btn active" onclick="setView('INTERN', this)">🏠 INTERN</button>
+                <button class="sub-btn" onclick="setView('GLOBAL', this)">🌍 GLOBAL</button>
+                <button class="sub-btn" onclick="setView('TOTW', this)">👕 TOTW</button>
+            </div>
         </div>
-        <div style="font-weight:700;color:${isMine?'var(--fire)':'var(--accent)'};">${p.mdPoints} pts</div>
-      </div>`;
-    });
-  });
-  listHtml += `</div>`;
-
-  return pitchHtml + listHtml;
-}
-
-// ─── PLAYER MODAL ───
-function showPlayerModal(playerId) {
-  const p = appData.allPlayers.find(x => x.id === playerId);
-  if (!p) return;
-  const me = getMyManager();
-  const isMine = me?.players.some(mp => mp.id === playerId);
-  const statusLabels = { A: '✅ Disponibil', I: '🤕 Accidentat', D: '🚫 Suspendat', PQ: '❓ Incert' };
-
-  // find in managers teams for MD points
-  let mdPts = p.curGDPts || 0;
-  let captain = '';
-  appData.managers.forEach(m => {
-    const mp = m.players.find(x => x.id === playerId);
-    if (mp) { mdPts = Math.max(mdPts, mp.mdPoints); if (mp.isCaptain) captain = ` <span style="color:var(--gold)">(C)</span>`; }
-  });
-
-  const ownedByList = p.ownedBy.length
-    ? p.ownedBy.map(n => `<span style="background:var(--card);padding:2px 8px;border-radius:4px;margin:2px;display:inline-block;font-size:.76rem;">${n}</span>`).join('')
-    : '<span style="color:var(--muted)">Nimeni din ligă</span>';
-
-  document.getElementById('modalContent').innerHTML = `
-    <div class="modal-header">
-      <div>
-        <div class="modal-title">${p.fullName}${captain}</div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:4px;">
-          <span class="pos-badge pos-${p.posCode}">${p.posCode}</span>
-          <span style="font-size:.82rem;color:var(--muted);">${p.team}</span>
-          ${isMine ? '<span class="fire-tag">🔥 Echipa ta</span>' : ''}
+        <div style="min-width: 180px; text-align: right;">
+            <button onclick="refreshData()" style="background: none; border: 1px solid #334155; color: #94a3b8; padding: 8px; border-radius: 5px; cursor: pointer;">🔄 Refresh</button>
         </div>
-      </div>
-      <button class="modal-close" onclick="document.getElementById('playerModal').classList.remove('open')">✕</button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
-      <div class="card" style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--accent);">${p.totPts}</div><div style="font-size:.68rem;color:var(--muted);">Total Pts</div></div>
-      <div class="card" style="text-align:center"><div style="font-size:1.4rem;font-weight:700;">${mdPts}</div><div style="font-size:.68rem;color:var(--muted);">MD Pts</div></div>
-      <div class="card" style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">€${p.value}M</div><div style="font-size:.68rem;color:var(--muted);">Valoare</div></div>
-    </div>
-    <div class="modal-stat"><span>Goluri</span><span class="modal-stat-val">${p.goals}</span></div>
-    <div class="modal-stat"><span>Pase decisive</span><span class="modal-stat-val">${p.assists}</span></div>
-    <div class="modal-stat"><span>Clean sheets</span><span class="modal-stat-val">${p.cleanSheets}</span></div>
-    <div class="modal-stat"><span>Man of the Match</span><span class="modal-stat-val">${p.momCount}x</span></div>
-    <div class="modal-stat"><span>Selecție globală</span><span class="modal-stat-val">${p.selPer}%</span></div>
-    <div class="modal-stat"><span>Selecție ligă</span><span class="modal-stat-val">${p.localPer}%</span></div>
-    <div class="modal-stat"><span>Rating</span><span class="modal-stat-val">${p.rating}/5</span></div>
-    <div class="modal-stat"><span>Status</span><span class="modal-stat-val">${statusLabels[p.status] || p.status}</span></div>
-    <div style="margin-top:10px;">
-      <div style="font-size:.72rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px;">Deținut de</div>
-      <div>${ownedByList}</div>
-    </div>`;
-  document.getElementById('playerModal').classList.add('open');
-}
 
-function closeModal(e) {
-  if (e.target.id === 'playerModal') document.getElementById('playerModal').classList.remove('open');
-}
-</script>
+    <div id="content-area"></div>
+
+    <script>
+        let rawData = null;
+        let currentMD = 10;
+        let currentView = 'INTERN';
+        let currentUser = localStorage.getItem('selectedUser') || '';
+
+        async function loadData() {
+            document.getElementById('loader').style.display = 'flex';
+            try {
+                const response = await fetch(`/api/data?md=${currentMD}`);
+                rawData = await response.json();
+                populateDropdown();
+                render();
+            } catch (e) {
+                console.error("Eroare la incarcare:", e);
+            }
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        function populateDropdown() {
+            const select = document.getElementById('user-dropdown');
+            select.innerHTML = '<option value="">Alege manager...</option>';
+            rawData.managers.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m; opt.textContent = m;
+                if(m === currentUser) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function updateUser(val) {
+            currentUser = val;
+            localStorage.setItem('selectedUser', val);
+            render();
+        }
+
+        function changeMD(md, btn) {
+            currentMD = md;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            loadData();
+        }
+
+        function setView(view, btn) {
+            currentView = view;
+            document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
+        }
+
+        async function refreshData() {
+            await fetch('/api/refresh', { method: 'POST' });
+            loadData();
+        }
+
+        function render() {
+            if(!rawData) return;
+            const area = document.getElementById('content-area');
+            
+            if(currentView === 'INTERN') {
+                renderIntern(area);
+            } else if(currentView === 'GLOBAL') {
+                renderGlobal(area);
+            } else {
+                renderTOTW(area);
+            }
+        }
+
+        function renderIntern(area) {
+            const liveRank = [...rawData.live_ranking].sort((a,b) => b.Scor - a.Scor);
+            const overRank = [...rawData.overall_ranking].sort((a,b) => b.Total - a.Total);
+            
+            area.innerHTML = `
+                <div class="container active">
+                    <div class="grid-top">
+                        <div class="card">
+                            <h3>🔥 Manager of the Day</h3>
+                            <table>
+                                <tr><th>Antrenor</th><th>Puncte</th></tr>
+                                ${liveRank.map(r => `<tr class="${r.Antrenor === currentUser ? 'highlight-user' : ''}"><td>${r.Antrenor}</td><td><b>${r.Scor}</b></td></tr>`).join('')}
+                            </table>
+                        </div>
+                        <div class="card">
+                            <h3>🏆 Clasament General</h3>
+                            <table>
+                                <tr><th>Pos</th><th>Antrenor</th><th>Total</th></tr>
+                                ${overRank.map((r, i) => `<tr class="${r.Antrenor === currentUser ? 'highlight-user' : ''}"><td>${i+1}</td><td>${r.Antrenor}</td><td><b>${r.Total}</b></td></tr>`).join('')}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGlobal(area) {
+            area.innerHTML = `
+                <div class="container active">
+                    <div class="card">
+                        <h3>🔍 Scouting Database</h3>
+                        <table>
+                            <thead>
+                                <tr><th>Jucător</th><th>Poz</th><th>Echipă</th><th>Puncte</th><th>Local %</th><th>Manageri</th></tr>
+                            </thead>
+                            <tbody>
+                                ${rawData.players.sort((a,b) => b.points - a.points).slice(0, 50).map(p => {
+                                    const locPk = Math.round((p.owners.length / rawData.managers.length) * 100);
+                                    const isOwned = currentUser && p.owners.includes(currentUser);
+                                    return `<tr class="${isOwned ? 'highlight-user' : ''}">
+                                        <td style="text-align:left"><span class="pos-badge pos-${p.pos}">${p.pos}</span><b>${p.name}</b></td>
+                                        <td>${p.pos}</td>
+                                        <td>${p.team}</td>
+                                        <td><b>${p.points}</b></td>
+                                        <td><span class="badge ${locPk > 30 ? 'pk-orange' : 'pk-green'}">${locPk}%</span></td>
+                                        <td style="font-size:0.8em">${p.owners.join(', ')}</td>
+                                    </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTOTW(area) {
+            area.innerHTML = `
+                <div class="container active">
+                    <div class="totw-layout" style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap">
+                        <div style="flex:1; min-width:400px; max-width:600px">
+                            <h3>🏠 Our League TOTW</h3>
+                            <div class="pitch-container" id="pitch-internal"></div>
+                        </div>
+                        <div style="flex:1; min-width:400px; max-width:600px">
+                            <h3>🌍 Global TOTW</h3>
+                            <div class="pitch-container" id="pitch-global"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            drawPitch(rawData.players, 'points', 'pitch-internal');
+            // Nota: Punctele globale sunt tot 'points' dar luate dintr-un pool mai mare daca am avea
+            drawPitch(rawData.players, 'points', 'pitch-global');
+        }
+
+        function drawPitch(players, key, containerId) {
+            const pitch = document.getElementById(containerId);
+            pitch.innerHTML = '<div class="pitch-line mid-line"></div><div class="pitch-line mid-circle"></div>';
+            
+            // Logica selectie TOTW (Tiebreaker: favorizeaza jucatorul lui currentUser)
+            const sorted = [...players].sort((a, b) => {
+                if(b[key] !== a[key]) return b[key] - a[key];
+                const aOwn = currentUser && a.owners.includes(currentUser);
+                const bOwn = currentUser && b.owners.includes(currentUser);
+                return bOwn - aOwn;
+            });
+
+            let team = [], counts = { GK:0, DEF:0, MID:0, FWD:0 };
+            
+            // Selector 1-4-4-2 sau similar
+            for(let p of sorted) {
+                if(team.length >= 11) break;
+                if(p.pos === 'GK' && counts.GK < 1) { team.push(p); counts.GK++; }
+                else if(p.pos === 'DEF' && counts.DEF < 4) { team.push(p); counts.DEF++; }
+                else if(p.pos === 'MID' && counts.MID < 4) { team.push(p); counts.MID++; }
+                else if(p.pos === 'FWD' && counts.FWD < 2) { team.push(p); counts.FWD++; }
+            }
+
+            const rows = { 
+                gk: team.filter(p => p.pos === 'GK'),
+                def: team.filter(p => p.pos === 'DEF'),
+                mid: team.filter(p => p.pos === 'MID'),
+                fwd: team.filter(p => p.pos === 'FWD')
+            };
+
+            Object.keys(rows).forEach(rowKey => {
+                const playersInRow = rows[rowKey];
+                playersInRow.forEach((p, i) => {
+                    const left = (100 / (playersInRow.length + 1)) * (i + 1);
+                    const isMe = currentUser && p.owners.includes(currentUser);
+                    const el = document.createElement('div');
+                    el.className = `totw-player row-${rowKey}`;
+                    el.style.left = `${left}%`;
+                    el.innerHTML = `
+                        <div class="totw-card ${isMe ? 'owned-by-me' : ''}">
+                            <span class="totw-name">${p.name}</span>
+                            <span class="totw-pts">${p[key]} PTS</span>
+                        </div>
+                    `;
+                    pitch.appendChild(el);
+                });
+            });
+        }
+
+        window.onload = loadData;
+    </script>
 </body>
 </html>
