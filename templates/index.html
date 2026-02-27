@@ -1,285 +1,511 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UCL Fantasy Pro Hub - LIVE</title>
-    <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #cbd5e1; --highlight: #f97316; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; text-align: center; }
-        
-        /* Navigatie & Selectoare */
-        .nav-container { background: var(--card); padding: 15px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin: 0 auto 30px auto; border: 1px solid #334155; width: 92%; max-width: 1400px; box-sizing: border-box; }
-        .user-select-container { text-align: left; min-width: 180px; }
-        .user-dropdown { background: linear-gradient(145deg, #1e293b, #0f172a); color: var(--accent); border: 1px solid #334155; padding: 10px; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; }
-        .tab-btn { background: #334155; color: #94a3b8; border: none; padding: 10px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; margin: 0 5px; transition: 0.3s; }
-        .tab-btn.active { background: var(--accent); color: #0f172a; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
-        .sub-btn { background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 8px 18px; border-radius: 20px; cursor: pointer; margin: 5px; font-size: 0.9em; }
-        .sub-btn.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>UCL Fantasy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #0a0e1a;
+  --surface:  #111827;
+  --card:     #1a2235;
+  --border:   rgba(255,255,255,0.07);
+  --accent:   #3b82f6;
+  --fire:     #f97316;
+  --gold:     #f59e0b;
+  --text:     #f1f5f9;
+  --muted:    #64748b;
+  --subtle:   #1e293b;
+  --gk:       #f59e0b;
+  --def:      #22c55e;
+  --mid:      #3b82f6;
+  --fwd:      #ef4444;
+  --r: 10px;
+  --r-sm: 7px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; font-size: 14px; }
 
-        /* Containere si Carduri */
-        .container { display: none; width: 95%; max-width: 1400px; margin: 0 auto; }
-        .container.active { display: block; }
-        .card { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid #334155; margin-bottom: 20px; }
-        .grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 200; }
+.logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text); white-space: nowrap; }
+.logo span { color: var(--accent); }
+.mgr-wrap { flex: 1; position: relative; }
+.mgr-wrap::after { content: '▾'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 11px; pointer-events: none; }
+.mgr-sel { width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: var(--r-sm); padding: 8px 28px 8px 10px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; appearance: none; }
+.ref-btn { background: var(--accent); color: #fff; border: none; border-radius: var(--r-sm); padding: 8px 13px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px; transition: opacity .2s; }
+.ref-btn:active { opacity: .7; }
+.ref-btn.loading { opacity: .5; pointer-events: none; }
+.last-upd { background: var(--surface); border-bottom: 1px solid var(--border); padding: 5px 14px; font-size: 11px; color: var(--muted); }
 
-        /* Tabele */
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px; border-bottom: 1px solid #334155; text-align: center; }
-        th { background: #162030; color: #94a3b8; text-transform: uppercase; font-size: 0.85em; cursor: pointer; }
-        .highlight-user { background: rgba(56, 189, 248, 0.1) !important; }
-        
-        /* Teren Fotbal (TOTW) */
-        .pitch-container { position: relative; width: 100%; height: 580px; background-color: #15803d; border: 3px solid white; border-radius: 12px; overflow: hidden; background-image: repeating-linear-gradient(0deg, #166534, #166534 60px, #15803d 60px, #15803d 120px); margin-top: 10px; }
-        .pitch-line { position: absolute; border: 1.5px solid rgba(255,255,255,0.5); }
-        .mid-circle { top: 50%; left: 50%; width: 100px; height: 100px; border-radius: 50%; transform: translate(-50%, -50%); }
-        .mid-line { top: 50%; left: 0; width: 100%; height: 0; }
-        
-        /* Carduri Jucatori pe Teren */
-        .totw-player { position: absolute; width: 90px; transform: translate(-50%, -50%); text-align: center; z-index: 10; }
-        .totw-card { background: #1e293b; padding: 6px; border-radius: 6px; border: 2px solid var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .totw-card.owned-by-me { border-color: var(--highlight); box-shadow: 0 0 15px rgba(249, 115, 22, 0.6); background: linear-gradient(145deg, #ea580c, #9a3412); }
-        .totw-name { font-weight: bold; font-size: 0.75em; color: white; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .totw-pts { background: var(--accent); color: #0f172a; font-weight: 800; font-size: 0.85em; padding: 1px 5px; border-radius: 4px; }
-        
-        /* Pozitii pe teren */
-        .row-fwd { bottom: 80%; } .row-mid { bottom: 55%; } .row-def { bottom: 30%; } .row-gk { bottom: 8%; }
+.md-bar { display: flex; gap: 6px; padding: 10px 14px; overflow-x: auto; scrollbar-width: none; background: var(--surface); border-bottom: 1px solid var(--border); }
+.md-bar::-webkit-scrollbar { display: none; }
+.md-pill { padding: 5px 11px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s; white-space: nowrap; }
+.md-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-        /* Badge-uri Puncte */
-        .badge { padding: 4px 10px; border-radius: 5px; font-weight: bold; font-size: 0.8em; }
-        .pk-green { background: #22c55e; color: #052e16; }
-        .pk-orange { background: #f97316; color: white; }
-        .pos-badge { font-size: 0.7em; padding: 3px 6px; border-radius: 3px; color: white; margin-right: 5px; font-weight: bold; }
-        .pos-GK { background: #a855f7; } .pos-DEF { background: #22c55e; } .pos-MID { background: #3b82f6; } .pos-FWD { background: #ef4444; }
+.tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); }
+.tab { flex: 1; padding: 11px 4px; font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer; text-align: center; border-bottom: 2px solid transparent; transition: .15s; white-space: nowrap; }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* Loading Spinner */
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
+.view { display: none; }
+.view.active { display: block; }
+
+/* BADGES */
+.pos-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 700; min-width: 30px; }
+.pos-GK  { background: rgba(245,158,11,.2); color: var(--gk); }
+.pos-DEF { background: rgba(34,197,94,.2);  color: var(--def); }
+.pos-MID { background: rgba(59,130,246,.2); color: var(--mid); }
+.pos-FWD { background: rgba(239,68,68,.2);  color: var(--fwd); }
+.pct-badge { display: inline-flex; align-items: center; justify-content: center; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: 700; min-width: 46px; }
+.pct-100 { background: #dc2626; color: #fff; }
+.pct-hi  { background: #f97316; color: #fff; }
+.pct-mid { background: #eab308; color: #000; }
+.pct-lo  { background: rgba(59,130,246,.25); color: #93c5fd; }
+.pct-zero { background: var(--subtle); color: var(--muted); }
+.g-badge { display: inline-flex; align-items: center; justify-content: center; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: 600; min-width: 46px; background: rgba(34,197,94,.15); color: #4ade80; }
+.g-badge.hi { background: rgba(59,130,246,.18); color: #93c5fd; }
+.fire-label { font-size: 10px; background: rgba(249,115,22,.2); color: var(--fire); padding: 1px 5px; border-radius: 4px; font-weight: 700; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.s-A { background: var(--def); }
+.s-I,.s-D { background: var(--fwd); }
+.s-PQ { background: var(--gold); }
+
+/* CLASAMENT */
+.rank-list { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.rank-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.rank-card.is-me { border-color: rgba(59,130,246,.4); background: rgba(59,130,246,.06); }
+.rank-num { font-size: 18px; width: 26px; text-align: center; flex-shrink: 0; }
+.rank-info { flex: 1; min-width: 0; }
+.rank-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank-sub { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank-pts-md { font-size: 20px; font-weight: 800; color: var(--accent); line-height: 1; text-align: right; }
+.rank-pts-ov { font-size: 11px; color: var(--muted); text-align: right; margin-top: 2px; }
+
+/* SCOUTING */
+.scout-sticky { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; position: sticky; top: 95px; background: var(--bg); z-index: 10; border-bottom: 1px solid var(--border); }
+.search-inp { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: var(--r-sm); padding: 9px 13px; font-family: 'Inter', sans-serif; font-size: 14px; width: 100%; }
+.search-inp::placeholder { color: var(--muted); }
+.search-inp:focus { outline: none; border-color: var(--accent); }
+.chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: .15s; }
+.chip.active { color: #fff; border-color: transparent; }
+.cALL.active { background: var(--accent); }
+.cGK.active  { background: var(--gk); color: #000; }
+.cDEF.active { background: var(--def); color: #000; }
+.cMID.active { background: var(--mid); }
+.cFWD.active { background: var(--fwd); }
+.mgr-chip { padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: .15s; }
+.mgr-chip.on { background: var(--subtle); color: var(--text); border-color: rgba(255,255,255,.2); }
+.mgr-chip.on.me { border-color: var(--fire); color: var(--fire); }
+
+.scout-body { padding: 0 14px 80px; }
+.scout-thead { display: grid; grid-template-columns: 1fr 52px 52px 52px 52px 72px; gap: 4px; padding: 8px 0 6px; border-bottom: 1px solid var(--border); }
+.sth { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; text-align: center; cursor: pointer; user-select: none; }
+.sth:first-child { text-align: left; }
+.sth.on { color: var(--accent); }
+.scout-row { display: grid; grid-template-columns: 1fr 52px 52px 52px 52px 72px; gap: 4px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04); align-items: center; cursor: pointer; }
+.s-player { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.s-pinfo { min-width: 0; }
+.s-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-sub { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 4px; margin-top: 1px; }
+.s-cell { text-align: center; font-size: 13px; font-weight: 600; }
+.s-pts { color: var(--accent); font-size: 15px; font-weight: 700; }
+.dots-wrap { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
+.dot { width: 7px; height: 7px; border-radius: 50%; }
+.dot-me { background: var(--fire); }
+.dot-other { background: var(--accent); opacity: .7; }
+.dot-empty { background: var(--border); }
+
+/* TOTW */
+.totw-wrap { padding: 12px 14px 80px; }
+.pitch { background: linear-gradient(180deg,#0e3016 0%,#103a18 50%,#0e3016 100%); border-radius: var(--r); padding: 12px 8px; position: relative; overflow: hidden; }
+.pitch-overlay { position: absolute; inset: 0; pointer-events: none; }
+.p-line { position: absolute; left: 8%; right: 8%; height: 1px; background: rgba(255,255,255,.1); }
+.p-circle { position: absolute; left: 50%; transform: translateX(-50%); border-radius: 50%; border: 1px solid rgba(255,255,255,.1); }
+.pitch-row { display: flex; justify-content: space-around; padding: 5px 0; }
+.ppin { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 56px; cursor: pointer; }
+.ppin-c { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,.2); font-size: 9px; font-weight: 700; position: relative; }
+.ppin-c.pos-GK  { background: rgba(245,158,11,.35); border-color: var(--gk); }
+.ppin-c.pos-DEF { background: rgba(34,197,94,.3);   border-color: var(--def); }
+.ppin-c.pos-MID { background: rgba(59,130,246,.3);  border-color: var(--mid); }
+.ppin-c.pos-FWD { background: rgba(239,68,68,.3);   border-color: var(--fwd); }
+.ppin-c.mine { border-color: var(--fire) !important; box-shadow: 0 0 14px rgba(249,115,22,.5); }
+.ppin-n { font-size: 10px; font-weight: 600; text-align: center; max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ppin-p { font-size: 11px; font-weight: 700; color: var(--gold); }
+.ppin-p.mine { color: var(--fire); }
+.cap-m { position: absolute; top: -3px; left: -3px; background: var(--gold); color: #000; border-radius: 50%; width: 14px; height: 14px; font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.mom-m { position: absolute; top: -3px; right: -3px; font-size: 9px; }
+
+.totw-list { margin-top: 10px; display: flex; flex-direction: column; gap: 2px; }
+.totw-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--card); border-radius: var(--r-sm); cursor: pointer; }
+.totw-item.mine { border-left: 3px solid var(--fire); }
+.t-info { flex: 1; min-width: 0; }
+.t-name { font-weight: 600; font-size: 13px; }
+.t-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.t-pts { font-weight: 700; font-size: 15px; }
+.totw-item.mine .t-pts { color: var(--fire); }
+.totw-item:not(.mine) .t-pts { color: var(--accent); }
+
+/* MODAL */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 300; align-items: flex-end; }
+.overlay.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px 16px 0 0; padding: 20px 16px; width: 100%; max-height: 75vh; overflow-y: auto; }
+.m-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+.m-name { font-size: 18px; font-weight: 800; margin-bottom: 3px; }
+.m-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.stat-box { background: var(--card); border-radius: var(--r-sm); padding: 10px; text-align: center; }
+.stat-v { font-size: 20px; font-weight: 800; color: var(--accent); line-height: 1; }
+.stat-v.fire { color: var(--fire); }
+.stat-l { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.srow { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.srow:last-child { border: none; }
+.srow b { font-weight: 700; }
+.owned-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.owned-chip { background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 3px 8px; font-size: 11px; font-weight: 600; }
+.sec-lbl { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; padding: 10px 0 5px; }
+
+.spin-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 12px; color: var(--muted); font-size: 13px; }
+.spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
-    <div id="loader"><div class="spinner"></div></div>
 
-    <div class="nav-container">
-        <div class="user-select-container">
-            <span style="font-size: 0.7em; color: #94a3b8; font-weight: bold;">CINE EȘTI?</span>
-            <select id="user-dropdown" class="user-dropdown" onchange="updateUser(this.value)">
-                <option value="">Alege manager...</option>
-            </select>
-        </div>
-        <div>
-            <div style="margin-bottom: 8px;">
-                <button class="tab-btn active" onclick="changeMD(10, this)">MD 10</button>
-                <button class="tab-btn" onclick="changeMD(9, this)">MD 9</button>
-            </div>
-            <div>
-                <button class="sub-btn active" onclick="setView('INTERN', this)">🏠 INTERN</button>
-                <button class="sub-btn" onclick="setView('GLOBAL', this)">🌍 GLOBAL</button>
-                <button class="sub-btn" onclick="setView('TOTW', this)">👕 TOTW</button>
-            </div>
-        </div>
-        <div style="min-width: 180px; text-align: right;">
-            <button onclick="refreshData()" style="background: none; border: 1px solid #334155; color: #94a3b8; padding: 8px; border-radius: 5px; cursor: pointer;">🔄 Refresh</button>
-        </div>
+<div class="header">
+  <div class="logo">UCL <span>Fantasy</span></div>
+  <div class="mgr-wrap">
+    <select class="mgr-sel" id="mgrSel"></select>
+  </div>
+  <button class="ref-btn" id="refBtn" onclick="doRefresh()">↻ Refresh</button>
+</div>
+<div class="last-upd" id="lastUpd">Se încarcă...</div>
+<div class="md-bar" id="mdBar"></div>
+
+<div class="tabs">
+  <div class="tab active" onclick="goTab('clasament')">🏆 Clasament</div>
+  <div class="tab" onclick="goTab('scouting')">🔍 Scouting</div>
+  <div class="tab" onclick="goTab('totw-intern')">⚡ TOTW Intern</div>
+  <div class="tab" onclick="goTab('totw-global')">🌍 TOTW Global</div>
+</div>
+
+<div class="view active" id="view-clasament">
+  <div class="rank-list" id="rankList"><div class="spin-wrap"><div class="spinner"></div>Se încarcă...</div></div>
+</div>
+
+<div class="view" id="view-scouting">
+  <div class="scout-sticky">
+    <input class="search-inp" id="scoutQ" placeholder="🔍  Caută jucător sau echipă..." oninput="renderScouting()"/>
+    <div class="chips" id="posChips">
+      <div class="chip cALL active" data-pos="ALL" onclick="setPos(this)">Toți</div>
+      <div class="chip cGK"  data-pos="GK"  onclick="setPos(this)">GK</div>
+      <div class="chip cDEF" data-pos="DEF" onclick="setPos(this)">DEF</div>
+      <div class="chip cMID" data-pos="MID" onclick="setPos(this)">MID</div>
+      <div class="chip cFWD" data-pos="FWD" onclick="setPos(this)">FWD</div>
     </div>
+    <div class="chips" id="mgrChips"></div>
+  </div>
+  <div class="scout-body">
+    <div class="scout-thead">
+      <div class="sth" onclick="setSort('name')">Jucător</div>
+      <div class="sth" id="h-totPts" onclick="setSort('totPts')">Pts</div>
+      <div class="sth" id="h-curGDPts" onclick="setSort('curGDPts')">MD</div>
+      <div class="sth" id="h-selPer" onclick="setSort('selPer')">Global%</div>
+      <div class="sth" id="h-localOwnership" onclick="setSort('localOwnership')">Local%</div>
+      <div class="sth">Owners</div>
+    </div>
+    <div id="scoutList"></div>
+  </div>
+</div>
 
-    <div id="content-area"></div>
+<div class="view" id="view-totw-intern">
+  <div class="totw-wrap" id="twIntern"><div class="spin-wrap"><div class="spinner"></div>Se încarcă...</div></div>
+</div>
 
-    <script>
-        let rawData = null;
-        let currentMD = 10;
-        let currentView = 'INTERN';
-        let currentUser = localStorage.getItem('selectedUser') || '';
+<div class="view" id="view-totw-global">
+  <div class="totw-wrap" id="twGlobal"><div class="spin-wrap"><div class="spinner"></div>Se încarcă...</div></div>
+</div>
 
-        async function loadData() {
-            document.getElementById('loader').style.display = 'flex';
-            try {
-                const response = await fetch(`/api/data?md=${currentMD}`);
-                rawData = await response.json();
-                populateDropdown();
-                render();
-            } catch (e) {
-                console.error("Eroare la incarcare:", e);
-            }
-            document.getElementById('loader').style.display = 'none';
-        }
+<div class="overlay" id="overlay" onclick="closeOv(event)">
+  <div class="modal" id="modal"></div>
+</div>
 
-        function populateDropdown() {
-            const select = document.getElementById('user-dropdown');
-            select.innerHTML = '<option value="">Alege manager...</option>';
-            rawData.managers.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m; opt.textContent = m;
-                if(m === currentUser) opt.selected = true;
-                select.appendChild(opt);
-            });
-        }
+<script>
+let D=null, MD=10, meGuid=null, curTab='clasament';
+let posF='ALL', mgrOn=new Set(), sCol='totPts', sDir=-1;
+const cache={};
 
-        function updateUser(val) {
-            currentUser = val;
-            localStorage.setItem('selectedUser', val);
-            render();
-        }
+window.onload=()=>load(10);
 
-        function changeMD(md, btn) {
-            currentMD = md;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            loadData();
-        }
+async function load(md){
+  MD=md;
+  try{
+    const r=await fetch(`/api/data?md=${md}`);
+    D=await r.json();
+    cache[md]=D;
+    buildMdBar(); buildMgrSel(); buildMgrChips(); render();
+    const d=new Date(D.lastUpdated);
+    document.getElementById('lastUpd').textContent='Actualizat: '+d.toLocaleString('ro-RO',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  }catch(e){document.getElementById('lastUpd').textContent='❌ Eroare';}
+}
 
-        function setView(view, btn) {
-            currentView = view;
-            document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            render();
-        }
+async function doRefresh(){
+  const b=document.getElementById('refBtn');
+  b.classList.add('loading'); b.textContent='↻ ...';
+  try{await fetch(`/api/refresh?md=${MD}`,{method:'POST'}); await load(MD);}
+  finally{b.classList.remove('loading'); b.textContent='↻ Refresh';}
+}
 
-        async function refreshData() {
-            await fetch('/api/refresh', { method: 'POST' });
-            loadData();
-        }
+function buildMdBar(){
+  const bar=document.getElementById('mdBar'); bar.innerHTML='';
+  for(let i=1;i<=12;i++){
+    const el=document.createElement('div');
+    el.className='md-pill'+(i===MD?' active':'');
+    el.textContent=`MD${i}`; el.onclick=()=>switchMD(i); bar.appendChild(el);
+  }
+}
+function switchMD(md){
+  if(md===MD)return;
+  document.querySelectorAll('.md-pill').forEach((p,i)=>p.classList.toggle('active',i+1===md));
+  if(cache[md]){D=cache[md];MD=md;render();}else load(md);
+}
 
-        function render() {
-            if(!rawData) return;
-            const area = document.getElementById('content-area');
-            
-            if(currentView === 'INTERN') {
-                renderIntern(area);
-            } else if(currentView === 'GLOBAL') {
-                renderGlobal(area);
-            } else {
-                renderTOTW(area);
-            }
-        }
+function buildMgrSel(){
+  const s=document.getElementById('mgrSel'); s.innerHTML='';
+  D.managers.forEach(m=>{const o=document.createElement('option');o.value=m.guid;o.textContent=`${m.username} — ${m.teamName}`;s.appendChild(o);});
+  if(!meGuid){const edu=D.managers.find(m=>m.username==='Eduard');meGuid=edu?edu.guid:D.managers[0].guid;}
+  s.value=meGuid;
+  s.onchange=()=>{meGuid=s.value;render();};
+}
+function me(){return D.managers.find(m=>m.guid===meGuid)||D.managers[0];}
+function myIds(){return new Set((me()?.players||[]).map(p=>p.id));}
 
-        function renderIntern(area) {
-            const liveRank = [...rawData.live_ranking].sort((a,b) => b.Scor - a.Scor);
-            const overRank = [...rawData.overall_ranking].sort((a,b) => b.Total - a.Total);
-            
-            area.innerHTML = `
-                <div class="container active">
-                    <div class="grid-top">
-                        <div class="card">
-                            <h3>🔥 Manager of the Day</h3>
-                            <table>
-                                <tr><th>Antrenor</th><th>Puncte</th></tr>
-                                ${liveRank.map(r => `<tr class="${r.Antrenor === currentUser ? 'highlight-user' : ''}"><td>${r.Antrenor}</td><td><b>${r.Scor}</b></td></tr>`).join('')}
-                            </table>
-                        </div>
-                        <div class="card">
-                            <h3>🏆 Clasament General</h3>
-                            <table>
-                                <tr><th>Pos</th><th>Antrenor</th><th>Total</th></tr>
-                                ${overRank.map((r, i) => `<tr class="${r.Antrenor === currentUser ? 'highlight-user' : ''}"><td>${i+1}</td><td>${r.Antrenor}</td><td><b>${r.Total}</b></td></tr>`).join('')}
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+function buildMgrChips(){
+  const c=document.getElementById('mgrChips'); c.innerHTML='';
+  mgrOn=new Set(D.managers.map(m=>m.username));
+  D.managers.forEach(m=>{
+    const isMe=m.guid===meGuid;
+    const el=document.createElement('div');
+    el.className=`mgr-chip on${isMe?' me':''}`;
+    el.dataset.mgr=m.username; el.textContent=m.username;
+    el.onclick=()=>{
+      el.classList.toggle('on');
+      mgrOn[el.classList.contains('on')?'add':'delete'](m.username);
+      renderScouting();
+    };
+    c.appendChild(el);
+  });
+}
 
-        function renderGlobal(area) {
-            area.innerHTML = `
-                <div class="container active">
-                    <div class="card">
-                        <h3>🔍 Scouting Database</h3>
-                        <table>
-                            <thead>
-                                <tr><th>Jucător</th><th>Poz</th><th>Echipă</th><th>Puncte</th><th>Local %</th><th>Manageri</th></tr>
-                            </thead>
-                            <tbody>
-                                ${rawData.players.sort((a,b) => b.points - a.points).slice(0, 50).map(p => {
-                                    const locPk = Math.round((p.owners.length / rawData.managers.length) * 100);
-                                    const isOwned = currentUser && p.owners.includes(currentUser);
-                                    return `<tr class="${isOwned ? 'highlight-user' : ''}">
-                                        <td style="text-align:left"><span class="pos-badge pos-${p.pos}">${p.pos}</span><b>${p.name}</b></td>
-                                        <td>${p.pos}</td>
-                                        <td>${p.team}</td>
-                                        <td><b>${p.points}</b></td>
-                                        <td><span class="badge ${locPk > 30 ? 'pk-orange' : 'pk-green'}">${locPk}%</span></td>
-                                        <td style="font-size:0.8em">${p.owners.join(', ')}</td>
-                                    </tr>`;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-        }
+function goTab(t){
+  curTab=t;
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['clasament','scouting','totw-intern','totw-global'][i]===t));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(`view-${t}`).classList.add('active');
+  render();
+}
 
-        function renderTOTW(area) {
-            area.innerHTML = `
-                <div class="container active">
-                    <div class="totw-layout" style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap">
-                        <div style="flex:1; min-width:400px; max-width:600px">
-                            <h3>🏠 Our League TOTW</h3>
-                            <div class="pitch-container" id="pitch-internal"></div>
-                        </div>
-                        <div style="flex:1; min-width:400px; max-width:600px">
-                            <h3>🌍 Global TOTW</h3>
-                            <div class="pitch-container" id="pitch-global"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            drawPitch(rawData.players, 'points', 'pitch-internal');
-            // Nota: Punctele globale sunt tot 'points' dar luate dintr-un pool mai mare daca am avea
-            drawPitch(rawData.players, 'points', 'pitch-global');
-        }
+function render(){
+  if(!D)return;
+  if(curTab==='clasament')renderClasament();
+  else if(curTab==='scouting')renderScouting();
+  else if(curTab==='totw-intern')renderTotwI();
+  else if(curTab==='totw-global')renderTotwG();
+}
 
-        function drawPitch(players, key, containerId) {
-            const pitch = document.getElementById(containerId);
-            pitch.innerHTML = '<div class="pitch-line mid-line"></div><div class="pitch-line mid-circle"></div>';
-            
-            // Logica selectie TOTW (Tiebreaker: favorizeaza jucatorul lui currentUser)
-            const sorted = [...players].sort((a, b) => {
-                if(b[key] !== a[key]) return b[key] - a[key];
-                const aOwn = currentUser && a.owners.includes(currentUser);
-                const bOwn = currentUser && b.owners.includes(currentUser);
-                return bOwn - aOwn;
-            });
+// ── CLASAMENT ──
+function renderClasament(){
+  const sorted=[...D.managers].sort((a,b)=>b.ovPoints-a.ovPoints);
+  const el=document.getElementById('rankList'); el.innerHTML='';
+  sorted.forEach((m,i)=>{
+    const rank=i+1;
+    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
+    const div=document.createElement('div');
+    div.className='rank-card'+(m.guid===meGuid?' is-me':'');
+    div.innerHTML=`<div class="rank-num">${medal}</div>
+      <div class="rank-info">
+        <div class="rank-name">${m.username}${m.guid===meGuid?' 👑':''}</div>
+        <div class="rank-sub">${m.teamName} · #${(m.ovRank||0).toLocaleString()} global</div>
+      </div>
+      <div><div class="rank-pts-md">${m.gdPoints}</div><div class="rank-pts-ov">${m.ovPoints} tot</div></div>`;
+    div.onclick=()=>showMgrModal(m.guid);
+    el.appendChild(div);
+  });
+}
 
-            let team = [], counts = { GK:0, DEF:0, MID:0, FWD:0 };
-            
-            // Selector 1-4-4-2 sau similar
-            for(let p of sorted) {
-                if(team.length >= 11) break;
-                if(p.pos === 'GK' && counts.GK < 1) { team.push(p); counts.GK++; }
-                else if(p.pos === 'DEF' && counts.DEF < 4) { team.push(p); counts.DEF++; }
-                else if(p.pos === 'MID' && counts.MID < 4) { team.push(p); counts.MID++; }
-                else if(p.pos === 'FWD' && counts.FWD < 2) { team.push(p); counts.FWD++; }
-            }
+function showMgrModal(guid){
+  const m=D.managers.find(x=>x.guid===guid);
+  const st=m.players.filter(p=>p.isStarter).sort((a,b)=>({GK:0,DEF:1,MID:2,FWD:3}[a.posCode]||0)-({GK:0,DEF:1,MID:2,FWD:3}[b.posCode]||0));
+  const bn=m.players.filter(p=>!p.isStarter).sort((a,b)=>a.benchPosition-b.benchPosition);
+  let h=`<div class="m-handle"></div><div class="m-name">${m.username}</div><div class="m-sub">${m.teamName}</div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-v">${m.gdPoints}</div><div class="stat-l">MD${MD} Pts</div></div>
+      <div class="stat-box"><div class="stat-v">${m.ovPoints}</div><div class="stat-l">Total Pts</div></div>
+      <div class="stat-box"><div class="stat-v" style="font-size:15px">#${(m.ovRank||0).toLocaleString()}</div><div class="stat-l">Rank Global</div></div>
+    </div><div class="sec-lbl">Titulari</div>`;
+  st.forEach(p=>{h+=`<div class="srow"><div><span class="pos-badge pos-${p.posCode}">${p.posCode}</span> <b>${p.name}</b>${p.isCaptain?' <span style="color:var(--gold)">(C)</span>':''}<br><span style="font-size:11px;color:var(--muted)">${p.team}</span></div><div style="font-weight:700;color:var(--accent)">${p.mdPoints}</div></div>`;});
+  h+=`<div class="sec-lbl" style="margin-top:8px">Bancă</div>`;
+  bn.forEach(p=>{h+=`<div class="srow" style="opacity:.55"><div><span class="pos-badge pos-${p.posCode}">${p.posCode}</span> ${p.name}<br><span style="font-size:11px;color:var(--muted)">${p.team}</span></div><div style="font-weight:700">${p.mdPoints}</div></div>`;});
+  document.getElementById('modal').innerHTML=h;
+  document.getElementById('overlay').classList.add('open');
+}
 
-            const rows = { 
-                gk: team.filter(p => p.pos === 'GK'),
-                def: team.filter(p => p.pos === 'DEF'),
-                mid: team.filter(p => p.pos === 'MID'),
-                fwd: team.filter(p => p.pos === 'FWD')
-            };
+// ── SCOUTING ──
+function setPos(el){
+  document.querySelectorAll('#posChips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active'); posF=el.dataset.pos; renderScouting();
+}
+function setSort(col){
+  if(sCol===col)sDir*=-1;else{sCol=col;sDir=-1;}
+  document.querySelectorAll('[id^="h-"]').forEach(e=>e.classList.remove('on'));
+  const h=document.getElementById(`h-${col}`); if(h)h.classList.add('on');
+  renderScouting();
+}
+function pctCls(p){if(p===100)return'pct-100';if(p>=60)return'pct-hi';if(p>=30)return'pct-mid';if(p>0)return'pct-lo';return'pct-zero';}
 
-            Object.keys(rows).forEach(rowKey => {
-                const playersInRow = rows[rowKey];
-                playersInRow.forEach((p, i) => {
-                    const left = (100 / (playersInRow.length + 1)) * (i + 1);
-                    const isMe = currentUser && p.owners.includes(currentUser);
-                    const el = document.createElement('div');
-                    el.className = `totw-player row-${rowKey}`;
-                    el.style.left = `${left}%`;
-                    el.innerHTML = `
-                        <div class="totw-card ${isMe ? 'owned-by-me' : ''}">
-                            <span class="totw-name">${p.name}</span>
-                            <span class="totw-pts">${p[key]} PTS</span>
-                        </div>
-                    `;
-                    pitch.appendChild(el);
-                });
-            });
-        }
+function renderScouting(){
+  if(!D)return;
+  const q=(document.getElementById('scoutQ')?.value||'').toLowerCase();
+  const ids=myIds(); const n=Math.max(mgrOn.size,1);
+  let ps=D.allPlayers.map(p=>{
+    const fo=(p.ownedBy||[]).filter(x=>mgrOn.has(x));
+    return{...p,fL:fo.length,fP:Math.round(fo.length/n*100),fo,isMine:ids.has(p.id)};
+  });
+  if(posF!=='ALL')ps=ps.filter(p=>p.posCode===posF);
+  if(q)ps=ps.filter(p=>p.name.toLowerCase().includes(q)||(p.fullName||'').toLowerCase().includes(q)||p.team.toLowerCase().includes(q));
+  ps.sort((a,b)=>{
+    const av=sCol==='localOwnership'?a.fL:(a[sCol]??0);
+    const bv=sCol==='localOwnership'?b.fL:(b[sCol]??0);
+    return sDir*((typeof av==='string')?av.localeCompare(bv):bv-av);
+  });
+  const mgrList=D.managers.filter(m=>mgrOn.has(m.username));
+  const el=document.getElementById('scoutList');
+  if(!ps.length){el.innerHTML='<div class="spin-wrap" style="padding:30px">Niciun jucător</div>';return;}
+  el.innerHTML=ps.slice(0,200).map(p=>{
+    const gCls=p.selPer>=20?'g-badge hi':'g-badge';
+    const dots=mgrList.map(m=>{
+      const o=(p.ownedBy||[]).includes(m.username);
+      return`<span class="dot ${o?(m.guid===meGuid?'dot-me':'dot-other'):'dot-empty'}" title="${m.username}"></span>`;
+    }).join('');
+    return`<div class="scout-row" onclick="showP(${p.id})">
+      <div class="s-player"><span class="pos-badge pos-${p.posCode}">${p.posCode}</span>
+        <div class="s-pinfo">
+          <div class="s-name">${p.name}${p.isMine?' <span class="fire-label">🔥</span>':''}</div>
+          <div class="s-sub"><span class="status-dot s-${p.status||'A'}"></span>${p.team}</div>
+        </div>
+      </div>
+      <div class="s-cell s-pts">${p.totPts}</div>
+      <div class="s-cell" style="color:var(--muted)">${p.curGDPts||'-'}</div>
+      <div class="s-cell"><span class="${gCls}">${p.selPer}%</span></div>
+      <div class="s-cell"><span class="pct-badge ${pctCls(p.fP)}">${p.fP}%</span></div>
+      <div class="s-cell"><div class="dots-wrap">${dots}</div></div>
+    </div>`;
+  }).join('');
+}
 
-        window.onload = loadData;
-    </script>
+// ── TOTW ──
+function pickXI(players){
+  const slots={GK:1,DEF:4,MID:3,FWD:3};
+  const byPos={GK:[],DEF:[],MID:[],FWD:[]};
+  players.forEach(p=>{if(byPos[p.posCode])byPos[p.posCode].push(p);});
+  const res=[];
+  Object.entries(slots).forEach(([pos,n])=>{
+    const sorted=[...(byPos[pos]||[])].sort((a,b)=>{
+      if(b.mdPoints!==a.mdPoints)return b.mdPoints-a.mdPoints;
+      const ap=a.managerGuid===meGuid||(a.ownedBy||[]).includes(me()?.username)?1:0;
+      const bp=b.managerGuid===meGuid||(b.ownedBy||[]).includes(me()?.username)?1:0;
+      return bp-ap;
+    });
+    res.push(...sorted.slice(0,n));
+  });
+  return res;
+}
+
+function renderTotwI(){
+  const pMap={};
+  D.managers.forEach(m=>m.players.filter(p=>p.isStarter).forEach(p=>{
+    const k=p.id;
+    if(!pMap[k]||p.mdPoints>pMap[k].mdPoints||(p.mdPoints===pMap[k].mdPoints&&m.guid===meGuid))pMap[k]={...p};
+  }));
+  document.getElementById('twIntern').innerHTML=buildPitch(pickXI(Object.values(pMap)));
+}
+
+function renderTotwG(){
+  const ids=myIds();
+  const ps=D.allPlayers.map(p=>({...p,mdPoints:p.curGDPts||0,isStarter:true,isMine:ids.has(p.id),managerGuid:ids.has(p.id)?meGuid:null}));
+  document.getElementById('twGlobal').innerHTML=buildPitch(pickXI(ps));
+}
+
+function buildPitch(xi){
+  const ids=myIds();
+  const bp={GK:[],DEF:[],MID:[],FWD:[]};
+  xi.forEach(p=>{if(bp[p.posCode])bp[p.posCode].push(p);});
+  let h=`<div class="pitch">
+    <div class="pitch-overlay">
+      <div class="p-line" style="top:22%"></div><div class="p-line" style="top:50%"></div><div class="p-line" style="top:78%"></div>
+      <div class="p-circle" style="top:42%;width:76px;height:76px;margin-top:-38px;margin-left:-38px;left:50%"></div>
+    </div>`;
+  [bp.FWD,bp.MID,bp.DEF,bp.GK].forEach(row=>{
+    h+=`<div class="pitch-row">`;
+    row.forEach(p=>{
+      const mine=ids.has(p.id);
+      h+=`<div class="ppin" onclick="showP(${p.id})">
+        <div class="ppin-c pos-${p.posCode}${mine?' mine':''}">
+          ${p.isCaptain?'<span class="cap-m">C</span>':''}
+          ${p.momFlag?'<span class="mom-m">⭐</span>':''}
+          ${p.teamCode||p.posCode}
+        </div>
+        <div class="ppin-n">${p.name}</div>
+        <div class="ppin-p${mine?' mine':''}">${p.mdPoints}p</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  });
+  h+=`</div><div class="totw-list">`;
+  ['GK','DEF','MID','FWD'].forEach(pos=>(bp[pos]||[]).forEach(p=>{
+    const mine=ids.has(p.id);
+    h+=`<div class="totw-item${mine?' mine':''}" onclick="showP(${p.id})">
+      <span class="pos-badge pos-${p.posCode}">${p.posCode}</span>
+      <div class="t-info"><div class="t-name">${p.name}${mine?' <span class="fire-label">🔥</span>':''}</div>
+        <div class="t-sub">${p.team}${p.isCaptain?' · (C)':''}</div></div>
+      <div class="t-pts">${p.mdPoints}</div>
+    </div>`;
+  }));
+  h+=`</div>`;
+  return h;
+}
+
+// ── PLAYER MODAL ──
+function showP(id){
+  const p=D.allPlayers.find(x=>x.id===id); if(!p)return;
+  const mine=myIds().has(id);
+  let mdPts=p.curGDPts||0;
+  D.managers.forEach(m=>{const mp=m.players.find(x=>x.id===id);if(mp)mdPts=Math.max(mdPts,mp.mdPoints);});
+  const sm={A:'✅ Disponibil',I:'🤕 Accidentat',D:'🚫 Suspendat',PQ:'❓ Incert'};
+  const chips=(p.ownedBy||[]).length?(p.ownedBy||[]).map(n=>`<span class="owned-chip">${n}</span>`).join(''):`<span style="color:var(--muted);font-size:12px">Nimeni din ligă</span>`;
+  document.getElementById('modal').innerHTML=`
+    <div class="m-handle"></div>
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px"><span class="pos-badge pos-${p.posCode}">${p.posCode}</span>${mine?'<span class="fire-label">🔥 Echipa ta</span>':''}</div>
+    <div class="m-name">${p.fullName||p.name}</div>
+    <div class="m-sub">${p.team} · €${p.value}M · ${sm[p.status]||p.status}</div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-v${mine?' fire':''}">${p.totPts}</div><div class="stat-l">Total Pts</div></div>
+      <div class="stat-box"><div class="stat-v">${mdPts}</div><div class="stat-l">MD Pts</div></div>
+      <div class="stat-box"><div class="stat-v">${p.rating||0}</div><div class="stat-l">Rating</div></div>
+    </div>
+    <div class="srow"><span>Goluri</span><b>${p.goals||0}</b></div>
+    <div class="srow"><span>Assist-uri</span><b>${p.assists||0}</b></div>
+    <div class="srow"><span>Clean sheets</span><b>${p.cleanSheets||0}</b></div>
+    <div class="srow"><span>Man of the Match</span><b>${p.momCount||0}x ⭐</b></div>
+    <div class="srow"><span>Cărți galbene</span><b>${p.yellowCards||0}</b></div>
+    <div class="srow"><span>Selecție globală</span><b>${p.selPer}%</b></div>
+    <div class="srow"><span>Selecție ligă</span><b>${p.localPer||0}%</b></div>
+    <div class="sec-lbl">Deținut de</div>
+    <div class="owned-wrap">${chips}</div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeOv(e){if(e.target.id==='overlay')document.getElementById('overlay').classList.remove('open');}
+</script>
 </body>
 </html>
