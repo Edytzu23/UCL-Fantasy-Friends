@@ -7,71 +7,75 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet"/>
 <style>
 :root {
-  --bg:      #07091200;
-  --bg2:     #0a0e1a;
-  --surf:    #0d1220;
-  --card:    #111827;
-  --card2:   #161f30;
-  --border:  rgba(255,255,255,.07);
+  --bg:      #111827;
+  --bg2:     #1a2235;
+  --surf:    #1e2d45;
+  --card:    #243350;
+  --card2:   #2a3c5e;
+  --border:  rgba(255,255,255,.1);
   --accent:  #3b82f6;
   --fire:    #f97316;
   --gold:    #f59e0b;
   --text:    #f1f5f9;
-  --muted:   #64748b;
-  --sub:     #1e293b;
+  --muted:   #7a90b0;
+  --sub:     #2a3c5e;
   --gk:      #f59e0b;
   --def:     #22c55e;
-  --mid:     #3b82f6;
-  --fwd:     #ef4444;
-  --r:       10px;
-  --rsm:     7px;
+  --mid:     #60a5fa;
+  --fwd:     #f87171;
+  --r:       12px;
+  --rsm:     8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg2);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;font-size:14px;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;font-size:14px;}
 
-/* ── HEADER (Variant A structure) ── */
-.hdr{background:var(--surf);border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;}
-.hdr-logo{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.hdr-icon{width:32px;height:32px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
-.hdr-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;line-height:1;}
+/* PAGE WRAPPER — centered content */
+.page{max-width:760px;margin:0 auto;}
+
+/* ── HEADER ── */
+.hdr{background:var(--surf);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;}
+.hdr-logo{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.hdr-icon{width:34px;height:34px;background:linear-gradient(135deg,#1d4ed8,#60a5fa);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.hdr-title{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;line-height:1;}
 .hdr-title em{color:var(--accent);font-style:normal;}
 .hdr-mgr{flex:1;position:relative;}
-.hdr-mgr::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:10px;pointer-events:none;}
-.hdr-sel{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:20px;padding:7px 28px 7px 12px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;appearance:none;}
-.hdr-btn{background:var(--accent);color:#fff;border:none;border-radius:20px;padding:7px 13px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .15s;flex-shrink:0;}
+.hdr-mgr::after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:10px;pointer-events:none;}
+.hdr-sel{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:20px;padding:8px 30px 8px 14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;appearance:none;}
+.hdr-btn{background:var(--accent);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .15s;flex-shrink:0;}
 .hdr-btn:active{opacity:.7;}
 .hdr-btn.loading{opacity:.5;pointer-events:none;}
 
-.upd-bar{background:var(--surf);border-bottom:1px solid var(--border);padding:4px 16px;font-size:11px;color:var(--muted);}
+.upd-bar{background:var(--surf);border-bottom:1px solid var(--border);padding:5px 20px;font-size:11px;color:var(--muted);}
 
 /* MD BAR */
-.md-bar{background:var(--surf);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;}
+.md-bar{background:var(--surf);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
 .md-bar::-webkit-scrollbar{display:none;}
-.md-p{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s;}
-.md-p.on{background:rgba(59,130,246,.2);color:#93c5fd;border-color:rgba(59,130,246,.35);}
+.md-p{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s;}
+.md-p.on{background:rgba(59,130,246,.25);color:#93c5fd;border-color:rgba(59,130,246,.4);}
 
-/* ── TABS (Variant C shape + B orange active) ── */
-.tabs{background:var(--surf);border-bottom:1px solid var(--border);display:flex;gap:4px;padding:6px 10px;}
-.tab{flex:1;padding:7px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;border-radius:var(--rsm);transition:.15s;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
-.tab.on{background:rgba(249,115,22,.18);color:var(--fire);}
+/* TABS */
+.tabs{background:var(--surf);border-bottom:1px solid var(--border);display:flex;gap:5px;padding:8px 20px;}
+.tab{flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;border-radius:var(--rsm);transition:.15s;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
+.tab.on{background:rgba(249,115,22,.2);color:var(--fire);}
 
 /* VIEWS */
 .view{display:none;}
 .view.on{display:block;}
+.inner{padding:16px 20px 80px;}
 
-/* ── SHARED COMPONENTS ── */
-.pos-b{display:inline-flex;align-items:center;justify-content:center;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;min-width:30px;}
+/* ── COMPONENTS ── */
+.pos-b{display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:700;min-width:32px;}
 .pos-GK{background:rgba(245,158,11,.2);color:var(--gk);}
 .pos-DEF{background:rgba(34,197,94,.2);color:var(--def);}
-.pos-MID{background:rgba(59,130,246,.2);color:var(--mid);}
-.pos-FWD{background:rgba(239,68,68,.2);color:var(--fwd);}
-.pct-b{display:inline-flex;align-items:center;justify-content:center;padding:3px 7px;border-radius:5px;font-size:11px;font-weight:700;min-width:42px;}
+.pos-MID{background:rgba(96,165,250,.2);color:var(--mid);}
+.pos-FWD{background:rgba(248,113,113,.2);color:var(--fwd);}
+.pct-b{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;min-width:44px;}
 .p100{background:#dc2626;color:#fff;}
 .phi{background:#f97316;color:#fff;}
 .pmd{background:#eab308;color:#000;}
-.plo{background:rgba(59,130,246,.22);color:#93c5fd;}
-.pz{background:var(--sub);color:var(--muted);}
-.fire-tag{font-size:10px;background:rgba(249,115,22,.18);color:var(--fire);padding:1px 5px;border-radius:4px;font-weight:700;}
+.plo{background:rgba(96,165,250,.25);color:#93c5fd;}
+.pz{background:rgba(255,255,255,.06);color:var(--muted);}
+.fire-tag{font-size:10px;background:rgba(249,115,22,.2);color:var(--fire);padding:1px 6px;border-radius:5px;font-weight:700;}
 .s-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .sa{background:var(--def);}
 .si,.sd{background:var(--fwd);}
@@ -81,61 +85,68 @@ body{background:var(--bg2);color:var(--text);font-family:'Inter',sans-serif;min-
 .spinner{width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* ── CLASAMENT ── */
-.rank-list{padding:12px 14px;display:flex;flex-direction:column;gap:7px;}
-.rank-c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:background .15s;}
-.rank-c:active{background:var(--sub);}
-.rank-c.me{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.05);}
-.rank-num{font-size:18px;width:26px;text-align:center;flex-shrink:0;}
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);}
+
+/* ── CLASAMENT — two columns ── */
+.rank-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rank-col-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;text-align:center;}
+.rank-col-title.fire{color:var(--fire);}
+.rank-col-title.blue{color:var(--accent);}
+.rank-list{display:flex;flex-direction:column;gap:6px;}
+.rank-c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:.15s;}
+.rank-c:active{background:var(--card2);}
+/* highlight selected manager with orange border, no crown */
+.rank-c.me{border-color:var(--fire);box-shadow:0 0 0 1px rgba(249,115,22,.3);}
+.rank-num{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
 .rank-inf{flex:1;min-width:0;}
-.rank-name{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.rank-sub{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.rank-md{font-size:21px;font-weight:900;color:var(--accent);line-height:1;text-align:right;}
-.rank-ov{font-size:11px;color:var(--muted);text-align:right;margin-top:2px;}
+.rank-name{font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-sub{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-md{font-size:18px;font-weight:900;color:var(--accent);line-height:1;text-align:right;}
+.rank-ov{font-size:10px;color:var(--muted);text-align:right;margin-top:1px;}
 
 /* ── ECHIPE MD ── */
-.emd-head{padding:12px 14px 6px;display:flex;align-items:center;justify-content:space-between;}
+.emd-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .emd-title{font-size:12px;font-weight:700;color:var(--muted);}
-.emd-sort{display:flex;gap:5px;}
-.emd-sort-btn{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;}
-.emd-sort-btn.on{background:var(--fire);color:#fff;border-color:var(--fire);}
-.emd-list{padding:0 14px 80px;display:flex;flex-direction:column;}
-.emd-row{display:grid;grid-template-columns:1fr 52px 52px 60px;gap:4px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:center;cursor:pointer;}
-.emd-thead{display:grid;grid-template-columns:1fr 52px 52px 60px;gap:4px;padding:7px 0 5px;border-bottom:1px solid var(--border);}
-.emd-th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;text-align:center;}
+.btn-group{display:flex;gap:5px;}
+.pill-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:.15s;}
+.pill-btn.on{background:var(--fire);color:#fff;border-color:var(--fire);}
+.emd-row{display:grid;grid-template-columns:1fr 50px 50px 56px;gap:4px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:center;cursor:pointer;}
+.emd-thead{display:grid;grid-template-columns:1fr 50px 50px 56px;gap:4px;padding:6px 0 5px;border-bottom:1px solid var(--border);}
+.emd-th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:center;}
 .emd-th:first-child{text-align:left;}
 .emd-pinfo{display:flex;align-items:center;gap:7px;min-width:0;}
 .emd-pname{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .emd-psub{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;margin-top:1px;}
 .emd-cell{text-align:center;font-size:13px;font-weight:600;}
 .emd-mdpts{color:var(--fire);font-size:15px;font-weight:800;}
-.emd-mgr{font-size:11px;color:var(--muted);text-align:center;}
-.mgr-tag{display:inline-block;background:var(--sub);border-radius:4px;padding:1px 6px;font-size:10px;font-weight:600;color:var(--text);}
-.mgr-tag.me-tag{background:rgba(249,115,22,.18);color:var(--fire);}
+.mgr-tags{padding:2px 0 7px;display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.05);}
+.mgr-tag{background:rgba(255,255,255,.07);border-radius:5px;padding:2px 7px;font-size:10px;font-weight:600;color:var(--text);}
+.mgr-tag.me{background:rgba(249,115,22,.2);color:var(--fire);}
 
 /* ── SCOUTING ── */
-.scout-sticky{padding:10px 14px;display:flex;flex-direction:column;gap:8px;position:sticky;top:128px;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border);}
-.search-inp{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:var(--rsm);padding:9px 13px;font-family:'Inter',sans-serif;font-size:14px;width:100%;}
+.scout-sticky{padding:12px 20px 8px;display:flex;flex-direction:column;gap:8px;position:sticky;top:128px;background:var(--bg);z-index:10;border-bottom:1px solid var(--border);}
+.search-inp{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:var(--rsm);padding:9px 14px;font-family:'Inter',sans-serif;font-size:14px;width:100%;}
 .search-inp::placeholder{color:var(--muted);}
 .search-inp:focus{outline:none;border-color:var(--accent);}
 .chips{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;}
 .chips::-webkit-scrollbar{display:none;}
-.chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;}
+.chip{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;}
 .chip.on{color:#fff;border-color:transparent;}
 .cALL.on{background:var(--accent);}
 .cGK.on{background:var(--gk);color:#000;}
 .cDEF.on{background:var(--def);color:#000;}
-.cMID.on{background:var(--mid);}
-.cFWD.on{background:var(--fwd);}
-.mgr-chip{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;}
-.mgr-chip.on{background:var(--sub);color:var(--text);border-color:rgba(255,255,255,.18);}
+.cMID.on{background:var(--mid);color:#000;}
+.cFWD.on{background:var(--fwd);color:#fff;}
+.mgr-chip{padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;}
+.mgr-chip.on{background:var(--sub);color:var(--text);border-color:rgba(255,255,255,.2);}
 .mgr-chip.on.me{border-color:var(--fire);color:var(--fire);}
-.scout-body{padding:0 14px 80px;}
-.scout-thead{display:grid;grid-template-columns:1fr 48px 48px 54px 54px 64px;gap:4px;padding:7px 0 5px;border-bottom:1px solid var(--border);}
+.scout-body{padding:0 20px 80px;}
+.scout-thead{display:grid;grid-template-columns:1fr 46px 46px 52px 52px 60px;gap:4px;padding:7px 0 5px;border-bottom:1px solid var(--border);}
 .sth{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:center;cursor:pointer;user-select:none;}
 .sth:first-child{text-align:left;}
 .sth.on{color:var(--accent);}
-.scout-row{display:grid;grid-template-columns:1fr 48px 48px 54px 54px 64px;gap:4px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:center;cursor:pointer;}
+.scout-row{display:grid;grid-template-columns:1fr 46px 46px 52px 52px 60px;gap:4px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:center;cursor:pointer;}
 .s-pl{display:flex;align-items:center;gap:7px;min-width:0;}
 .s-pi{min-width:0;}
 .s-pn{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -145,67 +156,70 @@ body{background:var(--bg2);color:var(--text);font-family:'Inter',sans-serif;min-
 .dots{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;}
 .dot{width:7px;height:7px;border-radius:50%;}
 .dot-me{background:var(--fire);}
-.dot-ot{background:var(--accent);opacity:.7;}
-.dot-em{background:var(--border);}
+.dot-ot{background:var(--accent);opacity:.8;}
+.dot-em{background:rgba(255,255,255,.1);}
 
 /* ── TOTW ── */
-.totw-wrap{padding:10px 10px 80px;}
-.totw-pair{display:flex;flex-direction:column;gap:14px;}
-.totw-half{flex:1;}
-.totw-label{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.totw-pair{display:flex;flex-direction:column;gap:20px;}
+.totw-half{}
+.totw-label{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .totw-label.local{color:var(--fire);}
 .totw-label.global{color:var(--accent);}
 .totw-label-line{flex:1;height:1px;background:var(--border);}
 
-.pitch{background:linear-gradient(180deg,#0c2d12 0%,#0e3815 50%,#0c2d12 100%);border-radius:var(--r);padding:10px 6px;position:relative;overflow:hidden;}
-.pitch-lines{position:absolute;inset:0;pointer-events:none;}
-.pl{position:absolute;left:7%;right:7%;height:1px;background:rgba(255,255,255,.09);}
-.pc{position:absolute;left:50%;transform:translateX(-50%);border-radius:50%;border:1px solid rgba(255,255,255,.09);}
-.pitch-row{display:flex;justify-content:space-around;padding:4px 0;}
-.ppin{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:50px;cursor:pointer;}
-.ppin-c{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.15);font-size:8px;font-weight:800;position:relative;transition:.15s;}
-.ppin-c.pos-GK{background:rgba(245,158,11,.35);border-color:var(--gk);}
-.ppin-c.pos-DEF{background:rgba(34,197,94,.3);border-color:var(--def);}
-.ppin-c.pos-MID{background:rgba(59,130,246,.3);border-color:var(--mid);}
-.ppin-c.pos-FWD{background:rgba(239,68,68,.3);border-color:var(--fwd);}
-.ppin-c.mine{border-color:var(--fire)!important;box-shadow:0 0 12px rgba(249,115,22,.5);}
-.cap-m{position:absolute;top:-3px;left:-3px;background:var(--gold);color:#000;border-radius:50%;width:13px;height:13px;font-size:7px;font-weight:900;display:flex;align-items:center;justify-content:center;}
-.mom-m{position:absolute;top:-3px;right:-3px;font-size:8px;}
-.ppin-n{font-size:9px;font-weight:600;text-align:center;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ppin-p{font-size:10px;font-weight:700;color:var(--gold);}
-.ppin-p.mine{color:var(--fire);}
+/* Pitch styled like screenshot — cards on green */
+.pitch{background:linear-gradient(180deg,#155d27 0%,#1a7a31 40%,#155d27 100%);border-radius:var(--r);padding:16px 10px;position:relative;overflow:hidden;border:2px solid rgba(255,255,255,.12);}
+.pitch::before{content:'';position:absolute;inset:0;background:
+  repeating-linear-gradient(0deg,transparent,transparent 49%,rgba(255,255,255,.06) 49%,rgba(255,255,255,.06) 51%,transparent 51%);
+  background-size:100% 33.3%;pointer-events:none;}
+.pitch-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:70px;height:70px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);pointer-events:none;}
+.pitch-row{display:flex;justify-content:space-around;align-items:center;margin-bottom:14px;}
+.pitch-row:last-child{margin-bottom:0;}
 
-.totw-list{margin-top:8px;display:flex;flex-direction:column;gap:2px;}
-.ti{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card);border-radius:var(--rsm);cursor:pointer;}
+/* Player card — like screenshot style */
+.pcard{background:rgba(26,125,190,.85);backdrop-filter:blur(4px);border:1.5px solid rgba(100,200,255,.4);border-radius:var(--rsm);padding:6px 8px;min-width:72px;max-width:88px;text-align:center;cursor:pointer;transition:.15s;position:relative;}
+.pcard:active{opacity:.8;}
+.pcard.mine{background:rgba(180,70,10,.85);border-color:rgba(249,150,50,.7);box-shadow:0 0 10px rgba(249,115,22,.5);}
+.pcard-name{font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
+.pcard-pts{font-size:13px;font-weight:900;color:#fff;line-height:1;}
+.pcard-team{font-size:9px;color:rgba(255,255,255,.65);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cap-badge{position:absolute;top:-5px;left:-5px;background:var(--gold);color:#000;border-radius:50%;width:14px;height:14px;font-size:7px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1px solid #000;}
+.mom-badge{position:absolute;top:-5px;right:-5px;font-size:9px;}
+
+/* Formation tag */
+.form-tag{position:absolute;top:8px;right:10px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
+
+.totw-list{margin-top:10px;display:flex;flex-direction:column;gap:3px;}
+.ti{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--card);border-radius:var(--rsm);cursor:pointer;border:1px solid var(--border);transition:.15s;}
 .ti.mine{border-left:3px solid var(--fire);}
 .ti-info{flex:1;min-width:0;}
 .ti-name{font-weight:600;font-size:12px;}
 .ti-sub{font-size:10px;color:var(--muted);margin-top:1px;}
-.ti-pts{font-weight:700;font-size:14px;}
+.ti-pts{font-weight:800;font-size:14px;}
 .ti.mine .ti-pts{color:var(--fire);}
 .ti:not(.mine) .ti-pts{color:var(--accent);}
 
 /* ── MODAL ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:flex-end;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:flex-end;}
 .overlay.open{display:flex;}
-.modal{background:var(--surf);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px 16px;width:100%;max-height:76vh;overflow-y:auto;}
-.m-handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px;}
-.m-name{font-size:17px;font-weight:800;margin-bottom:2px;}
+.modal{background:var(--surf);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px 20px;width:100%;max-height:76vh;overflow-y:auto;}
+.m-handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.m-name{font-size:18px;font-weight:800;margin-bottom:3px;}
 .m-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px;}
-.stat-box{background:var(--card);border-radius:var(--rsm);padding:10px;text-align:center;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:10px;text-align:center;}
 .stat-v{font-size:20px;font-weight:800;color:var(--accent);line-height:1;}
 .stat-v.fire{color:var(--fire);}
 .stat-l{font-size:10px;color:var(--muted);margin-top:3px;}
-.srow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.srow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
 .srow:last-child{border:none;}
 .srow b{font-weight:700;}
 .owned-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
-.owned-chip{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;}
+.owned-chip{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:11px;font-weight:600;}
 
-@media(min-width:600px){
+@media(min-width:640px){
   .totw-pair{flex-direction:row;}
-  .totw-half{flex:1;}
+  .totw-half{flex:1;min-width:0;}
 }
 </style>
 </head>
@@ -213,48 +227,58 @@ body{background:var(--bg2);color:var(--text);font-family:'Inter',sans-serif;min-
 
 <!-- HEADER -->
 <div class="hdr">
-  <div class="hdr-logo">
-    <div class="hdr-icon">⚽</div>
-    <div class="hdr-title">UCL <em>Fantasy</em></div>
+  <div class="page" style="display:flex;align-items:center;gap:10px;width:100%;max-width:760px;margin:0 auto;">
+    <div class="hdr-logo">
+      <div class="hdr-icon">⚽</div>
+      <div class="hdr-title">UCL <em>Fantasy</em></div>
+    </div>
+    <div class="hdr-mgr">
+      <select class="hdr-sel" id="mgrSel"></select>
+    </div>
+    <button class="hdr-btn" id="refBtn" onclick="doRefresh()">↻ Refresh</button>
   </div>
-  <div class="hdr-mgr">
-    <select class="hdr-sel" id="mgrSel"></select>
-  </div>
-  <button class="hdr-btn" id="refBtn" onclick="doRefresh()">↻ Refresh</button>
 </div>
-<div class="upd-bar" id="updBar">Se încarcă...</div>
-<div class="md-bar" id="mdBar"></div>
+<div class="upd-bar" style="text-align:center;" id="updBar">Se încarcă...</div>
+
+<!-- MD BAR -->
+<div style="background:var(--surf);border-bottom:1px solid var(--border);">
+  <div class="page"><div class="md-bar" id="mdBar"></div></div>
+</div>
 
 <!-- TABS -->
-<div class="tabs">
-  <div class="tab on"  onclick="goTab('clasament')">Clasament</div>
-  <div class="tab"     onclick="goTab('echipe-md')">Echipe MD</div>
-  <div class="tab"     onclick="goTab('scouting')">Scouting</div>
-  <div class="tab"     onclick="goTab('totw')">TOTW</div>
+<div style="background:var(--surf);border-bottom:1px solid var(--border);">
+  <div class="page"><div class="tabs">
+    <div class="tab on"  onclick="goTab('clasament')">Clasament</div>
+    <div class="tab"     onclick="goTab('echipe-md')">Echipe MD</div>
+    <div class="tab"     onclick="goTab('scouting')">Scouting</div>
+    <div class="tab"     onclick="goTab('totw')">TOTW</div>
+  </div></div>
 </div>
 
 <!-- CLASAMENT -->
 <div class="view on" id="view-clasament">
-  <div class="rank-list" id="rankList">
-    <div class="spin-c"><div class="spinner"></div>Se încarcă...</div>
+  <div class="page inner">
+    <div class="rank-cols" id="rankCols">
+      <div class="spin-c"><div class="spinner"></div>Se încarcă...</div>
+    </div>
   </div>
 </div>
 
 <!-- ECHIPE MD -->
 <div class="view" id="view-echipe-md">
-  <div class="emd-head">
-    <div class="emd-title" id="emdTitle">Toți jucătorii · MD10</div>
-    <div class="emd-sort">
-      <div class="emd-sort-btn on" id="sortMD" onclick="setEmdSort('md')">MD Pts</div>
-      <div class="emd-sort-btn" id="sortTOT" onclick="setEmdSort('tot')">Total</div>
+  <div class="page inner">
+    <div class="emd-controls">
+      <div class="emd-title" id="emdTitle">Jucători din ligă · MD10</div>
+      <div class="btn-group">
+        <div class="pill-btn on" id="sortMD" onclick="setEmdSort('md')">MD Pts</div>
+        <div class="pill-btn" id="sortTOT" onclick="setEmdSort('tot')">Total</div>
+      </div>
     </div>
-  </div>
-  <div class="emd-list">
     <div class="emd-thead">
       <div class="emd-th">Jucător</div>
-      <div class="emd-th">MD Pts</div>
+      <div class="emd-th">MD</div>
       <div class="emd-th">Total</div>
-      <div class="emd-th">Local %</div>
+      <div class="emd-th">Local%</div>
     </div>
     <div id="emdList"><div class="spin-c"><div class="spinner"></div>Se încarcă...</div></div>
   </div>
@@ -263,32 +287,36 @@ body{background:var(--bg2);color:var(--text);font-family:'Inter',sans-serif;min-
 <!-- SCOUTING -->
 <div class="view" id="view-scouting">
   <div class="scout-sticky">
-    <input class="search-inp" id="scoutQ" placeholder="Caută jucător sau echipă..." oninput="renderScouting()"/>
-    <div class="chips" id="posChips">
-      <div class="chip cALL on" data-pos="ALL" onclick="setPos(this)">Toți</div>
-      <div class="chip cGK"  data-pos="GK"  onclick="setPos(this)">GK</div>
-      <div class="chip cDEF" data-pos="DEF" onclick="setPos(this)">DEF</div>
-      <div class="chip cMID" data-pos="MID" onclick="setPos(this)">MID</div>
-      <div class="chip cFWD" data-pos="FWD" onclick="setPos(this)">FWD</div>
+    <div class="page" style="display:flex;flex-direction:column;gap:8px;">
+      <input class="search-inp" id="scoutQ" placeholder="Caută jucător sau echipă..." oninput="renderScouting()"/>
+      <div class="chips" id="posChips">
+        <div class="chip cALL on" data-pos="ALL" onclick="setPos(this)">Toți</div>
+        <div class="chip cGK"  data-pos="GK"  onclick="setPos(this)">GK</div>
+        <div class="chip cDEF" data-pos="DEF" onclick="setPos(this)">DEF</div>
+        <div class="chip cMID" data-pos="MID" onclick="setPos(this)">MID</div>
+        <div class="chip cFWD" data-pos="FWD" onclick="setPos(this)">FWD</div>
+      </div>
+      <div class="chips" id="mgrChips"></div>
     </div>
-    <div class="chips" id="mgrChips"></div>
   </div>
   <div class="scout-body">
-    <div class="scout-thead">
-      <div class="sth" onclick="setSort('name')">Jucător</div>
-      <div class="sth on" id="h-totPts" onclick="setSort('totPts')">Pts</div>
-      <div class="sth" id="h-curGDPts" onclick="setSort('curGDPts')">MD</div>
-      <div class="sth" id="h-selPer" onclick="setSort('selPer')">Global%</div>
-      <div class="sth" id="h-localOwnership" onclick="setSort('localOwnership')">Local%</div>
-      <div class="sth">Owners</div>
+    <div class="page">
+      <div class="scout-thead">
+        <div class="sth" onclick="setSort('name')">Jucător</div>
+        <div class="sth on" id="h-totPts" onclick="setSort('totPts')">Pts</div>
+        <div class="sth" id="h-curGDPts" onclick="setSort('curGDPts')">MD</div>
+        <div class="sth" id="h-selPer" onclick="setSort('selPer')">Global%</div>
+        <div class="sth" id="h-localOwnership" onclick="setSort('localOwnership')">Local%</div>
+        <div class="sth">Owners</div>
+      </div>
+      <div id="scoutList"></div>
     </div>
-    <div id="scoutList"></div>
   </div>
 </div>
 
 <!-- TOTW -->
 <div class="view" id="view-totw">
-  <div class="totw-wrap">
+  <div class="page inner">
     <div class="totw-pair" id="totwPair">
       <div class="spin-c"><div class="spinner"></div>Se încarcă...</div>
     </div>
@@ -301,6 +329,14 @@ body{background:var(--bg2);color:var(--text);font-family:'Inter',sans-serif;min-
 </div>
 
 <script>
+// ── name overrides ──
+const NAME_MAP = {
+  'Chirila':          'Pui',
+  'Pep Voicuiola':    'Voiq',
+  'Memedine Zidane':  'Meme',
+};
+function fixName(n){ return NAME_MAP[n] || n; }
+
 let D=null, MD=10, meGuid=null, curTab='clasament';
 let posF='ALL', mgrOn=new Set(), sCol='totPts', sDir=-1;
 let emdSort='md';
@@ -312,7 +348,12 @@ async function load(md){
   MD=md;
   try{
     const r=await fetch(`/api/data?md=${md}`);
-    D=await r.json(); cache[md]=D;
+    D=await r.json();
+    // apply name overrides to all managers
+    D.managers.forEach(m=>{ m.username=fixName(m.username); });
+    D.allPlayers.forEach(p=>{ if(p.ownedBy) p.ownedBy=p.ownedBy.map(fixName); });
+    D.managers.forEach(m=>{ m.players.forEach(p=>{ p.managerName=fixName(p.managerName||''); }); });
+    cache[md]=D;
     buildMdBar(); buildMgrSel(); buildMgrChips(); render();
     const d=new Date(D.lastUpdated);
     document.getElementById('updBar').textContent='Actualizat: '+d.toLocaleString('ro-RO',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' · MD'+MD;
@@ -331,7 +372,7 @@ function buildMdBar(){
   for(let i=1;i<=12;i++){
     const el=document.createElement('div');
     el.className='md-p'+(i===MD?' on':'');
-    el.textContent=`MD${i}`;el.onclick=()=>switchMD(i);bar.appendChild(el);
+    el.textContent='MD'+i; el.onclick=()=>switchMD(i); bar.appendChild(el);
   }
 }
 function switchMD(md){
@@ -342,7 +383,11 @@ function switchMD(md){
 
 function buildMgrSel(){
   const s=document.getElementById('mgrSel');s.innerHTML='';
-  D.managers.forEach(m=>{const o=document.createElement('option');o.value=m.guid;o.textContent=m.username+' — '+m.teamName;s.appendChild(o);});
+  D.managers.forEach(m=>{
+    const o=document.createElement('option');
+    o.value=m.guid; o.textContent=m.username+' — '+m.teamName;
+    s.appendChild(o);
+  });
   if(!meGuid){const e=D.managers.find(m=>m.username==='Eduard');meGuid=e?e.guid:D.managers[0].guid;}
   s.value=meGuid;
   s.onchange=()=>{meGuid=s.value;render();};
@@ -357,7 +402,7 @@ function buildMgrChips(){
     const isMe=m.guid===meGuid;
     const el=document.createElement('div');
     el.className='mgr-chip on'+(isMe?' me':'');
-    el.dataset.mgr=m.username;el.textContent=m.username;
+    el.dataset.mgr=m.username; el.textContent=m.username;
     el.onclick=()=>{el.classList.toggle('on');mgrOn[el.classList.contains('on')?'add':'delete'](m.username);renderScouting();};
     c.appendChild(el);
   });
@@ -370,7 +415,6 @@ function goTab(t){
   document.getElementById('view-'+t).classList.add('on');
   render();
 }
-
 function render(){
   if(!D)return;
   if(curTab==='clasament')renderClasament();
@@ -379,23 +423,37 @@ function render(){
   else if(curTab==='totw')renderTOTW();
 }
 
-// ── CLASAMENT ──
+// ── CLASAMENT — two columns ──
 function renderClasament(){
-  const sorted=[...D.managers].sort((a,b)=>b.ovPoints-a.ovPoints);
-  const el=document.getElementById('rankList');el.innerHTML='';
-  sorted.forEach((m,i)=>{
-    const rank=i+1;
-    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
-    const div=document.createElement('div');
-    div.className='rank-c'+(m.guid===meGuid?' me':'');
-    div.innerHTML=`<div class="rank-num">${medal}</div>
-      <div class="rank-inf">
-        <div class="rank-name">${m.username}${m.guid===meGuid?' 👑':''}</div>
-        <div class="rank-sub">${m.teamName} · #${(m.ovRank||0).toLocaleString()} global</div>
-      </div>
-      <div><div class="rank-md">${m.gdPoints}</div><div class="rank-ov">${m.ovPoints} tot</div></div>`;
-    div.onclick=()=>showMgrModal(m.guid);
-    el.appendChild(div);
+  const byMD=[...D.managers].sort((a,b)=>b.gdPoints-a.gdPoints||a.gdRank-b.gdRank);
+  const byOv=[...D.managers].sort((a,b)=>b.ovPoints-a.ovPoints||a.ovRank-b.ovRank);
+  const el=document.getElementById('rankCols');
+  el.innerHTML=`
+    <div>
+      <div class="rank-col-title fire">Etapa ${MD}</div>
+      <div class="rank-list" id="rl-md"></div>
+    </div>
+    <div>
+      <div class="rank-col-title blue">Overall</div>
+      <div class="rank-list" id="rl-ov"></div>
+    </div>`;
+  [['rl-md',byMD,'gdPoints',' MD'],['rl-ov',byOv,'ovPoints',' tot']].forEach(([id,list,key,suf])=>{
+    const container=document.getElementById(id);
+    list.forEach((m,i)=>{
+      const rank=i+1;
+      const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
+      const isMe=m.guid===meGuid;
+      const div=document.createElement('div');
+      div.className='rank-c'+(isMe?' me':'');
+      div.innerHTML=`<div class="rank-num">${medal}</div>
+        <div class="rank-inf">
+          <div class="rank-name">${m.username}</div>
+          <div class="rank-sub">#${(key==='ovPoints'?m.ovRank:m.gdRank||0).toLocaleString()}</div>
+        </div>
+        <div><div class="rank-md">${m[key]}</div><div class="rank-ov">${suf}</div></div>`;
+      div.onclick=()=>showMgrModal(m.guid);
+      container.appendChild(div);
+    });
   });
 }
 
@@ -405,9 +463,9 @@ function showMgrModal(guid){
   const bn=m.players.filter(p=>!p.isStarter).sort((a,b)=>a.benchPosition-b.benchPosition);
   let h=`<div class="m-handle"></div><div class="m-name">${m.username}</div><div class="m-sub">${m.teamName}</div>
     <div class="stat-grid">
-      <div class="stat-box"><div class="stat-v">${m.gdPoints}</div><div class="stat-l">MD${MD} Pts</div></div>
+      <div class="stat-box"><div class="stat-v">${m.gdPoints}</div><div class="stat-l">MD${MD}</div></div>
       <div class="stat-box"><div class="stat-v">${m.ovPoints}</div><div class="stat-l">Total</div></div>
-      <div class="stat-box"><div class="stat-v" style="font-size:14px">#${(m.ovRank||0).toLocaleString()}</div><div class="stat-l">Rank Global</div></div>
+      <div class="stat-box"><div class="stat-v" style="font-size:13px">#${(m.ovRank||0).toLocaleString()}</div><div class="stat-l">Rank</div></div>
     </div><div class="sec-lbl">Titulari</div>`;
   st.forEach(p=>{h+=`<div class="srow"><div><span class="pos-b pos-${p.posCode}">${p.posCode}</span> <b>${p.name}</b>${p.isCaptain?' <span style="color:var(--gold)">(C)</span>':''}<br><span style="font-size:11px;color:var(--muted)">${p.team}</span></div><div style="font-weight:700;color:var(--accent)">${p.mdPoints}</div></div>`;});
   h+=`<div class="sec-lbl" style="margin-top:6px">Bancă</div>`;
@@ -423,66 +481,50 @@ function setEmdSort(s){
   document.getElementById('sortTOT').classList.toggle('on',s==='tot');
   renderEchipeMD();
 }
-
 function renderEchipeMD(){
   if(!D)return;
-  document.getElementById('emdTitle').textContent=`Toți jucătorii din ligă · MD${MD}`;
+  document.getElementById('emdTitle').textContent='Jucători din ligă · MD'+MD;
   const ids=myIds();
-
-  // Collect all players from all managers (starters + bench), deduplicated
   const pMap={};
   D.managers.forEach(m=>{
     m.players.forEach(p=>{
       const k=p.id;
-      if(!pMap[k]){
-        pMap[k]={...p,managers:[m.username],managerGuids:[m.guid]};
-      } else {
+      if(!pMap[k]){pMap[k]={...p,managers:[m.username],managerGuids:[m.guid]};}
+      else{
         if(!pMap[k].managers.includes(m.username)){
           pMap[k].managers.push(m.username);
           pMap[k].managerGuids.push(m.guid);
-          // take max mdPoints
           if(p.mdPoints>pMap[k].mdPoints)pMap[k].mdPoints=p.mdPoints;
         }
       }
     });
   });
-
-  // Enrich with public data
   let players=Object.values(pMap).map(p=>{
     const pub=D.allPlayers.find(x=>x.id===p.id)||{};
-    return{
-      ...p,
-      totPts:pub.totPts||p.totPts||0,
-      selPer:pub.selPer||0,
-      localPer:Math.round(p.managers.length/D.totalManagers*100),
-      isMine:ids.has(p.id),
-    };
+    return{...p,totPts:pub.totPts||p.totPts||0,localPer:Math.round(p.managers.length/D.totalManagers*100),isMine:ids.has(p.id)};
   });
-
-  // Sort
-  if(emdSort==='md') players.sort((a,b)=>b.mdPoints-a.mdPoints||b.totPts-a.totPts);
+  if(emdSort==='md')players.sort((a,b)=>b.mdPoints-a.mdPoints||b.totPts-a.totPts);
   else players.sort((a,b)=>b.totPts-a.totPts||b.mdPoints-a.mdPoints);
-
   const el=document.getElementById('emdList');
   if(!players.length){el.innerHTML='<div class="spin-c">Niciun jucător</div>';return;}
   el.innerHTML=players.map(p=>{
     const mgrTags=p.managers.map((name,i)=>{
       const isMe2=p.managerGuids[i]===meGuid;
-      return`<span class="mgr-tag${isMe2?' me-tag':''}">${name}</span>`;
-    }).join(' ');
+      return`<span class="mgr-tag${isMe2?' me':''}">${name}</span>`;
+    }).join('');
     return`<div class="emd-row" onclick="showP(${p.id})">
-      <div class="emd-pinfo">
-        <span class="pos-b pos-${p.posCode}">${p.posCode}</span>
-        <div>
-          <div class="emd-pname">${p.name}${p.isMine?' <span class="fire-tag">🔥</span>':''}</div>
-          <div class="emd-psub"><span class="s-dot s${(p.status||'A').toLowerCase()}"></span>${p.team}</div>
+        <div class="emd-pinfo">
+          <span class="pos-b pos-${p.posCode}">${p.posCode}</span>
+          <div>
+            <div class="emd-pname">${p.name}${p.isMine?' <span class="fire-tag">🔥</span>':''}</div>
+            <div class="emd-psub"><span class="s-dot s${(p.status||'A').toLowerCase()}"></span>${p.team}</div>
+          </div>
         </div>
+        <div class="emd-cell emd-mdpts">${p.mdPoints||0}</div>
+        <div class="emd-cell" style="color:var(--muted)">${p.totPts}</div>
+        <div class="emd-cell"><span class="pct-b ${pctCls(p.localPer)}">${p.localPer}%</span></div>
       </div>
-      <div class="emd-cell emd-mdpts">${p.mdPoints||0}</div>
-      <div class="emd-cell" style="color:var(--muted)">${p.totPts}</div>
-      <div class="emd-cell"><span class="pct-b ${pctCls(p.localPer)}">${p.localPer}%</span></div>
-    </div>
-    <div style="padding:0 0 6px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:4px;flex-wrap:wrap;">${mgrTags}</div>`;
+      <div class="mgr-tags">${mgrTags}</div>`;
   }).join('');
 }
 
@@ -515,7 +557,7 @@ function renderScouting(){
   const el=document.getElementById('scoutList');
   if(!ps.length){el.innerHTML='<div class="spin-c" style="padding:30px">Niciun jucător</div>';return;}
   el.innerHTML=ps.slice(0,200).map(p=>{
-    const gCls=p.selPer>=20?'plo':'';
+    const gCls=p.selPer>=20?'plo':'pz';
     const dots=mgrList.map(m=>{
       const o=(p.ownedBy||[]).includes(m.username);
       return`<span class="dot ${o?(m.guid===meGuid?'dot-me':'dot-ot'):'dot-em'}" title="${m.username}"></span>`;
@@ -529,7 +571,7 @@ function renderScouting(){
       </div>
       <div class="s-cell s-pts">${p.totPts}</div>
       <div class="s-cell" style="color:var(--muted)">${p.curGDPts||'-'}</div>
-      <div class="s-cell"><span class="pct-b ${gCls||'pz'}" style="${gCls?'':'color:var(--muted)'}">${p.selPer}%</span></div>
+      <div class="s-cell"><span class="pct-b ${gCls}">${p.selPer}%</span></div>
       <div class="s-cell"><span class="pct-b ${pctCls(p.fP)}">${p.fP}%</span></div>
       <div class="s-cell"><div class="dots">${dots}</div></div>
     </div>`;
@@ -545,9 +587,9 @@ function pickXI(players){
   Object.entries(slots).forEach(([pos,n])=>{
     const s=[...(bp[pos]||[])].sort((a,b)=>{
       if(b.mdPoints!==a.mdPoints)return b.mdPoints-a.mdPoints;
-      const ap=(a.ownedBy||[]).includes(me()?.username)?1:0;
-      const bp2=(b.ownedBy||[]).includes(me()?.username)?1:0;
-      return bp2-ap;
+      const au=(a.ownedBy||[]).includes(me()?.username)?1:0;
+      const bu=(b.ownedBy||[]).includes(me()?.username)?1:0;
+      return bu-au;
     });
     res.push(...s.slice(0,n));
   });
@@ -557,24 +599,15 @@ function pickXI(players){
 function renderTOTW(){
   if(!D)return;
   const ids=myIds();
-
-  // LOCAL XI — from starters of all managers
+  // LOCAL
   const pMap={};
   D.managers.forEach(m=>m.players.filter(p=>p.isStarter).forEach(p=>{
     const k=p.id;
-    if(!pMap[k]||p.mdPoints>pMap[k].mdPoints||(p.mdPoints===pMap[k].mdPoints&&m.guid===meGuid))
-      pMap[k]={...p};
+    if(!pMap[k]||p.mdPoints>pMap[k].mdPoints||(p.mdPoints===pMap[k].mdPoints&&m.guid===meGuid))pMap[k]={...p};
   }));
   const localXI=pickXI(Object.values(pMap));
-
-  // GLOBAL XI — from all public players
-  const globalPlayers=D.allPlayers.map(p=>({
-    ...p, mdPoints:p.curGDPts||0,
-    isMine:ids.has(p.id),
-    managerGuid:ids.has(p.id)?meGuid:null,
-    ownedBy:p.ownedBy||[],
-  }));
-  const globalXI=pickXI(globalPlayers);
+  // GLOBAL
+  const globalXI=pickXI(D.allPlayers.map(p=>({...p,mdPoints:p.curGDPts||0,isMine:ids.has(p.id),ownedBy:p.ownedBy||[]})));
 
   document.getElementById('totwPair').innerHTML=`
     <div class="totw-half">
@@ -590,25 +623,23 @@ function renderTOTW(){
 function buildPitch(xi,ids){
   const bp={GK:[],DEF:[],MID:[],FWD:[]};
   xi.forEach(p=>{if(bp[p.posCode])bp[p.posCode].push(p);});
+  const form=[bp.DEF.length,bp.MID.length,bp.FWD.length].join('-');
+
   let h=`<div class="pitch">
-    <div class="pitch-lines">
-      <div class="pl" style="top:22%"></div>
-      <div class="pl" style="top:50%"></div>
-      <div class="pl" style="top:78%"></div>
-      <div class="pc" style="top:42%;width:60px;height:60px;margin-top:-30px;margin-left:-30px;left:50%"></div>
-    </div>`;
+    <div class="pitch-center"></div>
+    <div class="form-tag">${form}</div>`;
+
   [bp.FWD,bp.MID,bp.DEF,bp.GK].forEach(row=>{
     h+=`<div class="pitch-row">`;
     row.forEach(p=>{
       const mine=ids.has(p.id);
-      h+=`<div class="ppin" onclick="showP(${p.id})">
-        <div class="ppin-c pos-${p.posCode}${mine?' mine':''}">
-          ${p.isCaptain?'<span class="cap-m">C</span>':''}
-          ${p.momFlag?'<span class="mom-m">⭐</span>':''}
-          ${p.teamCode||p.posCode}
-        </div>
-        <div class="ppin-n">${p.name}</div>
-        <div class="ppin-p${mine?' mine':''}">${p.mdPoints}p</div>
+      const shortName=p.name.split(' ').pop()||p.name;
+      h+=`<div class="pcard${mine?' mine':''}" onclick="showP(${p.id})">
+        ${p.isCaptain?'<span class="cap-badge">C</span>':''}
+        ${p.momFlag?'<span class="mom-badge">⭐</span>':''}
+        <div class="pcard-name">${shortName}</div>
+        <div class="pcard-pts">${p.mdPoints} PTS</div>
+        <div class="pcard-team">${p.team||''}</div>
       </div>`;
     });
     h+=`</div>`;
@@ -623,8 +654,7 @@ function buildPitch(xi,ids){
       <div class="ti-pts">${p.mdPoints}</div>
     </div>`;
   }));
-  h+=`</div>`;
-  return h;
+  return h+'</div>';
 }
 
 // ── PLAYER MODAL ──
@@ -641,7 +671,7 @@ function showP(id){
       <span class="pos-b pos-${p.posCode}">${p.posCode}</span>${mine?'<span class="fire-tag">🔥 Echipa ta</span>':''}
     </div>
     <div class="m-name">${p.fullName||p.name}</div>
-    <div class="m-sub">${p.team} · €${p.value}M · ${sm[p.status]||p.status||'Disponibil'}</div>
+    <div class="m-sub">${p.team} · €${p.value}M · ${sm[p.status]||'Disponibil'}</div>
     <div class="stat-grid">
       <div class="stat-box"><div class="stat-v${mine?' fire':''}">${p.totPts}</div><div class="stat-l">Total Pts</div></div>
       <div class="stat-box"><div class="stat-v">${mdPts}</div><div class="stat-l">MD Pts</div></div>
