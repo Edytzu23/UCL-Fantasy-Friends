@@ -73,17 +73,21 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .rank-col-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;text-align:center;}
 .fire-txt{color:var(--fire);}.blue-txt{color:var(--acc);}.ps5-txt{color:#a78bfa;}
 .rank-list{display:flex;flex-direction:column;gap:6px;}
-.rank-c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;display:flex;align-items:center;gap:9px;cursor:pointer;transition:.15s;min-height:58px;}
+.rank-c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s;}
 .rank-c:active{background:var(--card2);}
 .rank-c.me{background:linear-gradient(135deg,rgba(249,115,22,.22),rgba(234,88,12,.10));border-color:var(--fire);box-shadow:0 0 0 1px rgba(249,115,22,.2);}
 .rank-c.ps5-c{cursor:default;}
-.rank-num{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
-.rank-inf{flex:1;min-width:0;}
-.rank-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.rank-sub{font-size:10px;color:var(--muted);margin-top:2px;}
-.rank-v-fire{font-size:22px;font-weight:900;color:var(--fire);line-height:1;}
-.rank-v-blue{font-size:26px;font-weight:900;color:var(--acc);line-height:1;}
-.rank-v-ps5{font-size:20px;font-weight:900;color:#a78bfa;line-height:1;}
+/* medal/number — tight fixed column */
+.rank-num{font-size:14px;width:20px;text-align:center;flex-shrink:0;line-height:1;}
+/* name block — grows to fill */
+.rank-inf{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+.rank-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
+.rank-sub{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500;line-height:1;}
+/* points — fixed 60px column, right-aligned, vertically centered */
+.rank-val-wrap{flex-shrink:0;width:60px;text-align:right;display:flex;align-items:center;justify-content:flex-end;}
+.rank-v-fire{font-size:28px;font-weight:900;color:var(--fire);line-height:1;display:block;}
+.rank-v-blue{font-size:28px;font-weight:900;color:var(--acc);line-height:1;display:block;}
+.rank-v-ps5{font-size:20px;font-weight:900;color:#a78bfa;line-height:1;display:block;}
 .ps5-pill{font-size:10px;font-weight:700;background:rgba(139,92,246,.2);color:#c4b5fd;border-radius:20px;padding:2px 8px;margin-top:3px;display:inline-block;}
 .ps5-col{grid-column:1/-1;}
 @media(min-width:600px){.ps5-col{grid-column:auto;}}
@@ -129,89 +133,75 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .sort-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:.15s;}
 .sort-btn.on{background:var(--acc);color:#fff;border-color:var(--acc);}
 .scout-cards{display:flex;flex-direction:column;gap:8px;}
-.sc-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:.15s;}
+.sc-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s;}
 .sc-card:active{background:var(--card2);}
 .sc-card.mine{border-left:3px solid var(--fire);}
-.sc-left{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;width:42px;}
-.sc-pts-big{font-size:22px;font-weight:900;color:var(--acc);line-height:1;}
+/* LEFT — total pts, big */
+.sc-left{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:52px;}
+.sc-pts-big{font-size:26px;font-weight:900;color:var(--acc);line-height:1;}
 .sc-pts-big.fire{color:var(--fire);}
-.sc-pts-lbl{font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
-.sc-mid{flex:1;min-width:0;}
-.sc-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sc-sub{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:3px;}
-.sc-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
-.sc-md-pts{font-size:18px;font-weight:800;color:var(--fire);line-height:1;}
-.sc-md-lbl{font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;}
-.sc-badges{display:flex;gap:4px;align-items:center;margin-top:2px;}
-.dots{display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end;}
+.sc-pts-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+/* CENTER — name, pos/team, badges */
+.sc-mid{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+.sc-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
+.sc-sub{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.sc-badges{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+/* RIGHT — MD pts, same big size */
+.sc-right{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:56px;}
+.sc-md-pts{font-size:26px;font-weight:900;color:var(--fire);line-height:1;}
+.sc-md-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.dots{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:4px;}
 .dot{width:8px;height:8px;border-radius:50%;}
 .dot-me{background:var(--fire);}.dot-ot{background:var(--acc);opacity:.8;}.dot-em{background:rgba(255,255,255,.12);}
 
 /* ── TOTW — pitch only, full width ── */
 .totw-wrap{padding:10px 14px 30px;}
-.totw-pair{display:flex;flex-direction:column;gap:16px;}
-@media(min-width:640px){.totw-pair{flex-direction:row;gap:12px;}.totw-half{flex:1;min-width:0;}}
-.totw-label{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-.totw-label.local{color:var(--fire);}.totw-label.global{color:var(--acc);}
+/* 3 pitches: horizontal scroll on mobile, 3 cols on wide */
+.totw-trio{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.totw-trio::-webkit-scrollbar{display:none;}
+.totw-half{flex:0 0 min(82vw,300px);display:flex;flex-direction:column;}
+@media(min-width:900px){.totw-half{flex:1;min-width:0;}}
+.totw-label{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:7px;}
+.totw-label.local{color:var(--fire);}.totw-label.global{color:var(--acc);}.totw-label.best{color:#a78bfa;}
 .totw-label-line{flex:1;height:1px;background:var(--border);}
 
-/* Pitch — full height, no list below */
-.pitch-wrap{position:relative;}
+/* Pitch */
 .pitch{
   background:linear-gradient(180deg,#0f4d1e 0%,#166830 35%,#1a7a35 50%,#166830 65%,#0f4d1e 100%);
-  border-radius:var(--r);
-  border:2px solid rgba(255,255,255,.15);
-  overflow:hidden;
-  /* full viewport-ish height on mobile, shorter side-by-side */
-  min-height:380px;
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-around;
-  padding:14px 8px;
+  border-radius:var(--r);border:2px solid rgba(255,255,255,.15);overflow:hidden;
+  position:relative;display:flex;flex-direction:column;justify-content:space-around;
+  padding:38px 6px 8px;flex:1;min-height:400px;
 }
-@media(min-width:640px){.pitch{min-height:480px;}}
-/* pitch line overlays */
-.pitch::before{
-  content:'';position:absolute;inset:0;pointer-events:none;
-  background:
-    linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),
-    linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px);
-  background-size:100% 33.33%;
-}
-.pitch-midcircle{
-  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:80px;height:80px;border-radius:50%;
-  border:1.5px solid rgba(255,255,255,.15);
-  pointer-events:none;
-}
-.pitch-box-t{position:absolute;top:0;left:50%;transform:translateX(-50%);width:55%;height:16%;border:1.5px solid rgba(255,255,255,.12);border-top:none;border-radius:0 0 8px 8px;pointer-events:none;}
-.pitch-box-b{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:55%;height:16%;border:1.5px solid rgba(255,255,255,.12);border-bottom:none;border-radius:8px 8px 0 0;pointer-events:none;}
-.pitch-row{display:flex;justify-content:space-around;align-items:center;position:relative;z-index:2;}
-.form-tag{position:absolute;top:10px;left:12px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;z-index:3;}
+@media(min-width:900px){.pitch{min-height:500px;}}
+.pitch::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:100% 25%;}
+.pitch-midcircle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;border:1.5px solid rgba(255,255,255,.14);pointer-events:none;}
+.pitch-box-t{position:absolute;top:0;left:50%;transform:translateX(-50%);width:52%;height:15%;border:1.5px solid rgba(255,255,255,.11);border-top:none;border-radius:0 0 8px 8px;pointer-events:none;}
+.pitch-box-b{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);width:52%;height:15%;border:1.5px solid rgba(255,255,255,.11);border-bottom:none;border-radius:8px 8px 0 0;pointer-events:none;}
+.pitch-row{display:flex;justify-content:space-around;align-items:center;position:relative;z-index:2;gap:4px;}
+.form-tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;z-index:3;}
+/* my players counter — top right */
+.pitch-counter{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:rgba(255,255,255,.7);font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;z-index:3;}
+.pitch-counter.has-mine{color:var(--fire);}
+/* total pts below GK */
+.pitch-total{text-align:center;color:rgba(255,255,255,.95);font-size:13px;font-weight:800;padding:5px 0 2px;position:relative;z-index:2;letter-spacing:.3px;}
+.pitch-total span{color:var(--gold);}
 
-/* Player cards on pitch */
+/* Player cards — FIXED SIZE regardless of name */
 .pcard{
-  background:rgba(20,100,180,.82);
-  backdrop-filter:blur(6px);
-  border:1.5px solid rgba(120,200,255,.45);
+  background:rgba(20,100,180,.84);
+  border:1.5px solid rgba(120,200,255,.4);
   border-radius:var(--rsm);
-  padding:7px 9px;
-  min-width:68px;max-width:86px;
-  text-align:center;
-  cursor:pointer;
-  position:relative;
-  transition:.15s;
+  width:72px;height:68px;  /* fixed! */
+  text-align:center;cursor:pointer;position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4px 4px;overflow:hidden;flex-shrink:0;transition:.15s;
 }
-.pcard.mine{
-  background:rgba(160,55,5,.85);
-  border-color:rgba(249,150,50,.75);
-  box-shadow:0 0 12px rgba(249,115,22,.55);
-}
-.pcard-name{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pcard-pts{font-size:14px;font-weight:900;color:#fff;line-height:1.1;margin-top:1px;}
-.pcard-team{font-size:9px;color:rgba(255,255,255,.6);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.cap-badge{position:absolute;top:-6px;left:-6px;background:var(--gold);color:#000;border-radius:50%;width:15px;height:15px;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(0,0,0,.5);}
+.pcard.mine{background:rgba(160,55,5,.87);border-color:rgba(249,150,50,.8);box-shadow:0 0 10px rgba(249,115,22,.5);}
+.pcard-name{font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
+.pcard-pts{font-size:14px;font-weight:900;color:#fff;line-height:1.1;}
+.pcard-team{font-size:8px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
+.cap-badge{position:absolute;top:-5px;left:-5px;background:var(--gold);color:#000;border-radius:50%;width:14px;height:14px;font-size:7px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.4);}
 
 /* ── MODAL ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:flex-end;}
@@ -327,7 +317,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 <div class="view" id="view-totw">
   <div class="totw-wrap">
     <div class="page">
-      <div class="totw-pair" id="totwPair">
+      <div class="totw-trio" id="totwPair">
         <div class="spin-c"><div class="spinner"></div>Se încarcă...</div>
       </div>
     </div>
@@ -379,14 +369,31 @@ function fixName(n){ return NAME_MAP[n]||n; }
 const EDUARD_GUID = 'abd0968c-81a1-11f0-bb57-abab47f5742d';
 const TOTAL_MDs   = 17;
 
-// ── PS5 BEST RANK DATA ──
-// Editează manual după fiecare MD:
+// ── PS5 BEST RANK — auto-tracked from loaded MD data ──────────────────
+// Starts empty; fills automatically as you browse MDs.
+// Each time a MD loads, we record gdRank per manager for that MD.
 // Format: { 'NumeManager': { md_number: gdRank } }
-const PS5_BEST = {
-  'Dan':    { 8: 179 },
-  'Eduard': { 6: 6381 },
-  // adaugă restul aici
-};
+const bestRanks = {};
+
+function updateBestRanks(md, managers) {
+  managers.forEach(m => {
+    if (!m.gdRank || m.gdRank === 0) return;
+    if (!bestRanks[m.username]) bestRanks[m.username] = {};
+    // Only store if this is their best (lowest) rank for this MD
+    if (!bestRanks[m.username][md] || m.gdRank < bestRanks[m.username][md]) {
+      bestRanks[m.username][md] = m.gdRank;
+    }
+  });
+}
+
+function getBestRankEntry(username) {
+  const data = bestRanks[username] || {};
+  const mds = Object.keys(data).map(Number);
+  if (!mds.length) return { bestRank: null, bestMD: null };
+  let bestRank = Infinity, bestMD = null;
+  mds.forEach(md => { if (data[md] < bestRank) { bestRank = data[md]; bestMD = md; } });
+  return { bestRank, bestMD };
+}
 
 // PIN stored as hashed check — not plain text
 // Hash of "2323"
@@ -420,6 +427,7 @@ async function load(md){
     });
     D.allPlayers.forEach(p=>{if(p.ownedBy)p.ownedBy=p.ownedBy.map(fixName);});
     mdCache[md]=D;
+    updateBestRanks(md, D.managers);
     buildMdBar(); buildMgrSel(); buildMgrChips(); render();
     const d=new Date(D.lastUpdated);
     document.getElementById('updBar').textContent=
@@ -513,18 +521,14 @@ function renderClasament(){
       <div class="rank-list" id="rl-ps5"></div>
     </div>`;
 
-  buildRankCol('rl-md',byMD,m=>({val:`<div class="rank-v-fire">${m.gdPoints}</div>`,sub:'#'+(m.gdRank||0).toLocaleString()}));
-  buildRankCol('rl-ov',byOv,m=>({val:`<div class="rank-v-blue">${m.ovPoints}</div>`,sub:'#'+(m.ovRank||0).toLocaleString()}));
+  buildRankCol('rl-md',byMD,m=>({val:`<div class="rank-val-wrap"><span class="rank-v-fire">${m.gdPoints}</span></div>`,sub:'#'+(m.gdRank||0).toLocaleString()}));
+  buildRankCol('rl-ov',byOv,m=>({val:`<div class="rank-val-wrap"><span class="rank-v-blue">${m.ovPoints}</span></div>`,sub:'#'+(m.ovRank||0).toLocaleString()}));
 
   // PS5
   const ps5C=document.getElementById('rl-ps5');
   const entries=D.managers.map(m=>{
-    const data=PS5_BEST[m.username]||{};
-    const mds=Object.keys(data).map(Number);
-    if(!mds.length)return{username:m.username,guid:m.guid,bestRank:null,bestMD:null};
-    let br=Infinity,bm=null;
-    mds.forEach(md=>{if(data[md]<br){br=data[md];bm=md;}});
-    return{username:m.username,guid:m.guid,bestRank:br,bestMD:bm};
+    const {bestRank,bestMD}=getBestRankEntry(m.username);
+    return{username:m.username,guid:m.guid,bestRank,bestMD};
   }).sort((a,b)=>{
     if(a.bestRank===null&&b.bestRank===null)return 0;
     if(a.bestRank===null)return 1; if(b.bestRank===null)return-1;
@@ -537,7 +541,7 @@ function renderClasament(){
     const pill=e.bestMD?`<span class="ps5-pill">MD${e.bestMD}</span>`:`<span style="font-size:10px;color:var(--muted)">nicio dată</span>`;
     div.innerHTML=`<div class="rank-num">${i+1}</div>
       <div class="rank-inf"><div class="rank-name">${e.username}</div><div style="margin-top:3px">${pill}</div></div>
-      <div class="rank-v-ps5">${e.bestRank?'#'+e.bestRank.toLocaleString():'—'}</div>`;
+      <div class="rank-val-wrap"><span class="rank-v-ps5">${e.bestRank?'#'+e.bestRank.toLocaleString():'—'}</span></div>`;
     ps5C.appendChild(div);
   });
 }
@@ -669,7 +673,6 @@ function renderScouting(){
       return`<span class="dot ${o?(m.guid===meGuid?'dot-me':'dot-ot'):'dot-em'}" title="${m.username}"></span>`;
     }).join('');
     const mdVal=p.curGDPts||0;
-    const isCurMD=sCol==='curGDPts';
     return`<div class="sc-card${p.isMine?' mine':''}" onclick="showP(${p.id})">
       <div class="sc-left">
         <div class="sc-pts-big${p.isMine?' fire':''}">${p.totPts}</div>
@@ -682,17 +685,17 @@ function renderScouting(){
           <span class="s-dot s${(p.status||'A').toLowerCase()}"></span>
           ${p.team}
         </div>
-        <div style="margin-top:6px;display:flex;gap:5px;align-items:center;">
+        <div class="sc-badges">
           <span class="pct-b ${pctCls(p.fP)}">${p.fP}%</span>
           <span style="font-size:10px;color:var(--muted)">ligă</span>
-          <span class="pct-b plo" style="margin-left:4px">${p.selPer}%</span>
+          <span class="pct-b plo">${p.selPer}%</span>
           <span style="font-size:10px;color:var(--muted)">global</span>
         </div>
+        <div class="dots">${dots}</div>
       </div>
       <div class="sc-right">
         <div class="sc-md-pts">${mdVal}</div>
-        <div class="sc-md-lbl">MD pts</div>
-        <div class="dots" style="margin-top:6px">${dots}</div>
+        <div class="sc-md-lbl">MD Pts</div>
       </div>
     </div>`;
   }).join('');
@@ -726,7 +729,8 @@ function pickBestXI(players){
 function renderTOTW(){
   if(!D)return;
   const ids=myIds();
-  // LOCAL
+
+  // 1) LIGA NOASTRĂ — best starters from all managers, BASE points (no cap doubling)
   const pMap={};
   D.managers.forEach(m=>m.players.filter(p=>p.isStarter).forEach(p=>{
     const k=p.id;
@@ -734,44 +738,68 @@ function renderTOTW(){
       pMap[k]={...p};
   }));
   const localRes=pickBestXI(Object.values(pMap));
-  // GLOBAL
+
+  // 2) GLOBAL TOTW — from all public players, base pts
   const globalRes=pickBestXI(D.allPlayers.map(p=>({...p,mdPoints:p.curGDPts||0,ownedBy:p.ownedBy||[]})));
+
+  // 3) BEST LOCAL MANAGER — manager with lowest gdRank this MD = closest to global #1
+  const bestMgr=[...D.managers].filter(m=>m.gdRank>0).sort((a,b)=>a.gdRank-b.gdRank)[0];
+  const bestRes=bestMgr ? pickBestXI(bestMgr.players.filter(p=>p.isStarter).map(p=>({...p,ownedBy:p.ownedBy||[]}))) : {squad:[],d:4,m:3,f:3};
 
   document.getElementById('totwPair').innerHTML=`
     <div class="totw-half">
-      <div class="totw-label local">Liga Noastră TOTW <div class="totw-label-line"></div></div>
-      ${buildPitch(localRes,ids)}
+      <div class="totw-label local">Liga Noastră <div class="totw-label-line"></div></div>
+      ${buildPitch(localRes,ids,'local')}
     </div>
     <div class="totw-half">
       <div class="totw-label global">Global TOTW <div class="totw-label-line"></div></div>
-      ${buildPitch(globalRes,ids)}
+      ${buildPitch(globalRes,ids,'global')}
+    </div>
+    <div class="totw-half">
+      <div class="totw-label best">#1 Ligă · ${bestMgr?bestMgr.username:'—'} <div class="totw-label-line"></div></div>
+      ${buildPitch(bestRes,ids,'best',bestMgr)}
     </div>`;
 }
 
-function buildPitch({squad,d,m,f},ids){
+function buildPitch({squad,d,m,f},ids,type,mgr){
+  if(!squad||!squad.length){
+    return`<div class="pitch"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.4);font-size:13px">Fără date</div></div>`;
+  }
   const byPos={GK:[],DEF:[],MID:[],FWD:[]};
   squad.forEach(p=>{if(byPos[p.posCode])byPos[p.posCode].push(p);});
   const form=`${d}-${m}-${f}`;
+  const totalPts=squad.reduce((s,p)=>s+p.mdPoints,0);
+
+  // Count how many of MY players are in this XI
+  const mineCount=squad.filter(p=>ids.has(p.id)).length;
+  const counterCls=mineCount>0?' has-mine':'';
+
   let h=`<div class="pitch">
     <div class="pitch-midcircle"></div>
     <div class="pitch-box-t"></div>
     <div class="pitch-box-b"></div>
-    <div class="form-tag">${form}</div>`;
-  [byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].forEach(row=>{
+    <div class="form-tag">${form}</div>
+    <div class="pitch-counter${counterCls}">${mineCount}/11</div>`;
+
+  [byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].forEach((row,ri)=>{
     if(!row.length)return;
     h+=`<div class="pitch-row">`;
     row.forEach(p=>{
       const mine=ids.has(p.id);
       const shortName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
       h+=`<div class="pcard${mine?' mine':''}" onclick="showP(${p.id})">
-        ${p.isCaptain?'<span class="cap-badge">C</span>':''}
         <div class="pcard-name">${shortName}</div>
-        <div class="pcard-pts">${p.mdPoints} PTS</div>
+        <div class="pcard-pts">${p.mdPoints}</div>
         <div class="pcard-team">${p.team||''}</div>
       </div>`;
     });
     h+=`</div>`;
+    // Add total pts row right after GK row (last row rendered)
+    if(ri===3){
+      h+=`<div class="pitch-total">Total: <span>${totalPts} pts</span></div>`;
+    }
   });
+
   h+=`</div>`;
   return h;
 }
