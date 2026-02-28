@@ -128,32 +128,32 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .mgr-chip.on{background:var(--sub);color:var(--text);border-color:rgba(255,255,255,.2);}
 .mgr-chip.on.me{border-color:var(--fire);color:var(--fire);}
 
-/* Scouting cards — friendly card layout */
+/* Scouting cards */
 .scout-body{padding:10px 20px 80px;}
 .scout-sort-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
 .sort-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:.15s;}
 .sort-btn.on{background:var(--acc);color:#fff;border-color:var(--acc);}
 .scout-cards{display:flex;flex-direction:column;gap:8px;}
-.sc-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s;}
+.sc-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:.15s;}
 .sc-card:active{background:var(--card2);}
 .sc-card.mine{border-left:3px solid var(--fire);}
-/* LEFT — total pts, big */
-.sc-left{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:52px;}
-.sc-pts-big{font-size:26px;font-weight:900;color:var(--acc);line-height:1;}
+/* LEFT — total pts */
+.sc-left{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:48px;}
+.sc-pts-big{font-size:28px;font-weight:900;color:var(--acc);line-height:1;}
 .sc-pts-big.fire{color:var(--fire);}
 .sc-pts-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
-/* CENTER — name, pos/team, badges */
-.sc-mid{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;}
-.sc-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
+/* CENTER — name large, sub row, badges row, dots row */
+.sc-mid{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:5px;}
+.sc-name{font-weight:800;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;}
 .sc-sub{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
-.sc-badges{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
-/* RIGHT — MD pts, same big size */
-.sc-right{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:56px;}
-.sc-md-pts{font-size:26px;font-weight:900;color:var(--fire);line-height:1;}
-.sc-md-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
-.dots{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:4px;}
-.dot{width:8px;height:8px;border-radius:50%;}
+.sc-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.dots{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+.dot{width:9px;height:9px;border-radius:50%;}
 .dot-me{background:var(--fire);}.dot-ot{background:var(--acc);opacity:.8;}.dot-em{background:rgba(255,255,255,.12);}
+/* RIGHT — MD pts same size as total */
+.sc-right{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:56px;}
+.sc-md-pts{font-size:28px;font-weight:900;color:var(--fire);line-height:1;}
+.sc-md-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
 
 /* ── TOTW — pitch only, full width ── */
 .totw-wrap{padding:10px 14px 30px;}
@@ -166,41 +166,40 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .totw-label.local{color:var(--fire);}.totw-label.global{color:var(--acc);}.totw-label.best{color:#a78bfa;}
 .totw-label-line{flex:1;height:1px;background:var(--border);}
 
-/* Pitch — fixed dimensions that fit up to 5 players/row */
+/* Pitch — auto height, distributes rows evenly */
 .pitch{
   background:linear-gradient(180deg,#0f4d1e 0%,#166830 35%,#1a7a35 50%,#166830 65%,#0f4d1e 100%);
-  border-radius:var(--r);border:2px solid rgba(255,255,255,.15);overflow:visible;
-  position:relative;display:flex;flex-direction:column;justify-content:space-between;
-  padding:40px 6px 8px;
-  height:480px; /* fixed — enough for 4 rows + total + padding */
+  border-radius:var(--r);border:2px solid rgba(255,255,255,.15);overflow:hidden;
+  position:relative;display:flex;flex-direction:column;justify-content:space-evenly;
+  padding:36px 4px 10px;gap:6px;
 }
-.pitch::before{content:'';position:absolute;inset:0;pointer-events:none;border-radius:calc(var(--r) - 2px);overflow:hidden;
-  background:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:100% 25%;}
-.pitch-midcircle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;border:1.5px solid rgba(255,255,255,.14);pointer-events:none;}
-.pitch-box-t{position:absolute;top:0;left:50%;transform:translateX(-50%);width:52%;height:16%;border:1.5px solid rgba(255,255,255,.11);border-top:none;border-radius:0 0 8px 8px;pointer-events:none;}
-.pitch-box-b{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);width:52%;height:14%;border:1.5px solid rgba(255,255,255,.11);border-bottom:none;border-radius:8px 8px 0 0;pointer-events:none;}
-.pitch-row{display:flex;justify-content:space-around;align-items:center;position:relative;z-index:2;width:100%;}
-.form-tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;z-index:3;}
-.pitch-counter{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:rgba(255,255,255,.7);font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;z-index:3;}
+.pitch::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:100% 25%;}
+.pitch-midcircle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:60px;height:60px;border-radius:50%;border:1.5px solid rgba(255,255,255,.13);pointer-events:none;}
+.pitch-box-t{position:absolute;top:0;left:50%;transform:translateX(-50%);width:50%;height:15%;border:1.5px solid rgba(255,255,255,.1);border-top:none;border-radius:0 0 8px 8px;pointer-events:none;}
+.pitch-box-b{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);width:50%;height:14%;border:1.5px solid rgba(255,255,255,.1);border-bottom:none;border-radius:8px 8px 0 0;pointer-events:none;}
+.pitch-row{display:flex;justify-content:space-around;align-items:center;position:relative;z-index:2;width:100%;gap:2px;}
+.form-tag{position:absolute;top:9px;left:9px;background:rgba(0,0,0,.65);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;z-index:3;}
+.pitch-counter{position:absolute;top:9px;right:9px;background:rgba(0,0,0,.65);color:rgba(255,255,255,.7);font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;z-index:3;}
 .pitch-counter.has-mine{color:var(--fire);}
-.pitch-total{text-align:center;color:rgba(255,255,255,.95);font-size:12px;font-weight:800;padding:3px 0 0;position:relative;z-index:2;letter-spacing:.3px;}
+.pitch-total{text-align:center;color:rgba(255,255,255,.95);font-size:12px;font-weight:800;padding:2px 0 0;position:relative;z-index:2;letter-spacing:.3px;flex-shrink:0;}
 .pitch-total span{color:var(--gold);}
 
-/* Player cards — fixed 60×64px, text scales with container */
+/* Player cards — 52×58px: narrow enough for 5-wide rows */
 .pcard{
   background:rgba(20,100,180,.84);
   border:1.5px solid rgba(120,200,255,.4);
   border-radius:var(--rsm);
-  width:60px;height:64px;
+  width:52px;height:58px;
   text-align:center;cursor:pointer;position:relative;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:3px;overflow:hidden;flex-shrink:0;transition:.15s;
+  padding:2px;overflow:hidden;flex-shrink:0;transition:.15s;
 }
-.pcard.mine{background:rgba(160,55,5,.87);border-color:rgba(249,150,50,.8);box-shadow:0 0 10px rgba(249,115,22,.5);}
-.pcard-name{font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;}
-.pcard-pts{font-size:15px;font-weight:900;color:#fff;line-height:1.1;}
-.pcard-team{font-size:8px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
-.cap-badge{position:absolute;top:-5px;left:-5px;background:var(--gold);color:#000;border-radius:50%;width:14px;height:14px;font-size:7px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.4);}
+.pcard.mine{background:rgba(160,55,5,.87);border-color:rgba(249,150,50,.8);box-shadow:0 0 8px rgba(249,115,22,.45);}
+.pcard-name{font-size:8.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;}
+.pcard-pts{font-size:14px;font-weight:900;color:#fff;line-height:1.1;}
+.pcard-team{font-size:7.5px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
+.cap-badge{position:absolute;top:-4px;left:-4px;background:var(--gold);color:#000;border-radius:50%;width:13px;height:13px;font-size:7px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.4);}
 
 /* ── MANAGER MODAL — Variant A: pitch visual ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:300;align-items:flex-end;}
