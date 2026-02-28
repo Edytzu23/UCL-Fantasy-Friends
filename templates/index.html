@@ -157,11 +157,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 
 /* ── TOTW — pitch only, full width ── */
 .totw-wrap{padding:10px 14px 30px;}
-.totw-trio{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:flex-start;}
-.totw-trio::-webkit-scrollbar{display:none;}
-/* Each pitch needs min 320px to fit 5 × 60px cards + gaps */
-.totw-half{flex:0 0 320px;display:flex;flex-direction:column;}
-@media(min-width:1000px){.totw-half{flex:1;min-width:0;}}
+/* wrap: first 2 side-by-side, 3rd below if no room */
+.totw-trio{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;}
+.totw-half{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;}
+/* on wide screens all 3 fit in one row; on narrower screens 3rd wraps below */
+@media(min-width:960px){.totw-half{flex:1 1 0;}}
 .totw-label{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:7px;}
 .totw-label.local{color:var(--fire);}.totw-label.global{color:var(--acc);}.totw-label.best{color:#a78bfa;}
 .totw-label-line{flex:1;height:1px;background:var(--border);}
@@ -215,13 +215,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .mm-name{font-size:19px;font-weight:800;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .mm-sub{font-size:12px;color:var(--muted);margin-top:2px;}
 
-/* 3 stat boxes */
+/* 3 stat boxes — row, equal height, no min-height stretch */
 .mm-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 18px 14px;}
-.mm-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 6px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60px;}
-.mm-stat-v{font-size:22px;font-weight:900;line-height:1;color:var(--acc);}
+.mm-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:12px 6px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.mm-stat-v{font-size:26px;font-weight:900;line-height:1;color:var(--acc);}
 .mm-stat-v.fire{color:var(--fire);}
-/* rank: smaller font so it fits the box */
 .mm-stat-v.rank{font-size:15px;font-weight:800;color:var(--text);}
 .mm-stat-l{font-size:10px;color:var(--muted);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:center;}
 
@@ -232,13 +231,13 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   background:linear-gradient(180deg,#0f4d1e 0%,#1a7a35 50%,#0f4d1e 100%);
   border-radius:var(--rsm);border:1.5px solid rgba(255,255,255,.14);
   padding:10px 6px 8px;
-  display:flex;flex-direction:column;gap:7px;
+  display:flex;flex-direction:column;gap:8px;
 }
 .mm-pitch-row{display:flex;justify-content:space-around;align-items:center;gap:4px;}
-/* player card — fixed 58×62px */
+/* player card — wider & shorter so pitch is squarish not tall */
 .mm-pc{
   background:rgba(20,100,180,.86);border:1.5px solid rgba(120,200,255,.4);
-  border-radius:7px;width:58px;height:62px;
+  border-radius:7px;width:62px;height:58px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:3px;overflow:hidden;cursor:pointer;flex-shrink:0;transition:.12s;
 }
