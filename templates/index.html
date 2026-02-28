@@ -242,6 +242,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 }
 .mm-pc:active{opacity:.75;}
 .mm-pc.cap{background:rgba(160,55,5,.88);border-color:rgba(249,150,50,.8);box-shadow:0 0 8px rgba(249,115,22,.45);}
+.mm-pc.live{background:rgba(161,120,0,.9);border-color:rgba(255,210,0,.85);box-shadow:0 0 8px rgba(255,200,0,.5);}
+.mm-pc.live .mm-pc-n,.mm-pc.live .mm-pc-p,.mm-pc.live .mm-pc-t{color:#fff;}
 .mm-pc-n{font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;}
 .mm-pc-p{font-size:15px;font-weight:900;color:#fff;line-height:1.1;}
 .mm-pc-t{font-size:8px;color:rgba(255,255,255,.5);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
@@ -667,8 +669,9 @@ function showMgrModal(guid){
   const pitchRows=[byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].filter(r=>r.length).map(row=>{
     const cards=row.map(p=>{
       const isMine=myIds().has(p.id);
+      const isLive=(p.minutesPlayed>0&&p.minutesPlayed<90);
       const shortName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
-      return`<div class="mm-pc${p.isCaptain?' cap':''}" onclick="closeOv({target:{}});showP(${p.id})">
+      return`<div class="mm-pc${p.isCaptain?' cap':isLive?' live':''}" onclick="closeOv({target:{}});showP(${p.id})">
         <div class="mm-pc-n">${shortName}${p.isCaptain?' ©':''}</div>
         <div class="mm-pc-p">${bp(p)}</div>
         <div class="mm-pc-t">${p.team||''}</div>
@@ -791,7 +794,7 @@ function buildScoutSortRow(){
   row.innerHTML=SORT_OPTS.map(o=>`<div class="sort-btn${sCol===o.key?' on':''}" data-col="${o.key}" onclick="setScoutSort('${o.key}')">${o.label}</div>`).join('');
 }
 function setScoutSort(col){
-  if(sCol===col)sDir*=-1; else{sCol=col;sDir=-1;}
+  if(sCol===col){ sDir*=-1; } else{ sCol=col; sDir=-1; } // new col → always desc first
   buildScoutSortRow(); renderScouting();
 }
 
