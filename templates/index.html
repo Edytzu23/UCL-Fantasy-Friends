@@ -40,6 +40,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .md-bar::-webkit-scrollbar{display:none;}
 .md-p{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s;}
 .md-p.on{background:rgba(249,115,22,.22);color:var(--fire);border-color:rgba(249,115,22,.4);}
+.md-p.locked{opacity:.35;cursor:not-allowed;}
 
 /* ── TABS ── */
 .tabs-wrap{background:var(--surf);border-bottom:1px solid var(--border);}
@@ -156,58 +157,107 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 
 /* ── TOTW — pitch only, full width ── */
 .totw-wrap{padding:10px 14px 30px;}
-/* 3 pitches: horizontal scroll on mobile, 3 cols on wide */
-.totw-trio{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.totw-trio{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:flex-start;}
 .totw-trio::-webkit-scrollbar{display:none;}
-.totw-half{flex:0 0 min(82vw,300px);display:flex;flex-direction:column;}
-@media(min-width:900px){.totw-half{flex:1;min-width:0;}}
+/* Each pitch needs min 320px to fit 5 × 60px cards + gaps */
+.totw-half{flex:0 0 320px;display:flex;flex-direction:column;}
+@media(min-width:1000px){.totw-half{flex:1;min-width:0;}}
 .totw-label{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:7px;}
 .totw-label.local{color:var(--fire);}.totw-label.global{color:var(--acc);}.totw-label.best{color:#a78bfa;}
 .totw-label-line{flex:1;height:1px;background:var(--border);}
 
-/* Pitch */
+/* Pitch — fixed dimensions that fit up to 5 players/row */
 .pitch{
   background:linear-gradient(180deg,#0f4d1e 0%,#166830 35%,#1a7a35 50%,#166830 65%,#0f4d1e 100%);
-  border-radius:var(--r);border:2px solid rgba(255,255,255,.15);overflow:hidden;
-  position:relative;display:flex;flex-direction:column;justify-content:space-around;
-  padding:38px 6px 8px;flex:1;min-height:400px;
+  border-radius:var(--r);border:2px solid rgba(255,255,255,.15);overflow:visible;
+  position:relative;display:flex;flex-direction:column;justify-content:space-between;
+  padding:40px 6px 8px;
+  height:480px; /* fixed — enough for 4 rows + total + padding */
 }
-@media(min-width:900px){.pitch{min-height:500px;}}
-.pitch::before{content:'';position:absolute;inset:0;pointer-events:none;
+.pitch::before{content:'';position:absolute;inset:0;pointer-events:none;border-radius:calc(var(--r) - 2px);overflow:hidden;
   background:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:100% 25%;}
-.pitch-midcircle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;border:1.5px solid rgba(255,255,255,.14);pointer-events:none;}
-.pitch-box-t{position:absolute;top:0;left:50%;transform:translateX(-50%);width:52%;height:15%;border:1.5px solid rgba(255,255,255,.11);border-top:none;border-radius:0 0 8px 8px;pointer-events:none;}
-.pitch-box-b{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);width:52%;height:15%;border:1.5px solid rgba(255,255,255,.11);border-bottom:none;border-radius:8px 8px 0 0;pointer-events:none;}
-.pitch-row{display:flex;justify-content:space-around;align-items:center;position:relative;z-index:2;gap:4px;}
+.pitch-midcircle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;border:1.5px solid rgba(255,255,255,.14);pointer-events:none;}
+.pitch-box-t{position:absolute;top:0;left:50%;transform:translateX(-50%);width:52%;height:16%;border:1.5px solid rgba(255,255,255,.11);border-top:none;border-radius:0 0 8px 8px;pointer-events:none;}
+.pitch-box-b{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);width:52%;height:14%;border:1.5px solid rgba(255,255,255,.11);border-bottom:none;border-radius:8px 8px 0 0;pointer-events:none;}
+.pitch-row{display:flex;justify-content:space-around;align-items:center;position:relative;z-index:2;width:100%;}
 .form-tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;z-index:3;}
-/* my players counter — top right */
 .pitch-counter{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:rgba(255,255,255,.7);font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;z-index:3;}
 .pitch-counter.has-mine{color:var(--fire);}
-/* total pts below GK */
-.pitch-total{text-align:center;color:rgba(255,255,255,.95);font-size:13px;font-weight:800;padding:5px 0 2px;position:relative;z-index:2;letter-spacing:.3px;}
+.pitch-total{text-align:center;color:rgba(255,255,255,.95);font-size:12px;font-weight:800;padding:3px 0 0;position:relative;z-index:2;letter-spacing:.3px;}
 .pitch-total span{color:var(--gold);}
 
-/* Player cards — FIXED SIZE regardless of name */
+/* Player cards — fixed 60×64px, text scales with container */
 .pcard{
   background:rgba(20,100,180,.84);
   border:1.5px solid rgba(120,200,255,.4);
   border-radius:var(--rsm);
-  width:72px;height:68px;  /* fixed! */
+  width:60px;height:64px;
   text-align:center;cursor:pointer;position:relative;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:4px 4px;overflow:hidden;flex-shrink:0;transition:.15s;
+  padding:3px;overflow:hidden;flex-shrink:0;transition:.15s;
 }
 .pcard.mine{background:rgba(160,55,5,.87);border-color:rgba(249,150,50,.8);box-shadow:0 0 10px rgba(249,115,22,.5);}
-.pcard-name{font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
-.pcard-pts{font-size:14px;font-weight:900;color:#fff;line-height:1.1;}
+.pcard-name{font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;}
+.pcard-pts{font-size:15px;font-weight:900;color:#fff;line-height:1.1;}
 .pcard-team{font-size:8px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
 .cap-badge{position:absolute;top:-5px;left:-5px;background:var(--gold);color:#000;border-radius:50%;width:14px;height:14px;font-size:7px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.4);}
 
-/* ── MODAL ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:flex-end;}
+/* ── MANAGER MODAL — Variant A: pitch visual ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:300;align-items:flex-end;}
 .overlay.open{display:flex;}
-.modal{background:var(--surf);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px;width:100%;max-height:76vh;overflow-y:auto;}
-.m-handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.modal{background:var(--surf);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-height:88vh;overflow-y:auto;}
+.m-handle{width:38px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 0;padding-top:10px;}
+
+/* header row: avatar + name + stats */
+.mm-header{padding:16px 18px 14px;display:flex;align-items:center;gap:14px;}
+.mm-avatar{width:48px;height:48px;background:linear-gradient(135deg,#1d4ed8,#60a5fa);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.mm-info{flex:1;min-width:0;}
+.mm-name{font-size:19px;font-weight:800;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mm-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* 3 stat boxes */
+.mm-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 18px 14px;}
+.mm-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 6px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60px;}
+.mm-stat-v{font-size:22px;font-weight:900;line-height:1;color:var(--acc);}
+.mm-stat-v.fire{color:var(--fire);}
+/* rank: smaller font so it fits the box */
+.mm-stat-v.rank{font-size:15px;font-weight:800;color:var(--text);}
+.mm-stat-l{font-size:10px;color:var(--muted);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+
+/* mini pitch inside modal */
+.mm-pitch-wrap{padding:0 18px 14px;}
+.mm-pitch-lbl{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
+.mm-pitch{
+  background:linear-gradient(180deg,#0f4d1e 0%,#1a7a35 50%,#0f4d1e 100%);
+  border-radius:var(--rsm);border:1.5px solid rgba(255,255,255,.14);
+  padding:10px 6px 8px;
+  display:flex;flex-direction:column;gap:7px;
+}
+.mm-pitch-row{display:flex;justify-content:space-around;align-items:center;gap:4px;}
+/* player card — fixed 58×62px */
+.mm-pc{
+  background:rgba(20,100,180,.86);border:1.5px solid rgba(120,200,255,.4);
+  border-radius:7px;width:58px;height:62px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:3px;overflow:hidden;cursor:pointer;flex-shrink:0;transition:.12s;
+}
+.mm-pc:active{opacity:.75;}
+.mm-pc.cap{background:rgba(160,55,5,.88);border-color:rgba(249,150,50,.8);box-shadow:0 0 8px rgba(249,115,22,.45);}
+.mm-pc-n{font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;}
+.mm-pc-p{font-size:15px;font-weight:900;color:#fff;line-height:1.1;}
+.mm-pc-t{font-size:8px;color:rgba(255,255,255,.5);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
+
+/* bench strip */
+.mm-bench-wrap{padding:0 18px 18px;}
+.mm-bench-lbl{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
+.mm-bench{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.mm-bp{background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:7px 6px;text-align:center;}
+.mm-bp-pos{margin-bottom:3px;}
+.mm-bp-n{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;display:block;}
+.mm-bp-p{font-size:13px;font-weight:800;color:var(--muted);margin-top:1px;}
+
+/* legacy classes kept for player modal */
 .m-name{font-size:18px;font-weight:800;margin-bottom:3px;}
 .m-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
@@ -414,7 +464,36 @@ const mdCache={};
 let pinBuffer='';
 
 // ── BOOT ───────────────────────────────────
-window.onload=()=>load(10);
+window.onload=()=>loadAllMDs();
+
+// Load MD10 first (visible), then silently preload all past MDs in background
+async function loadAllMDs(){
+  await load(10); // load current MD first so user sees content immediately
+  // Then silently fetch all other MDs without affecting UI
+  for(let i=1;i<=TOTAL_MDs;i++){
+    if(i===10)continue;
+    silentLoad(i);
+  }
+}
+
+async function silentLoad(md){
+  if(mdCache[md])return; // already cached
+  try{
+    const r=await fetch(`/api/data?md=${md}`);
+    const data=await r.json();
+    // apply name fixes
+    data.managers.forEach(m=>{
+      m.username=fixName(m.username);
+      m.players.forEach(p=>{if(p.managerName)p.managerName=fixName(p.managerName);});
+    });
+    data.allPlayers.forEach(p=>{if(p.ownedBy)p.ownedBy=p.ownedBy.map(fixName);});
+    mdCache[md]=data;
+    updateBestRanks(md,data.managers);
+    buildMdBar(); // update locked/unlocked state
+    // If user is on clasament tab, silently refresh PS5 section
+    if(curTab==='clasament')renderClasament();
+  }catch(e){/* silent fail for background loads */}
+}
 
 async function load(md){
   MD=md; showSpinner();
@@ -442,12 +521,20 @@ function showSpinner(){
 }
 
 // ── MD BAR ─────────────────────────────────
+// MDs 1-8: League phase. 9-10: Knockout playoffs. 11-17: K.O. rounds.
+// We detect "available" as: md <= highest md with data, or md <= 10 as a safe default.
 function buildMdBar(){
   const bar=document.getElementById('mdBar'); bar.innerHTML='';
+  // Highest MD we have data for
+  const maxAvail=Math.max(...Object.keys(mdCache).map(Number), MD);
   for(let i=1;i<=TOTAL_MDs;i++){
     const el=document.createElement('div');
-    el.className='md-p'+(i===MD?' on':'');
-    el.textContent='MD'+i; el.onclick=()=>switchMD(i); bar.appendChild(el);
+    const isActive=i===MD;
+    const isLocked=i>maxAvail+1; // lock anything beyond next MD
+    el.className='md-p'+(isActive?' on':isLocked?' locked':'');
+    el.textContent='MD'+i;
+    if(!isLocked) el.onclick=()=>switchMD(i);
+    bar.appendChild(el);
   }
 }
 function switchMD(md){
@@ -564,18 +651,80 @@ function buildRankCol(id,list,fn){
 
 function showMgrModal(guid){
   const m=D.managers.find(x=>x.guid===guid);
-  const st=m.players.filter(p=>p.isStarter).sort((a,b)=>({GK:0,DEF:1,MID:2,FWD:3}[a.posCode]||0)-({GK:0,DEF:1,MID:2,FWD:3}[b.posCode]||0));
-  const bn=m.players.filter(p=>!p.isStarter).sort((a,b)=>a.benchPosition-b.benchPosition);
-  let h=`<div class="m-handle"></div><div class="m-name">${m.username}</div><div class="m-sub">${m.teamName}</div>
-    <div class="stat-grid">
-      <div class="stat-box"><div class="stat-v">${m.gdPoints}</div><div class="stat-l">MD${MD}</div></div>
-      <div class="stat-box"><div class="stat-v">${m.ovPoints}</div><div class="stat-l">Total</div></div>
-      <div class="stat-box"><div class="stat-v" style="font-size:13px">#${(m.ovRank||0).toLocaleString()}</div><div class="stat-l">Rank</div></div>
-    </div><div class="sec-lbl">Titulari</div>`;
-  st.forEach(p=>{h+=`<div class="srow"><div><span class="pos-b pos-${p.posCode}">${p.posCode}</span> <b>${p.name}</b>${p.isCaptain?' <span style="color:var(--gold)">(C)</span>':''}<br><span style="font-size:11px;color:var(--muted)">${p.team}</span></div><div style="font-weight:700;color:var(--acc)">${p.mdPoints}</div></div>`;});
-  h+=`<div class="sec-lbl" style="margin-top:6px">Bancă</div>`;
-  bn.forEach(p=>{h+=`<div class="srow" style="opacity:.5"><div><span class="pos-b pos-${p.posCode}">${p.posCode}</span> ${p.name}</div><div style="font-weight:700">${p.mdPoints}</div></div>`;});
-  document.getElementById('modal').innerHTML=h;
+  if(!m)return;
+
+  // Helper: base pts (halve if captain)
+  const bp=p=>p.isCaptain?Math.round((p.mdPoints||0)/2):(p.mdPoints||0);
+
+  // Sort starters by position order
+  const posOrder={GK:0,DEF:1,MID:2,FWD:3};
+  const starters=m.players.filter(p=>p.isStarter).sort((a,b)=>(posOrder[a.posCode]||0)-(posOrder[b.posCode]||0));
+  const bench=m.players.filter(p=>!p.isStarter).sort((a,b)=>a.benchPosition-b.benchPosition);
+
+  // Group starters by position for pitch rows (FWD on top → GK at bottom)
+  const byPos={GK:[],DEF:[],MID:[],FWD:[]};
+  starters.forEach(p=>{if(byPos[p.posCode])byPos[p.posCode].push(p);});
+
+  // Build pitch rows HTML
+  const pitchRows=[byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].filter(r=>r.length).map(row=>{
+    const cards=row.map(p=>{
+      const isMine=myIds().has(p.id);
+      const shortName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
+      return`<div class="mm-pc${p.isCaptain?' cap':''}" onclick="closeOv({target:{}});showP(${p.id})">
+        <div class="mm-pc-n">${shortName}${p.isCaptain?' ©':''}</div>
+        <div class="mm-pc-p">${bp(p)}</div>
+        <div class="mm-pc-t">${p.team||''}</div>
+      </div>`;
+    }).join('');
+    return`<div class="mm-pitch-row">${cards}</div>`;
+  }).join('');
+
+  // Bench grid
+  const benchCards=bench.map(p=>`
+    <div class="mm-bp" onclick="closeOv({target:{}});showP(${p.id})">
+      <div class="mm-bp-pos"><span class="pos-b pos-${p.posCode}" style="font-size:9px">${p.posCode}</span></div>
+      <span class="mm-bp-n">${p.name.split(' ').pop()}</span>
+      <div class="mm-bp-p">${bp(p)}</div>
+    </div>`).join('');
+
+  // Rank display: auto-shrink if large number
+  const rankStr='#'+(m.ovRank||0).toLocaleString();
+  const rankSize=rankStr.length>7?'12px':rankStr.length>5?'14px':'15px';
+
+  const html=`
+    <div class="m-handle"></div>
+    <div class="mm-header">
+      <div class="mm-avatar">⚽</div>
+      <div class="mm-info">
+        <div class="mm-name">${m.username}</div>
+        <div class="mm-sub">${m.teamName}</div>
+      </div>
+    </div>
+    <div class="mm-stats">
+      <div class="mm-stat">
+        <div class="mm-stat-v fire">${m.gdPoints}</div>
+        <div class="mm-stat-l">MD${MD} Pts</div>
+      </div>
+      <div class="mm-stat">
+        <div class="mm-stat-v">${m.ovPoints}</div>
+        <div class="mm-stat-l">Total Pts</div>
+      </div>
+      <div class="mm-stat">
+        <div class="mm-stat-v rank" style="font-size:${rankSize}">${rankStr}</div>
+        <div class="mm-stat-l">Overall</div>
+      </div>
+    </div>
+    <div class="mm-pitch-wrap">
+      <div class="mm-pitch-lbl">Titulari</div>
+      <div class="mm-pitch">${pitchRows}</div>
+    </div>
+    ${bench.length?`
+    <div class="mm-bench-wrap">
+      <div class="mm-bench-lbl">Bancă</div>
+      <div class="mm-bench">${benchCards}</div>
+    </div>`:''}`;
+
+  document.getElementById('modal').innerHTML=html;
   document.getElementById('overlay').classList.add('open');
 }
 
@@ -730,49 +879,62 @@ function renderTOTW(){
   if(!D)return;
   const ids=myIds();
 
-  // 1) LIGA NOASTRĂ — best starters from all managers, BASE points (no cap doubling)
+  // Helper: get BASE points for a player (halve if captain, since UEFA API doubles captain mdPoints)
+  function basePts(p){ return p.isCaptain ? Math.round((p.mdPoints||0)/2) : (p.mdPoints||0); }
+
+  // 1) LIGA NOASTRĂ — best starters, BASE points (no cap doubling)
   const pMap={};
   D.managers.forEach(m=>m.players.filter(p=>p.isStarter).forEach(p=>{
     const k=p.id;
-    if(!pMap[k]||p.mdPoints>pMap[k].mdPoints||(p.mdPoints===pMap[k].mdPoints&&m.guid===meGuid))
-      pMap[k]={...p};
+    const bp=basePts(p);
+    const existing=pMap[k];
+    if(!existing||bp>existing.mdPoints||(bp===existing.mdPoints&&m.guid===meGuid))
+      pMap[k]={...p,mdPoints:bp};  // store with base pts
   }));
   const localRes=pickBestXI(Object.values(pMap));
 
-  // 2) GLOBAL TOTW — from all public players, base pts
+  // 2) GLOBAL TOTW — all public players, curGDPts = already base
   const globalRes=pickBestXI(D.allPlayers.map(p=>({...p,mdPoints:p.curGDPts||0,ownedBy:p.ownedBy||[]})));
 
-  // 3) BEST LOCAL MANAGER — manager with lowest gdRank this MD = closest to global #1
+  // 3) BEST IN LEAGUE this MD — manager with lowest gdRank = closest to global #1
+  //    Note: actual global #1's team isn't available via public API, so we show
+  //    the best manager from our league as comparison
   const bestMgr=[...D.managers].filter(m=>m.gdRank>0).sort((a,b)=>a.gdRank-b.gdRank)[0];
-  const bestRes=bestMgr ? pickBestXI(bestMgr.players.filter(p=>p.isStarter).map(p=>({...p,ownedBy:p.ownedBy||[]}))) : {squad:[],d:4,m:3,f:3};
+  const bestRes=bestMgr
+    ? pickBestXI(bestMgr.players.filter(p=>p.isStarter).map(p=>({...p,mdPoints:basePts(p),ownedBy:p.ownedBy||[]})))
+    : {squad:[],d:4,m:3,f:3};
+  const bestLabel=bestMgr
+    ? `${bestMgr.username} · <span style="font-size:9px;opacity:.7">#${(bestMgr.gdRank||0).toLocaleString()} global</span>`
+    : '—';
 
   document.getElementById('totwPair').innerHTML=`
     <div class="totw-half">
       <div class="totw-label local">Liga Noastră <div class="totw-label-line"></div></div>
-      ${buildPitch(localRes,ids,'local')}
+      ${buildPitch(localRes,ids)}
     </div>
     <div class="totw-half">
       <div class="totw-label global">Global TOTW <div class="totw-label-line"></div></div>
-      ${buildPitch(globalRes,ids,'global')}
+      ${buildPitch(globalRes,ids)}
     </div>
     <div class="totw-half">
-      <div class="totw-label best">#1 Ligă · ${bestMgr?bestMgr.username:'—'} <div class="totw-label-line"></div></div>
-      ${buildPitch(bestRes,ids,'best',bestMgr)}
+      <div class="totw-label best">Cel mai aproape · ${bestLabel} <div class="totw-label-line"></div></div>
+      ${buildPitch(bestRes,ids)}
     </div>`;
 }
 
-function buildPitch({squad,d,m,f},ids,type,mgr){
+function buildPitch({squad,d,m,f},ids){
   if(!squad||!squad.length){
-    return`<div class="pitch"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.4);font-size:13px">Fără date</div></div>`;
+    return`<div class="pitch" style="height:480px"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.4);font-size:13px">Fără date</div></div>`;
   }
   const byPos={GK:[],DEF:[],MID:[],FWD:[]};
   squad.forEach(p=>{if(byPos[p.posCode])byPos[p.posCode].push(p);});
   const form=`${d}-${m}-${f}`;
   const totalPts=squad.reduce((s,p)=>s+p.mdPoints,0);
-
-  // Count how many of MY players are in this XI
   const mineCount=squad.filter(p=>ids.has(p.id)).length;
   const counterCls=mineCount>0?' has-mine':'';
+
+  // Rows in pitch order: FWD top → GK bottom
+  const rows=[byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].filter(r=>r.length>0);
 
   let h=`<div class="pitch">
     <div class="pitch-midcircle"></div>
@@ -781,8 +943,7 @@ function buildPitch({squad,d,m,f},ids,type,mgr){
     <div class="form-tag">${form}</div>
     <div class="pitch-counter${counterCls}">${mineCount}/11</div>`;
 
-  [byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].forEach((row,ri)=>{
-    if(!row.length)return;
+  rows.forEach((row,ri)=>{
     h+=`<div class="pitch-row">`;
     row.forEach(p=>{
       const mine=ids.has(p.id);
@@ -794,12 +955,10 @@ function buildPitch({squad,d,m,f},ids,type,mgr){
       </div>`;
     });
     h+=`</div>`;
-    // Add total pts row right after GK row (last row rendered)
-    if(ri===3){
-      h+=`<div class="pitch-total">Total: <span>${totalPts} pts</span></div>`;
-    }
   });
 
+  // Total always at bottom inside pitch
+  h+=`<div class="pitch-total">Total: <span>${totalPts} pts</span></div>`;
   h+=`</div>`;
   return h;
 }
@@ -835,7 +994,10 @@ function showP(id){
     <div class="owned-wrap">${chips}</div>`;
   document.getElementById('overlay').classList.add('open');
 }
-function closeOv(e){if(e.target.id==='overlay')document.getElementById('overlay').classList.remove('open');}
+function closeOv(e){
+  if(!e||e.target===document.getElementById('overlay'))
+    document.getElementById('overlay').classList.remove('open');
+}
 
 // ── PIN — visual numpad, no plaintext code ──
 function askRefresh(){
