@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import requests
 import json
@@ -18,6 +19,10 @@ async def lifespan(app):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+# Serve static files (logos etc.) — absolute path works on Render
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app.mount("/static", StaticFiles(directory=os.path.join(_BASE_DIR, "static")), name="static")
 
 FRIENDS_IDS = [
     "c346c242-889e-11f0-8a99-3fabd3074e1f",
