@@ -203,12 +203,18 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .pcard.mine{border-color:rgba(249,150,50,.8);box-shadow:0 0 8px rgba(249,115,22,.45);background:rgba(130,45,5,.9);}
 /* logo as background */
 .pcard-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
-.pcard-bg img{width:80%;height:80%;object-fit:contain;opacity:.15;}
+.pcard-bg img{width:80%;height:80%;object-fit:contain;opacity:.4;}
 /* text on top */
 .pcard-name{font-size:9.5px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;position:relative;z-index:1;}
 .pcard-pts{font-size:17px;font-weight:900;color:#fff;line-height:1.1;position:relative;z-index:1;}
-.pcard-team{display:none;} /* hidden — logo replaces team text */
+.pcard-team{display:none;}
 .pcard-icons{font-size:9px;line-height:1;position:relative;z-index:1;min-height:10px;}
+/* bigger cards on desktop */
+@media(min-width:700px){
+  .pcard{width:72px;height:80px;}
+  .pcard-name{font-size:11px;}
+  .pcard-pts{font-size:20px;}
+}
 .team-logo{width:16px;height:16px;object-fit:contain;vertical-align:middle;flex-shrink:0;}
 .team-logo-sm{width:13px;height:13px;object-fit:contain;vertical-align:middle;flex-shrink:0;}
 .team-logo-md{width:20px;height:20px;object-fit:contain;vertical-align:middle;flex-shrink:0;}
@@ -267,7 +273,9 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .mm-pc.cap{border-color:rgba(249,150,50,.8);box-shadow:0 0 8px rgba(249,115,22,.45);background:rgba(130,45,5,.9);}
 /* logo as full-card background */
 .mm-pc-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
-.mm-pc-bg img{width:85%;height:85%;object-fit:contain;opacity:.15;}
+.mm-pc-bg img{width:85%;height:85%;object-fit:contain;opacity:.4;}
+.mm-pc.live{border-color:rgba(250,204,21,.8);box-shadow:0 0 10px rgba(250,204,21,.4);}
+.mm-pc.live::after{content:'●';position:absolute;top:3px;right:4px;font-size:7px;color:#fde047;z-index:2;}
 /* text on top */
 .mm-pc-n{font-size:10px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;position:relative;z-index:1;}
 .mm-pc-p{font-size:20px;font-weight:900;color:#fff;line-height:1.1;position:relative;z-index:1;}
@@ -279,10 +287,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .mm-bench-wrap{padding:0 18px 18px;}
 .mm-bench-lbl{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
 .mm-bench{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
-.mm-bp{background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:7px 6px;text-align:center;}
-.mm-bp-pos{margin-bottom:3px;}
-.mm-bp-n{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;display:block;}
-.mm-bp-p{font-size:13px;font-weight:800;color:var(--muted);margin-top:1px;}
+.mm-bp{background:rgba(15,40,90,.9);border:1px solid rgba(120,200,255,.25);border-radius:var(--rsm);padding:8px 6px;text-align:center;position:relative;overflow:hidden;cursor:pointer;}
+.mm-bp-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.mm-bp-bg img{width:75%;height:75%;object-fit:contain;opacity:.4;}
+.mm-bp-pos{margin-bottom:3px;position:relative;z-index:1;}
+.mm-bp-n{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;display:block;position:relative;z-index:1;color:#fff;}
+.mm-bp-p{font-size:15px;font-weight:900;color:#fff;margin-top:2px;position:relative;z-index:1;line-height:1;}
 
 /* legacy classes kept for player modal */
 .m-name{font-size:18px;font-weight:800;margin-bottom:3px;}
@@ -732,13 +742,16 @@ function showMgrModal(guid){
   const pitchRows=[byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].filter(r=>r.length).map(row=>{
     const cards=row.map(p=>{
       const isMine=myIds().has(p.id);
-      // isLive disabled — minutesPlayed can't distinguish live vs finished match
+      // Live detection: find player in allPlayers and check if curGDPts > lastGdPts
+      // This means live points are being updated (match in progress within last ~100min)
+      const pub=D.allPlayers.find(ap=>ap.id===p.id);
+      const isLive=pub&&(pub.curGDPts||0)>(pub.lastGdPts||0);
       const shortName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
       const goals='⚽'.repeat(p.mdGoals||0);
       const assists='👟'.repeat(p.mdAssists||0);
       const cs=(p.mdCleanSheet&&['GK','DEF'].includes(p.posCode))?'🧤':'';
       const icons=goals+assists+cs;
-      return`<div class="mm-pc${p.isCaptain?' cap':''}" onclick="closeOv({target:{}});showP(${p.id})">
+      return`<div class="mm-pc${p.isCaptain?' cap':''}${isLive?' live':''}" onclick="closeOv({target:{}});showP(${p.id})">
         <div class="mm-pc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
         <div class="mm-pc-n">${shortName}${p.isCaptain?' ©':''}</div>
         <div class="mm-pc-p">${bp(p)}</div>
@@ -751,9 +764,10 @@ function showMgrModal(guid){
   // Bench grid
   const benchCards=bench.map(p=>`
     <div class="mm-bp" onclick="closeOv({target:{}});showP(${p.id})">
+      <div class="mm-bp-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
       <div class="mm-bp-pos"><span class="pos-b pos-${p.posCode}" style="font-size:9px">${p.posCode}</span></div>
       <span class="mm-bp-n">${p.name.split(' ').pop()}</span>
-      <div style="margin:2px 0">${teamLogo(p.teamCode,p.team,'team-logo-sm')}</div>
+      <div style="margin:2px 0;position:relative;z-index:1">${teamLogo(p.teamCode,p.team,'team-logo-sm')}</div>
       <div class="mm-bp-p">${bp(p)}</div>
     </div>`).join('');
 
@@ -985,10 +999,6 @@ function renderTOTW(){
     <div class="totw-half">
       <div class="totw-label global">Global TOTW <div class="totw-label-line"></div></div>
       ${buildPitch(globalRes,ids)}
-    </div>
-    <div class="totw-half">
-      <div class="totw-label best">Cel mai aproape · ${bestLabel} <div class="totw-label-line"></div></div>
-      ${buildPitch(bestRes,ids)}
     </div>`;
 }
 
