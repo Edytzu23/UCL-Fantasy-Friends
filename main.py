@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from contextlib import asynccontextmanager
 import requests
@@ -19,8 +18,6 @@ async def lifespan(app):
     yield
 
 app = FastAPI(lifespan=lifespan)
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 FRIENDS_IDS = [
     "c346c242-889e-11f0-8a99-3fabd3074e1f",
@@ -124,6 +121,21 @@ def build_data(matchday=10):
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Fetching MD{matchday}...")
 
     public_players = fetch_public_players(matchday)
+
+    # Fetch previous MD to compute per-MD stats via diff
+    prev_players = {}
+    if matchday > 1:
+        try:
+            prev_players = fetch_public_players(matchday - 1)
+        except Exception as e:
+            print(f"Could not fetch MD{matchday-1} for diff: {e}")
+
+    def md_stat(pid, field, current_players, previous_players):
+        """Goals/assists/CS for this MD only = current cumulative - previous cumulative"""
+        cur = current_players.get(pid, {}).get(field, 0) or 0
+        prv = previous_players.get(pid, {}).get(field, 0) or 0
+        return max(0, cur - prv)
+
     managers_raw = fetch_team_data(matchday)
 
     player_ownership = {}  # pid -> list of usernames
@@ -156,6 +168,10 @@ def build_data(matchday=10):
                 "goals": pub.get("goals", 0),
                 "assists": pub.get("assists", 0),
                 "cleanSheets": pub.get("cleanSheets", 0),
+                # Per-MD stats (diff vs previous MD)
+                "mdGoals": md_stat(pid, "goals", public_players, prev_players),
+                "mdAssists": md_stat(pid, "assists", public_players, prev_players),
+                "mdCleanSheet": md_stat(pid, "cleanSheets", public_players, prev_players),
                 "selPer": pub.get("selPer", 0),
                 "rating": pub.get("rating", 0),
                 "status": pub.get("status", "A"),
