@@ -199,6 +199,9 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .pcard-name{font-size:8.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;}
 .pcard-pts{font-size:14px;font-weight:900;color:#fff;line-height:1.1;}
 .pcard-team{font-size:7.5px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
+.team-logo{width:16px;height:16px;object-fit:contain;vertical-align:middle;flex-shrink:0;}
+.team-logo-sm{width:13px;height:13px;object-fit:contain;vertical-align:middle;flex-shrink:0;}
+.team-logo-md{width:20px;height:20px;object-fit:contain;vertical-align:middle;flex-shrink:0;}
 .cap-badge{position:absolute;top:-4px;left:-4px;background:var(--gold);color:#000;border-radius:50%;width:13px;height:13px;font-size:7px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.4);}
 
 /* ── MANAGER MODAL — Variant A: pitch visual ── */
@@ -461,6 +464,13 @@ function checkPin(input){
 let D=null, MD=10, meGuid=null, curTab='clasament';
 let posF='ALL', mgrOn=new Set(), sCol='curGDPts', sDir=-1, emdSort='md';
 const mdCache={};
+
+// ── TEAM LOGO helper ───────────────────────
+// Returns <img> with logo if file exists, falls back to text
+function teamLogo(teamCode, teamName, cls='team-logo'){
+  if(!teamCode) return `<span class="team-txt">${teamName||''}</span>`;
+  return `<img class="${cls}" src="/static/logos/${teamCode}.png" alt="${teamName||teamCode}" title="${teamName||teamCode}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'team-txt',textContent:'${(teamName||teamCode).replace(/'/g,"\\'")}'}))">`;
+}
 let pinBuffer='';
 
 // ── BOOT ───────────────────────────────────
@@ -674,7 +684,7 @@ function showMgrModal(guid){
       return`<div class="mm-pc${p.isCaptain?' cap':isLive?' live':''}" onclick="closeOv({target:{}});showP(${p.id})">
         <div class="mm-pc-n">${shortName}${p.isCaptain?' ©':''}</div>
         <div class="mm-pc-p">${bp(p)}</div>
-        <div class="mm-pc-t">${p.team||''}</div>
+        <div class="mm-pc-t">${teamLogo(p.teamCode,p.team,'team-logo-sm')}</div>
       </div>`;
     }).join('');
     return`<div class="mm-pitch-row">${cards}</div>`;
@@ -764,7 +774,7 @@ function renderEchipeMD(){
     return`<div class="emd-row" onclick="showP(${p.id})">
       <div class="emd-pl"><span class="pos-b pos-${p.posCode}">${p.posCode}</span>
         <div><div class="emd-pname">${p.name}${p.isMine?' <span class="fire-tag">🔥</span>':''}</div>
-          <div class="emd-psub"><span class="s-dot s${(p.status||'A').toLowerCase()}"></span>${p.team}</div>
+          <div class="emd-psub"><span class="s-dot s${(p.status||'A').toLowerCase()}"></span>${teamLogo(p.teamCode,p.team,'team-logo-sm')} ${p.team}</div>
         </div>
       </div>
       <div class="emd-cell emd-mdpts">${p.mdPoints||0}</div>
@@ -833,7 +843,7 @@ function renderScouting(){
         <div class="sc-sub">
           <span class="pos-b pos-${p.posCode}">${p.posCode}</span>
           <span class="s-dot s${(p.status||'A').toLowerCase()}"></span>
-          ${p.team}
+          ${teamLogo(p.teamCode,p.team,'team-logo')} ${p.team}
         </div>
         <div class="sc-badges">
           <span class="pct-b ${pctCls(p.fP)}">${p.fP}%</span>
@@ -952,7 +962,7 @@ function buildPitch({squad,d,m,f},ids){
       h+=`<div class="pcard${mine?' mine':''}" onclick="showP(${p.id})">
         <div class="pcard-name">${shortName}</div>
         <div class="pcard-pts">${p.mdPoints}</div>
-        <div class="pcard-team">${p.team||''}</div>
+        <div class="pcard-team">${teamLogo(p.teamCode,p.team,'team-logo-sm')}</div>
       </div>`;
     });
     h+=`</div>`;
@@ -979,7 +989,7 @@ function showP(id){
       ${mine?'<span class="fire-tag">🔥 Echipa ta</span>':''}
     </div>
     <div class="m-name">${p.fullName||p.name}</div>
-    <div class="m-sub">${p.team} · €${p.value}M · ${sm[p.status]||'Disponibil'}</div>
+    <div class="m-sub">${teamLogo(p.teamCode,p.team,'team-logo-md')} ${p.team} · €${p.value}M · ${sm[p.status]||'Disponibil'}</div>
     <div class="stat-grid">
       <div class="stat-box"><div class="stat-v${mine?' fire':''}">${p.totPts}</div><div class="stat-l">Total Pts</div></div>
       <div class="stat-box"><div class="stat-v">${mdPts}</div><div class="stat-l">MD Pts</div></div>
