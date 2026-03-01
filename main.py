@@ -117,16 +117,26 @@ def fetch_team_data(matchday, phase_id=2):
     return managers
 
 
+public_players_cache = {}  # md -> players dict, cached in memory
+
+def fetch_public_players_cached(matchday):
+    if matchday in public_players_cache:
+        return public_players_cache[matchday]
+    data = fetch_public_players(matchday)
+    public_players_cache[matchday] = data
+    return data
+
+
 def build_data(matchday=10):
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Fetching MD{matchday}...")
 
-    public_players = fetch_public_players(matchday)
+    public_players = fetch_public_players_cached(matchday)
 
-    # Fetch previous MD to compute per-MD stats via diff
+    # Fetch previous MD to compute per-MD stats via diff (uses cache if already loaded)
     prev_players = {}
     if matchday > 1:
         try:
-            prev_players = fetch_public_players(matchday - 1)
+            prev_players = fetch_public_players_cached(matchday - 1)
         except Exception as e:
             print(f"Could not fetch MD{matchday-1} for diff: {e}")
 
