@@ -190,20 +190,25 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .pitch-total{text-align:center;color:rgba(255,255,255,.95);font-size:12px;font-weight:800;padding:2px 0 0;position:relative;z-index:2;letter-spacing:.3px;flex-shrink:0;}
 .pitch-total span{color:var(--gold);}
 
-/* Player cards — 52×58px: narrow enough for 5-wide rows */
+/* Player cards — logo background variant */
 .pcard{
-  background:rgba(20,100,180,.84);
   border:1.5px solid rgba(120,200,255,.4);
   border-radius:var(--rsm);
-  width:52px;height:58px;
+  width:58px;height:66px;
   text-align:center;cursor:pointer;position:relative;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:2px;overflow:hidden;flex-shrink:0;transition:.15s;
+  padding:3px;overflow:hidden;flex-shrink:0;transition:.15s;
+  background:rgba(15,55,120,.9);
 }
-.pcard.mine{background:rgba(160,55,5,.87);border-color:rgba(249,150,50,.8);box-shadow:0 0 8px rgba(249,115,22,.45);}
-.pcard-name{font-size:8.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;}
-.pcard-pts{font-size:14px;font-weight:900;color:#fff;line-height:1.1;}
-.pcard-team{font-size:7.5px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
+.pcard.mine{border-color:rgba(249,150,50,.8);box-shadow:0 0 8px rgba(249,115,22,.45);background:rgba(130,45,5,.9);}
+/* logo as background */
+.pcard-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.pcard-bg img{width:80%;height:80%;object-fit:contain;opacity:.15;}
+/* text on top */
+.pcard-name{font-size:9.5px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;position:relative;z-index:1;}
+.pcard-pts{font-size:17px;font-weight:900;color:#fff;line-height:1.1;position:relative;z-index:1;}
+.pcard-team{display:none;} /* hidden — logo replaces team text */
+.pcard-icons{font-size:9px;line-height:1;position:relative;z-index:1;min-height:10px;}
 .team-logo{width:16px;height:16px;object-fit:contain;vertical-align:middle;flex-shrink:0;}
 .team-logo-sm{width:13px;height:13px;object-fit:contain;vertical-align:middle;flex-shrink:0;}
 .team-logo-md{width:20px;height:20px;object-fit:contain;vertical-align:middle;flex-shrink:0;}
@@ -216,10 +221,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .modal{background:var(--surf);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-height:88vh;overflow-y:auto;}
 @media(min-width:700px){
   .overlay{align-items:center;}
-  .modal{border-radius:20px;width:520px;max-height:90vh;}
-  .mm-pc{width:76px;height:70px;}
-  .mm-pc-n{font-size:10px;}
-  .mm-pc-p{font-size:17px;}
+  .modal{border-radius:20px;width:540px;max-height:90vh;}
+  .mm-pc{width:76px;height:86px;}
+  .mm-pc-n{font-size:11px;}
+  .mm-pc-p{font-size:22px;}
 }
 .m-handle{width:38px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 0;padding-top:10px;}
 @media(min-width:700px){.m-handle{display:none;}}
@@ -250,23 +255,25 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   display:flex;flex-direction:column;gap:8px;
 }
 .mm-pitch-row{display:flex;justify-content:space-around;align-items:center;gap:4px;}
-/* player card — wider & shorter so pitch is squarish not tall */
+/* player card — logo background */
 .mm-pc{
-  background:rgba(20,100,180,.86);border:1.5px solid rgba(120,200,255,.4);
-  border-radius:7px;width:62px;height:68px;
+  border:1.5px solid rgba(120,200,255,.4);
+  border-radius:8px;width:64px;height:78px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:3px;overflow:hidden;cursor:pointer;flex-shrink:0;transition:.12s;
+  padding:4px;overflow:hidden;cursor:pointer;flex-shrink:0;transition:.12s;
+  position:relative;background:rgba(15,55,120,.9);
 }
 .mm-pc:active{opacity:.75;}
-.mm-pc.cap{background:rgba(160,55,5,.88);border-color:rgba(249,150,50,.8);box-shadow:0 0 8px rgba(249,115,22,.45);}
-/* MD stats icons row */
-.mm-pc-icons{display:flex;gap:2px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:10px;}
-.ico-goal{font-size:9px;line-height:1;}   /* ⚽ */
-.ico-assist{font-size:9px;line-height:1;} /* 👟 */
-.ico-cs{font-size:9px;line-height:1;}     /* 🧤 */
-.mm-pc-n{font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;}
-.mm-pc-p{font-size:15px;font-weight:900;color:#fff;line-height:1.1;}
-.mm-pc-t{font-size:8px;color:rgba(255,255,255,.5);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
+.mm-pc.cap{border-color:rgba(249,150,50,.8);box-shadow:0 0 8px rgba(249,115,22,.45);background:rgba(130,45,5,.9);}
+/* logo as full-card background */
+.mm-pc-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.mm-pc-bg img{width:85%;height:85%;object-fit:contain;opacity:.15;}
+/* text on top */
+.mm-pc-n{font-size:10px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;line-height:1.2;position:relative;z-index:1;}
+.mm-pc-p{font-size:20px;font-weight:900;color:#fff;line-height:1.1;position:relative;z-index:1;}
+.mm-pc-t{display:none;}
+/* MD stats icons */
+.mm-pc-icons{display:flex;gap:2px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:11px;position:relative;z-index:1;font-size:10px;}
 
 /* bench strip */
 .mm-bench-wrap{padding:0 18px 18px;}
@@ -493,13 +500,14 @@ let pinBuffer='';
 // ── BOOT ───────────────────────────────────
 window.onload=()=>loadAllMDs();
 
-// Load MD10 first (visible), then silently preload all past MDs in background
+// Load MD10 first (visible), then silently preload all past MDs sequentially
 async function loadAllMDs(){
   await load(10); // load current MD first so user sees content immediately
-  // Then silently fetch all other MDs without affecting UI
+  // Then fetch other MDs one by one with small delay — avoids hammering server
   for(let i=1;i<=TOTAL_MDs;i++){
     if(i===10)continue;
-    silentLoad(i);
+    await silentLoad(i);
+    await new Promise(r=>setTimeout(r,300)); // 300ms gap between requests
   }
 }
 
@@ -731,9 +739,9 @@ function showMgrModal(guid){
       const cs=(p.mdCleanSheet&&['GK','DEF'].includes(p.posCode))?'🧤':'';
       const icons=goals+assists+cs;
       return`<div class="mm-pc${p.isCaptain?' cap':''}" onclick="closeOv({target:{}});showP(${p.id})">
+        <div class="mm-pc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
         <div class="mm-pc-n">${shortName}${p.isCaptain?' ©':''}</div>
         <div class="mm-pc-p">${bp(p)}</div>
-        <div class="mm-pc-t">${teamLogo(p.teamCode,p.team,'team-logo-sm')}</div>
         ${icons?`<div class="mm-pc-icons">${icons}</div>`:''}
       </div>`;
     }).join('');
@@ -745,6 +753,7 @@ function showMgrModal(guid){
     <div class="mm-bp" onclick="closeOv({target:{}});showP(${p.id})">
       <div class="mm-bp-pos"><span class="pos-b pos-${p.posCode}" style="font-size:9px">${p.posCode}</span></div>
       <span class="mm-bp-n">${p.name.split(' ').pop()}</span>
+      <div style="margin:2px 0">${teamLogo(p.teamCode,p.team,'team-logo-sm')}</div>
       <div class="mm-bp-p">${bp(p)}</div>
     </div>`).join('');
 
@@ -1010,9 +1019,9 @@ function buildPitch({squad,d,m,f},ids){
       const mine=ids.has(p.id);
       const shortName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
       h+=`<div class="pcard${mine?' mine':''}" onclick="showP(${p.id})">
+        <div class="pcard-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
         <div class="pcard-name">${shortName}</div>
         <div class="pcard-pts">${p.mdPoints}</div>
-        <div class="pcard-team">${teamLogo(p.teamCode,p.team,'team-logo-sm')}</div>
       </div>`;
     });
     h+=`</div>`;
