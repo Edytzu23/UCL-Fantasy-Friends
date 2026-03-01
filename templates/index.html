@@ -84,11 +84,16 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .rank-inf{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;}
 .rank-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
 .rank-sub{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500;line-height:1;}
-/* points — fixed 60px column, right-aligned, vertically centered */
-.rank-val-wrap{flex-shrink:0;width:60px;text-align:right;display:flex;align-items:center;justify-content:flex-end;}
+/* points — wider column to fit diff badge + points */
+.rank-val-wrap{flex-shrink:0;width:80px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:5px;}
 .rank-v-fire{font-size:28px;font-weight:900;color:var(--fire);line-height:1;display:block;}
 .rank-v-blue{font-size:28px;font-weight:900;color:var(--acc);line-height:1;display:block;}
 .rank-v-ps5{font-size:20px;font-weight:900;color:#a78bfa;line-height:1;display:block;}
+/* diff badge */
+.rank-diff{font-size:11px;font-weight:800;border-radius:6px;padding:2px 5px;line-height:1.3;white-space:nowrap;}
+.rank-diff-neg{background:rgba(239,68,68,.15);color:#f87171;}   /* they are ahead — red */
+.rank-diff-pos{background:rgba(34,197,94,.15);color:#4ade80;}   /* I am ahead — green */
+.rank-diff-eq{background:rgba(255,255,255,.08);color:var(--muted);}
 .ps5-pill{font-size:10px;font-weight:700;background:rgba(139,92,246,.2);color:#c4b5fd;border-radius:20px;padding:2px 8px;margin-top:3px;display:inline-block;}
 .ps5-col{grid-column:1/-1;}
 @media(min-width:600px){.ps5-col{grid-column:auto;}}
@@ -630,8 +635,19 @@ function renderClasament(){
       <div class="rank-list" id="rl-ps5"></div>
     </div>`;
 
-  buildRankCol('rl-md',byMD,m=>({val:`<div class="rank-val-wrap"><span class="rank-v-fire">${m.gdPoints}</span></div>`,sub:'#'+(m.gdRank||0).toLocaleString()}));
-  buildRankCol('rl-ov',byOv,m=>({val:`<div class="rank-val-wrap"><span class="rank-v-blue">${m.ovPoints}</span></div>`,sub:'#'+(m.ovRank||0).toLocaleString()}));
+  // For MD col — diff based on gdPoints
+  const myMD=D.managers.find(m=>m.guid===meGuid);
+  buildRankCol('rl-md',byMD,m=>{
+    const diff=myMD&&m.guid!==meGuid?m.gdPoints-myMD.gdPoints:null;
+    return{val:rankValWithDiff(m.gdPoints,'fire',diff),sub:'#'+(m.gdRank||0).toLocaleString()};
+  });
+
+  // For Overall col — diff based on ovPoints
+  const myOv=D.managers.find(m=>m.guid===meGuid);
+  buildRankCol('rl-ov',byOv,m=>{
+    const diff=myOv&&m.guid!==meGuid?m.ovPoints-myOv.ovPoints:null;
+    return{val:rankValWithDiff(m.ovPoints,'blue',diff),sub:'#'+(m.ovRank||0).toLocaleString()};
+  });
 
   // PS5
   const ps5C=document.getElementById('rl-ps5');
@@ -653,6 +669,23 @@ function renderClasament(){
       <div class="rank-val-wrap"><span class="rank-v-ps5">${e.bestRank?'#'+e.bestRank.toLocaleString():'—'}</span></div>`;
     ps5C.appendChild(div);
   });
+}
+
+// Helper: renders the points value + diff badge
+function rankValWithDiff(pts, color, diff){
+  let diffHtml='';
+  if(diff!==null){
+    if(diff>0){
+      // they are ahead of me
+      diffHtml=`<span class="rank-diff rank-diff-neg">-${diff}</span>`;
+    } else if(diff<0){
+      // I am ahead of them
+      diffHtml=`<span class="rank-diff rank-diff-pos">+${Math.abs(diff)}</span>`;
+    } else {
+      diffHtml=`<span class="rank-diff rank-diff-eq">=</span>`;
+    }
+  }
+  return`<div class="rank-val-wrap">${diffHtml}<span class="rank-v-${color}">${pts}</span></div>`;
 }
 
 function buildRankCol(id,list,fn){
