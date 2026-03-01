@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from contextlib import asynccontextmanager
 import requests
@@ -18,6 +19,8 @@ async def lifespan(app):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 FRIENDS_IDS = [
     "c346c242-889e-11f0-8a99-3fabd3074e1f",
