@@ -98,8 +98,31 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .ps5-col{grid-column:1/-1;}
 @media(min-width:600px){.ps5-col{grid-column:auto;}}
 
-/* ── ECHIPE MD ── */
-.emd-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+/* ── STATS MD ── */
+.stats-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;}
+.stats-sec-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.stats-sec-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+.stats-md-badge{background:rgba(249,115,22,.15);color:var(--fire);border-radius:8px;padding:6px 14px;font-size:14px;font-weight:800;}
+.stats-save-btn{background:var(--fire);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;}
+.stats-save-btn:active{opacity:.8;}
+.stats-save-btn:disabled{opacity:.5;cursor:default;}
+.stats-status{font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;}
+.stats-status.ok{background:rgba(34,197,94,.15);color:#4ade80;}
+.stats-status.err{background:rgba(239,68,68,.15);color:#f87171;}
+.stats-sel{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;}
+.snap-list{display:flex;flex-wrap:wrap;gap:8px;padding-top:10px;min-height:40px;}
+.snap-pill{background:rgba(96,165,250,.12);color:var(--acc);border:1px solid rgba(96,165,250,.25);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;}
+.snap-pill.saved{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.25);}
+/* comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px;}
+.cmp-table th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:6px 4px;text-align:left;border-bottom:1px solid var(--border);}
+.cmp-table th.r,.cmp-table td.r{text-align:right;}
+.cmp-table td{padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+.cmp-table tr:hover td{background:rgba(255,255,255,.03);}
+.diff-pos{color:#4ade80;font-weight:800;}
+.diff-neg{color:#f87171;font-weight:800;}
+.diff-zero{color:var(--muted);}
+
 .emd-ttxt{font-size:12px;font-weight:700;color:var(--muted);}
 .btn-group{display:flex;gap:5px;}
 .pill-btn{padding:6px 15px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:.15s;}
@@ -343,7 +366,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 <div class="md-bar-wrap"><div class="page"><div class="md-bar" id="mdBar"></div></div></div>
 <div class="tabs-wrap"><div class="page"><div class="tabs">
   <div class="tab on"  onclick="goTab('clasament')">Clasament</div>
-  <div class="tab"     onclick="goTab('echipe-md')">Echipe MD</div>
+  <div class="tab"     onclick="goTab('echipe-md')">Stats MD</div>
   <div class="tab"     onclick="goTab('scouting')">Scouting</div>
   <div class="tab"     onclick="goTab('totw')">TOTW</div>
 </div></div></div>
@@ -357,23 +380,40 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   </div>
 </div>
 
-<!-- ECHIPE MD -->
+<!-- STATS MD -->
 <div class="view" id="view-echipe-md">
   <div class="page inner">
-    <div class="emd-controls">
-      <div class="emd-ttxt" id="emdTitle">Jucători din ligă</div>
-      <div class="btn-group">
-        <div class="pill-btn on" id="sortMD"  onclick="setEmdSort('md')">MD Pts</div>
-        <div class="pill-btn"   id="sortTOT" onclick="setEmdSort('tot')">Total</div>
+
+    <!-- SNAPSHOT SAVE SECTION -->
+    <div class="stats-section">
+      <div class="stats-sec-title">💾 Salvare Snapshot</div>
+      <div class="stats-sec-desc">Salvează statisticile jucătorilor din liga ta pentru MD-ul curent pe GitHub. Fă asta la finalul fiecărui match day.</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <div class="stats-md-badge">MD<span id="snapMdNum">—</span></div>
+        <button class="stats-save-btn" id="snapBtn" onclick="saveSnapshot()">💾 Salvează MD curent</button>
+        <div id="snapStatus" class="stats-status"></div>
       </div>
     </div>
-    <div class="emd-thead">
-      <div class="emd-th">Jucător</div>
-      <div class="emd-th">MD</div>
-      <div class="emd-th">Total</div>
-      <div class="emd-th">Local%</div>
+
+    <!-- AVAILABLE SNAPSHOTS -->
+    <div class="stats-section" style="margin-top:16px;">
+      <div class="stats-sec-title">📦 Snapshot-uri disponibile</div>
+      <div id="snapList" class="snap-list"><div class="spin-c" style="padding:20px 0"><div class="spinner"></div></div></div>
     </div>
-    <div id="emdList"><div class="spin-c"><div class="spinner"></div>Se încarcă...</div></div>
+
+    <!-- COMPARISON SECTION -->
+    <div class="stats-section" style="margin-top:16px;">
+      <div class="stats-sec-title">📊 Comparație MD vs MD</div>
+      <div class="stats-sec-desc">Selectează două MD-uri salvate pentru a vedea evoluția statisticilor.</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <select class="stats-sel" id="cmpA"><option value="">MD de bază</option></select>
+        <span style="color:var(--muted);font-weight:700;">→</span>
+        <select class="stats-sel" id="cmpB"><option value="">MD nou</option></select>
+        <button class="stats-save-btn" onclick="runComparison()">Compară</button>
+      </div>
+      <div id="cmpResult" style="margin-top:14px;"></div>
+    </div>
+
   </div>
 </div>
 
@@ -560,7 +600,7 @@ async function load(md){
 }
 
 function showSpinner(){
-  const t={clasament:'rankGrid','echipe-md':'emdList',scouting:'scoutList',totw:'totwPair'};
+  const t={clasament:'rankGrid','echipe-md':'snapList',scouting:'scoutList',totw:'totwPair'};
   const el=document.getElementById(t[curTab]);
   if(el)el.innerHTML='<div class="spin-c"><div class="spinner"></div>Se actualizează...</div>';
 }
@@ -629,7 +669,7 @@ function goTab(t){
 function render(){
   if(!D)return;
   if(curTab==='clasament')renderClasament();
-  else if(curTab==='echipe-md')renderEchipeMD();
+  else if(curTab==='echipe-md')renderStatsMD();
   else if(curTab==='scouting')renderScouting();
   else if(curTab==='totw')renderTOTW();
 }
@@ -809,49 +849,170 @@ function showMgrModal(guid){
   document.getElementById('overlay').classList.add('open');
 }
 
-// ── ECHIPE MD ───────────────────────────────
-function setEmdSort(s){
-  emdSort=s;
-  document.getElementById('sortMD').classList.toggle('on',s==='md');
-  document.getElementById('sortTOT').classList.toggle('on',s==='tot');
-  renderEchipeMD();
-}
-function renderEchipeMD(){
+// ── STATS MD ─────────────────────────────────
+let snapshots=[];  // list of available MD numbers
+
+async function renderStatsMD(){
   if(!D)return;
-  document.getElementById('emdTitle').textContent='Jucători din ligă · MD'+MD;
-  const ids=myIds();
-  const pMap={};
-  D.managers.forEach(m=>{
-    m.players.forEach(p=>{
-      const k=p.id,bp=p.mdPoints;
-      if(!pMap[k]){pMap[k]={...p,mdPoints:bp,managers:[m.username],managerGuids:[m.guid]};}
-      else if(!pMap[k].managers.includes(m.username)){
-        pMap[k].managers.push(m.username);pMap[k].managerGuids.push(m.guid);
-        if(bp>pMap[k].mdPoints)pMap[k].mdPoints=bp;
-      }
-    });
+  document.getElementById('snapMdNum').textContent=MD;
+  await loadSnapshotList();
+}
+
+async function loadSnapshotList(){
+  try{
+    const r=await fetch('/api/snapshot/list');
+    const data=await r.json();
+    snapshots=data.snapshots||[];
+    renderSnapPills();
+    populateCmpSelects();
+  }catch(e){
+    document.getElementById('snapList').innerHTML='<div style="color:var(--muted);font-size:12px">Nu s-au putut încărca snapshot-urile</div>';
+  }
+}
+
+function renderSnapPills(){
+  const el=document.getElementById('snapList');
+  if(!snapshots.length){
+    el.innerHTML='<div style="color:var(--muted);font-size:12px">Niciun snapshot salvat încă.</div>';
+    return;
+  }
+  el.innerHTML=snapshots.map(md=>`<span class="snap-pill saved">✓ MD${md}</span>`).join('');
+}
+
+function populateCmpSelects(){
+  ['cmpA','cmpB'].forEach(id=>{
+    const sel=document.getElementById(id);
+    const cur=sel.value;
+    sel.innerHTML=`<option value="">${id==='cmpA'?'MD de bază':'MD nou'}</option>`+
+      snapshots.map(md=>`<option value="${md}" ${cur==md?'selected':''}>MD${md}</option>`).join('');
   });
-  let players=Object.values(pMap).map(p=>{
-    const pub=D.allPlayers.find(x=>x.id===p.id)||{};
-    return{...p,totPts:pub.totPts||p.totPts||0,localPer:Math.round(p.managers.length/(D.totalManagers||D.managers.length)*100),isMine:ids.has(p.id)};
-  });
-  if(emdSort==='md')players.sort((a,b)=>b.mdPoints-a.mdPoints||b.totPts-a.totPts);
-  else players.sort((a,b)=>b.totPts-a.totPts||b.mdPoints-a.mdPoints);
-  const el=document.getElementById('emdList');
-  if(!players.length){el.innerHTML='<div class="spin-c">Niciun jucător</div>';return;}
-  el.innerHTML=players.map(p=>{
-    const tags=p.managers.map((n,i)=>`<span class="mgr-tag${p.managerGuids[i]===meGuid?' me':''}">${n}</span>`).join('');
-    return`<div class="emd-row" onclick="showP(${p.id})">
-      <div class="emd-pl"><span class="pos-b pos-${p.posCode}">${p.posCode}</span>
-        <div><div class="emd-pname">${p.name}${p.isMine?' <span class="fire-tag">🔥</span>':''}</div>
-          <div class="emd-psub"><span class="s-dot s${(p.status||'A').toLowerCase()}"></span>${teamLogo(p.teamCode,p.team,'team-logo-sm')} ${p.team}</div>
-        </div>
-      </div>
-      <div class="emd-cell emd-mdpts">${p.mdPoints||0}</div>
-      <div class="emd-cell emd-totpts">${p.totPts}</div>
-      <div class="emd-cell"><span class="pct-b ${pctCls(p.localPer)}">${p.localPer}%</span></div>
-    </div><div class="mgr-tags">${tags}</div>`;
-  }).join('');
+}
+
+async function saveSnapshot(){
+  const btn=document.getElementById('snapBtn');
+  const status=document.getElementById('snapStatus');
+  btn.disabled=true;
+  btn.textContent='Se salvează...';
+  status.textContent='';status.className='stats-status';
+  try{
+    const r=await fetch(`/api/snapshot/save?md=${MD}`,{method:'POST'});
+    const data=await r.json();
+    if(data.status==='saved'){
+      status.textContent=`✓ MD${MD} salvat pe GitHub`;
+      status.className='stats-status ok';
+      await loadSnapshotList();
+    } else {
+      status.textContent='Eroare: '+(data.error||'necunoscută');
+      status.className='stats-status err';
+    }
+  }catch(e){
+    status.textContent='Eroare de rețea';
+    status.className='stats-status err';
+  }
+  btn.disabled=false;
+  btn.textContent='💾 Salvează MD curent';
+}
+
+async function runComparison(){
+  const mdA=parseInt(document.getElementById('cmpA').value);
+  const mdB=parseInt(document.getElementById('cmpB').value);
+  const el=document.getElementById('cmpResult');
+  if(!mdA||!mdB||mdA===mdB){
+    el.innerHTML='<div style="color:var(--muted);font-size:12px">Selectează două MD-uri diferite.</div>';
+    return;
+  }
+  el.innerHTML='<div class="spin-c" style="padding:20px 0"><div class="spinner"></div>Se încarcă...</div>';
+  try{
+    const [rA,rB]=await Promise.all([
+      fetch(`/api/snapshot/load?md=${mdA}`).then(r=>r.json()),
+      fetch(`/api/snapshot/load?md=${mdB}`).then(r=>r.json()),
+    ]);
+    if(rA.error||rB.error){
+      el.innerHTML=`<div class="stats-status err">${rA.error||rB.error}</div>`;return;
+    }
+    renderComparison(el,rA,rB,mdA,mdB);
+  }catch(e){
+    el.innerHTML='<div class="stats-status err">Eroare la încărcare</div>';
+  }
+}
+
+function renderComparison(el,snapA,snapB,mdA,mdB){
+  // Build player map from both snapshots
+  const mapA={};snapA.players.forEach(p=>{mapA[p.id]=p;});
+
+  // Stats columns to compare
+  const STATS=[
+    {key:'totPts',label:'Total Pts'},
+    {key:'curGDPts',label:`MD${mdB} Pts`},
+    {key:'goals',label:'Goluri'},
+    {key:'assists',label:'Assisturi'},
+    {key:'cleanSheets',label:'Clean Sheets'},
+    {key:'momCount',label:'MOTM'},
+    {key:'yellowCards',label:'Galbene'},
+    {key:'redCards',label:'Roșii'},
+  ];
+
+  // Only show players who appear in both snapshots
+  const rows=snapB.players
+    .filter(pb=>mapA[pb.id])
+    .map(pb=>{
+      const pa=mapA[pb.id];
+      const diffs=STATS.map(s=>{
+        const d=(pb[s.key]||0)-(pa[s.key]||0);
+        return{...s,valA:pa[s.key]||0,valB:pb[s.key]||0,diff:d};
+      });
+      // Score: sum of meaningful diffs
+      const score=diffs.reduce((acc,s)=>acc+Math.abs(s.diff),0);
+      return{...pb,diffs,score};
+    })
+    .filter(p=>p.score>0)  // only show players who changed
+    .sort((a,b)=>b.diffs[0].diff-a.diffs[0].diff||b.score-a.score);
+
+  if(!rows.length){
+    el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:10px 0">Nicio diferență detectată între MD'+mdA+' și MD'+mdB+'.</div>';
+    return;
+  }
+
+  function diffHtml(d){
+    if(d===0)return`<span class="diff-zero">—</span>`;
+    const sign=d>0?'+':'';
+    const cls=d>0?'diff-pos':'diff-neg';
+    return`<span class="${cls}">${sign}${d}</span>`;
+  }
+
+  // Show compact table: player | totPts diff | goals diff | assists diff | cs diff | motm | cards
+  el.innerHTML=`
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">MD${mdA} → MD${mdB} · ${rows.length} jucători cu modificări</div>
+    <table class="cmp-table">
+      <thead><tr>
+        <th>Jucător</th>
+        <th class="r">Pts MD</th>
+        <th class="r">Total Δ</th>
+        <th class="r">⚽</th>
+        <th class="r">👟</th>
+        <th class="r">🧤</th>
+        <th class="r">🏆</th>
+        <th class="r">🟨</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(p=>{
+          const d=p.diffs;
+          return`<tr>
+            <td>
+              <div style="font-weight:700;font-size:13px">${p.name}</div>
+              <div style="font-size:10px;color:var(--muted)">${p.posCode} · ${p.team}</div>
+            </td>
+            <td class="r">${diffHtml(d[1].diff)}</td>
+            <td class="r">${diffHtml(d[0].diff)}</td>
+            <td class="r">${diffHtml(d[2].diff)}</td>
+            <td class="r">${diffHtml(d[3].diff)}</td>
+            <td class="r">${diffHtml(d[4].diff)}</td>
+            <td class="r">${diffHtml(d[5].diff)}</td>
+            <td class="r">${diffHtml(d[6].diff)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
 }
 
 // ── SCOUTING ────────────────────────────────
