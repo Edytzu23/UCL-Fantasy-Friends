@@ -264,6 +264,156 @@ def scheduler_loop():
 
 
 
+
+# ── GITHUB SNAPSHOT CONFIG ──────────────────────────────────────────────────
+GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN", "")
+GITHUB_OWNER  = "Edytzu23"
+GITHUB_REPO   = "UCL-Fantasy-Friends"
+GITHUB_BRANCH = "main"
+SNAPSHOT_DIR  = "snapshots"
+GH_API        = "https://api.github.com"
+
+def _gh_headers():
+    return {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+    }
+
+def github_get_file(path):
+    """Returns (content_str, sha) or (None, None) if not found."""
+    url = f"{GH_API}/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{path}"
+    r = requests.get(url, headers=_gh_headers(), params={"ref": GITHUB_BRANCH})
+    if r.status_code == 200:
+        data = r.json()
+        import base64
+        content = base64.b64decode(data["content"]).decode("utf-8")
+        return content, data["sha"]
+    return None, None
+
+def github_put_file(path, content_str, sha=None, message=None):
+    """Create or update a file on GitHub. Returns True on success."""
+    import base64
+    url = f"{GH_API}/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{path}"
+    payload = {
+        "message": message or f"snapshot: {path}",
+        "content": base64.b64encode(content_str.encode("utf-8")).decode("utf-8"),
+        "branch": GITHUB_BRANCH,
+    }
+    if sha:
+        payload["sha"] = sha
+    r = requests.put(url, headers=_gh_headers(), json=payload)
+    return r.status_code in (200, 201)
+
+
+def build_snapshot(md, data):
+    """Extract per-player stats snapshot from build_data result."""
+    snapshot = {
+        "matchday": md,
+        "savedAt": datetime.now().isoformat(),
+        "managers": [],
+        "players": [],
+    }
+    # Manager clasament
+    for m in data["managers"]:
+        snapshot["managers"].append({
+            "guid": m["guid"],
+            "username": m["username"],
+            "teamName": m["teamName"],
+            "gdPoints": m["gdPoints"],
+            "gdRank": m["gdRank"],
+            "ovPoints": m["ovPoints"],
+            "ovRank": m["ovRank"],
+        })
+    # All players stats (only those owned by someone in the group, to keep it lean)
+    owned_ids = set()
+    for m in data["managers"]:
+        for p in m["players"]:
+            owned_ids.add(p["id"])
+
+    for p in data["allPlayers"]:
+        if p["id"] not in owned_ids:
+            continue
+        snapshot["players"].append({
+            "id": p["id"],
+            "name": p["name"],
+            "fullName": p["fullName"],
+            "team": p["team"],
+            "teamCode": p["teamCode"],
+            "posCode": p["posCode"],
+            "totPts": p["totPts"],
+            "curGDPts": p.get("curGDPts", 0),
+            "goals": p.get("goals", 0),
+            "assists": p.get("assists", 0),
+            "cleanSheets": p.get("cleanSheets", 0),
+            "momCount": p.get("momCount", 0),
+            "yellowCards": p.get("yellowCards", 0),
+            "redCards": p.get("redCards", 0),
+            "value": p.get("value", 0),
+            "selPer": p.get("selPer", 0),
+        })
+    return snapshot
+
+
+@app.post("/api/snapshot/save")
+def save_snapshot(md: int = 10):
+    """Save a snapshot for the given MD to GitHub."""
+    if not GITHUB_TOKEN:
+        return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
+    # Get current data
+    with cache_lock:
+        data = cache.get(md)
+    if not data:
+        data = refresh_cache(md)
+    if not data:
+        return JSONResponse({"error": "No data available"}, status_code=500)
+
+    snapshot = build_snapshot(md, data)
+    content_str = json.dumps(snapshot, ensure_ascii=False, indent=2)
+    path = f"{SNAPSHOT_DIR}/md{md:02d}.json"
+
+    # Check if file already exists (need SHA to update)
+    _, sha = github_get_file(path)
+    success = github_put_file(
+        path, content_str, sha=sha,
+        message=f"snapshot MD{md} — {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+    )
+    if success:
+        return JSONResponse({"status": "saved", "path": path, "matchday": md})
+    return JSONResponse({"error": "GitHub write failed"}, status_code=500)
+
+
+@app.get("/api/snapshot/load")
+def load_snapshot(md: int = 10):
+    """Load a snapshot for the given MD from GitHub."""
+    if not GITHUB_TOKEN:
+        return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
+    path = f"{SNAPSHOT_DIR}/md{md:02d}.json"
+    content, _ = github_get_file(path)
+    if content:
+        return JSONResponse(json.loads(content))
+    return JSONResponse({"error": f"No snapshot for MD{md}"}, status_code=404)
+
+
+@app.get("/api/snapshot/list")
+def list_snapshots():
+    """List all available MD snapshots."""
+    if not GITHUB_TOKEN:
+        return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
+    url = f"{GH_API}/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{SNAPSHOT_DIR}"
+    r = requests.get(url, headers=_gh_headers(), params={"ref": GITHUB_BRANCH})
+    if r.status_code == 200:
+        files = [f["name"] for f in r.json() if f["name"].endswith(".json")]
+        mds = []
+        for f in files:
+            try:
+                mds.append(int(f.replace("md","").replace(".json","")))
+            except:
+                pass
+        return JSONResponse({"snapshots": sorted(mds)})
+    return JSONResponse({"snapshots": []})
+
+
 @app.get("/api/data")
 def get_data(md: int = 10):
     with cache_lock:
