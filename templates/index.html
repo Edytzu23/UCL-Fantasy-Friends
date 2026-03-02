@@ -902,7 +902,7 @@ async function saveSnapshot(){
       status.className='stats-status ok';
       await loadSnapshotList();
     } else {
-      status.textContent='Eroare: '+(data.error||'necunoscută');
+      status.textContent='Eroare: '+(typeof data.error==='object'?JSON.stringify(data.error):data.error)||'necunoscută';
       status.className='stats-status err';
     }
   }catch(e){
