@@ -142,53 +142,102 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 .mgr-tag{background:rgba(255,255,255,.07);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--text);}
 .mgr-tag.me{background:rgba(249,115,22,.2);color:var(--fire);}
 
-/* ── SCOUTING (redesigned — bigger, friendlier) ── */
-.scout-sticky{padding:12px 20px 10px;display:flex;flex-direction:column;gap:9px;position:sticky;top:130px;background:var(--bg);z-index:10;border-bottom:1px solid var(--border);}
-.search-inp{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:11px 16px;font-family:'Inter',sans-serif;font-size:15px;width:100%;}
-.search-inp::placeholder{color:var(--muted);}
-.search-inp:focus{outline:none;border-color:var(--acc);}
-.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+/* ── SCOUTING — iOS Dark Mode redesign ── */
+.scout-sticky{padding:10px 0 0;position:sticky;top:130px;background:var(--bg);z-index:10;}
+.scout-filter-inner{padding:0 16px 10px;display:flex;flex-direction:column;gap:8px;border-bottom:0.5px solid var(--border);}
+/* iOS search bar */
+.search-wrap{position:relative;}
+.search-wrap::before{content:'🔍';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;line-height:1;}
+.search-inp{width:100%;background:rgba(118,118,128,.18);border:none;color:var(--text);border-radius:10px;padding:9px 12px 9px 34px;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;font-size:15px;transition:background .15s;}
+.search-inp::placeholder{color:rgba(235,235,245,.3);}
+.search-inp:focus{outline:none;background:rgba(118,118,128,.28);}
+/* iOS segment control */
+.pos-segment{display:flex;background:rgba(118,118,128,.18);border-radius:9px;padding:2px;gap:2px;}
+.pos-seg-btn{flex:1;padding:6px 2px;border-radius:7px;border:none;background:transparent;color:rgba(235,235,245,.45);font-size:12px;font-weight:600;cursor:pointer;transition:background .18s,color .18s,box-shadow .18s;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;}
+.pos-seg-btn.on{background:var(--card2);color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.45),0 0.5px 0 rgba(255,255,255,.05);}
+.pos-seg-btn.gk-on{color:var(--gk);}.pos-seg-btn.def-on{color:var(--def);}.pos-seg-btn.mid-on{color:var(--mid);}.pos-seg-btn.fwd-on{color:var(--fwd);}
+/* Manager chips */
+.chips{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;}
 .chips::-webkit-scrollbar{display:none;}
-.chip{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s;}
+.chip{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;}
 .chip.on{color:#fff;border-color:transparent;}
-.cALL.on{background:var(--acc);}.cGK.on{background:var(--gk);color:#000;}
-.cDEF.on{background:var(--def);color:#000;}.cMID.on{background:var(--mid);color:#000;}.cFWD.on{background:var(--fwd);}
-.mgr-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;}
-.mgr-chip.on{background:var(--sub);color:var(--text);border-color:rgba(255,255,255,.2);}
-.mgr-chip.on.me{border-color:var(--fire);color:var(--fire);}
-
-/* Scouting cards */
-.scout-body{padding:10px 20px 80px;}
-.scout-sort-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
-.sort-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:.15s;}
+.cALL.on{background:var(--acc);}.cGK.on{background:var(--gk);color:#000;}.cDEF.on{background:var(--def);color:#000;}.cMID.on{background:var(--mid);color:#000;}.cFWD.on{background:var(--fwd);}
+.mgr-chip{padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;}
+.mgr-chip.on{background:rgba(255,255,255,.1);color:var(--text);border-color:rgba(255,255,255,.18);}
+.mgr-chip.on.me{border-color:var(--fire);color:var(--fire);background:rgba(249,115,22,.12);}
+/* Sort row */
+.scout-body{padding:8px 0 80px;}
+.scout-sort-row{display:flex;gap:5px;padding:0 16px 10px;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}
+.scout-sort-row::-webkit-scrollbar{display:none;}
+.sort-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap;flex-shrink:0;}
 .sort-btn:hover:not(.on){background:rgba(255,255,255,.08);}
-.sort-btn.on{background:var(--acc);color:#fff;border-color:var(--acc);}
-.scout-cards{display:flex;flex-direction:column;gap:6px;}
-.sc-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background .15s,transform .1s;border-left:3px solid rgba(255,255,255,.05);}
-.sc-card:hover{background:var(--card2);}
-.sc-card:active{transform:scale(.99);}
-.sc-card-GK{border-left-color:rgba(245,158,11,.45);}
-.sc-card-DEF{border-left-color:rgba(34,197,94,.45);}
-.sc-card-MID{border-left-color:rgba(96,165,250,.45);}
-.sc-card-FWD{border-left-color:rgba(248,113,113,.45);}
-.sc-card.mine{border-left-color:var(--fire)!important;}
-/* LEFT — total pts */
-.sc-left{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:48px;}
-.sc-pts-big{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;color:var(--acc);line-height:1;letter-spacing:-.5px;}
-.sc-pts-big.fire{color:var(--fire);}
-.sc-pts-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
-/* CENTER — name large, sub row, badges row, dots row */
-.sc-mid{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;}
-.sc-name{font-weight:800;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;}
-.sc-sub{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
-.sc-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-.dots{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
-.dot{width:8px;height:8px;border-radius:50%;}
-.dot-me{background:var(--fire);}.dot-ot{background:var(--acc);opacity:.8;}.dot-em{background:rgba(255,255,255,.1);}
-/* RIGHT — MD pts same size as total */
-.sc-right{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:52px;}
-.sc-md-pts{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;color:var(--fire);line-height:1;letter-spacing:-.5px;}
-.sc-md-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.sort-btn.on{background:var(--acc);color:#fff;border-color:transparent;}
+/* Scout cards — iOS grouped table view */
+#scoutList{margin:0 16px;background:var(--card);border-radius:14px;overflow:hidden;}
+.sc-card{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;transition:background .08s;border-bottom:0.5px solid rgba(255,255,255,.06);position:relative;}
+.sc-card:last-child{border-bottom:none;}
+.sc-card:active{background:rgba(255,255,255,.04);}
+.sc-card.mine{background:rgba(249,115,22,.04);}
+/* Circular local% ring */
+.sc-ring-wrap{flex-shrink:0;width:46px;height:46px;position:relative;display:flex;align-items:center;justify-content:center;}
+.sc-ring-wrap svg{position:absolute;top:0;left:0;width:46px;height:46px;transform:rotate(-90deg);}
+.sc-ring-wrap svg circle{fill:none;}
+.sc-ring-bg{stroke:rgba(255,255,255,.07);stroke-width:2.5;}
+.sc-ring-fg{stroke-width:2.5;stroke-linecap:round;}
+.sc-ring-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;line-height:1;z-index:1;}
+.sc-ring-sub{position:absolute;bottom:3px;font-size:6.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.2px;}
+/* Center */
+.sc-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.sc-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25;letter-spacing:-.2px;}
+.sc-sub{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+.sc-mini{display:flex;gap:8px;margin-top:1px;}
+.sc-mini-stat{font-size:10.5px;color:var(--muted);white-space:nowrap;}
+.sc-mini-stat b{color:var(--text);font-weight:700;}
+.sc-dots{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap;}
+.dot{width:6px;height:6px;border-radius:50%;}
+.dot-me{background:var(--fire);}.dot-ot{background:var(--acc);opacity:.85;}.dot-em{background:rgba(255,255,255,.08);}
+/* Right */
+.sc-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:0;min-width:44px;}
+.sc-tot{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-.5px;}
+.sc-tot.mine{color:var(--fire);}
+.sc-tot-lbl{font-size:8px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+.sc-md{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--muted);line-height:1.3;}
+.sc-md.hot{color:var(--fire);}
+.sc-md-lbl{font-size:8px;color:var(--muted);font-weight:600;text-transform:uppercase;}
+/* Desktop stat cells — hidden on mobile */
+.sc-cell{display:none;}
+.sc-thead{display:none;}
+
+/* ── SCOUTING DESKTOP ── */
+@media(min-width:768px){
+  #view-scouting .page{max-width:1100px;}
+  /* Table header row */
+  .sc-thead{display:grid;grid-template-columns:46px 1fr 56px 48px 56px 56px 48px;gap:0 14px;padding:8px 16px 5px;border-bottom:0.5px solid rgba(255,255,255,.06);align-items:center;}
+  .sc-th{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+  .sc-th:nth-child(2){text-align:left;}
+  /* Card → grid row */
+  .sc-card{display:grid;grid-template-columns:46px 1fr 56px 48px 56px 56px 48px;gap:0 14px;padding:9px 16px;align-items:center;}
+  /* Show desktop stat cells */
+  .sc-cell{display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--text);}
+  .sc-cell-muted{color:var(--muted);font-size:15px;font-weight:700;}
+  /* Hide mobile-only rows */
+  .sc-mini{display:none!important;}
+  .sc-dots{display:none!important;}
+  .sc-ring-sub{display:none;}
+  /* Compact ring */
+  .sc-ring-wrap{width:40px;height:40px;}
+  .sc-ring-wrap svg{width:40px;height:40px;}
+  .sc-ring-num{font-size:12px;}
+  /* Compact mid */
+  .sc-mid{gap:1px;}
+  .sc-name{font-size:14px;}
+  .sc-sub{font-size:11px;}
+  /* Right → display:contents so children fill grid cols 6 & 7 */
+  .sc-right{display:contents;}
+  .sc-tot-lbl,.sc-md-lbl{display:none;}
+  .sc-tot{font-size:22px;text-align:center;}
+  .sc-md{font-size:16px;text-align:center;}
+}
 
 /* ── TOTW — pitch only, full width ── */
 .totw-wrap{padding:10px 14px 30px;}
@@ -446,22 +495,26 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 <!-- SCOUTING -->
 <div class="view" id="view-scouting">
   <div class="scout-sticky">
-    <div class="page" style="display:flex;flex-direction:column;gap:9px;">
-      <input class="search-inp" id="scoutQ" placeholder="🔍  Caută jucător sau echipă..." oninput="renderScouting()"/>
-      <div class="chips" id="posChips">
-        <div class="chip cALL on" data-pos="ALL" onclick="setPos(this)">Toți</div>
-        <div class="chip cGK"  data-pos="GK"  onclick="setPos(this)">GK</div>
-        <div class="chip cDEF" data-pos="DEF" onclick="setPos(this)">DEF</div>
-        <div class="chip cMID" data-pos="MID" onclick="setPos(this)">MID</div>
-        <div class="chip cFWD" data-pos="FWD" onclick="setPos(this)">FWD</div>
+    <div class="page">
+      <div class="scout-filter-inner">
+        <div class="search-wrap">
+          <input class="search-inp" id="scoutQ" placeholder="Caută jucător sau echipă" oninput="renderScouting()"/>
+        </div>
+        <div class="pos-segment" id="posSegment">
+          <button class="pos-seg-btn on" data-pos="ALL" onclick="setPos(this)">Toți</button>
+          <button class="pos-seg-btn" data-pos="GK"  onclick="setPos(this)">GK</button>
+          <button class="pos-seg-btn" data-pos="DEF" onclick="setPos(this)">DEF</button>
+          <button class="pos-seg-btn" data-pos="MID" onclick="setPos(this)">MID</button>
+          <button class="pos-seg-btn" data-pos="FWD" onclick="setPos(this)">FWD</button>
+        </div>
+        <div class="chips" id="mgrChips"></div>
       </div>
-      <div class="chips" id="mgrChips"></div>
     </div>
   </div>
   <div class="scout-body">
     <div class="page">
       <div class="scout-sort-row" id="scoutSortRow"></div>
-      <div class="scout-cards" id="scoutList"></div>
+      <div id="scoutList"></div>
     </div>
   </div>
 </div>
@@ -562,7 +615,7 @@ function checkPin(input){
 
 // ── STATE ──────────────────────────────────
 let D=null, MD=10, meGuid=null, curTab='clasament';
-let posF='ALL', mgrOn=new Set(), sCol='curGDPts', sDir=-1, emdSort='md';
+let posF='ALL', mgrOn=new Set(), sCol='localOwnership', sDir=1, emdSort='md';
 const mdCache={};
 
 // ── TEAM LOGO helper ───────────────────────
@@ -1074,25 +1127,43 @@ function renderComparison(el,snapA,snapB,mdA,mdB){
 
 // ── SCOUTING ────────────────────────────────
 function setPos(el){
-  document.querySelectorAll('#posChips .chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');posF=el.dataset.pos;renderScouting();
+  document.querySelectorAll('#posSegment .pos-seg-btn').forEach(c=>c.classList.remove('on','gk-on','def-on','mid-on','fwd-on'));
+  const pos=el.dataset.pos;
+  el.classList.add('on');
+  if(pos==='GK')el.classList.add('gk-on');
+  else if(pos==='DEF')el.classList.add('def-on');
+  else if(pos==='MID')el.classList.add('mid-on');
+  else if(pos==='FWD')el.classList.add('fwd-on');
+  posF=pos; renderScouting();
 }
-function pctCls(p){if(p===100)return'p100';if(p>=60)return'phi';if(p>=30)return'pmd';if(p>0)return'plo';return'pz';}
+
+function ringColor(pct){
+  if(pct===100)return'#dc2626';
+  if(pct>=70)return'#f97316';
+  if(pct>=40)return'#eab308';
+  if(pct>0)return'#3b82f6';
+  return'rgba(255,255,255,.12)';
+}
 
 const SORT_OPTS=[
+  {key:'localOwnership',label:'Local %'},
   {key:'curGDPts',label:'MD Pts'},
   {key:'totPts',label:'Total Pts'},
+  {key:'gaTotal',label:'G+A'},
+  {key:'cleanSheets',label:'CS'},
   {key:'selPer',label:'Global %'},
-  {key:'localOwnership',label:'Local %'},
-  {key:'value',label:'Preț'},
 ];
 
 function buildScoutSortRow(){
   const row=document.getElementById('scoutSortRow');
-  row.innerHTML=SORT_OPTS.map(o=>`<div class="sort-btn${sCol===o.key?' on':''}" data-col="${o.key}" onclick="setScoutSort('${o.key}')">${o.label}</div>`).join('');
+  row.innerHTML=SORT_OPTS.map(o=>{
+    const on=sCol===o.key;
+    const arrow=on?(sDir===1?' ↓':' ↑'):'';
+    return`<div class="sort-btn${on?' on':''}" onclick="setScoutSort('${o.key}')">${o.label}${arrow}</div>`;
+  }).join('');
 }
 function setScoutSort(col){
-  if(sCol===col){ sDir*=-1; } else{ sCol=col; sDir=-1; } // new col → always desc first
+  if(sCol===col){sDir*=-1;}else{sCol=col;sDir=1;}
   buildScoutSortRow(); renderScouting();
 }
 
@@ -1103,7 +1174,8 @@ function renderScouting(){
   const ids=myIds(); const n=Math.max(mgrOn.size,1);
   let ps=D.allPlayers.map(p=>{
     const fo=(p.ownedBy||[]).filter(x=>mgrOn.has(x));
-    return{...p,fL:fo.length,fP:Math.round(fo.length/n*100),isMine:ids.has(p.id)};
+    return{...p,fL:fo.length,fP:Math.round(fo.length/n*100),isMine:ids.has(p.id),
+      gaTotal:(p.goals||0)+(p.assists||0)};
   });
   if(posF!=='ALL')ps=ps.filter(p=>p.posCode===posF);
   if(q)ps=ps.filter(p=>p.name.toLowerCase().includes(q)||(p.fullName||'').toLowerCase().includes(q)||p.team.toLowerCase().includes(q));
@@ -1115,35 +1187,50 @@ function renderScouting(){
   const mgrList=D.managers.filter(m=>mgrOn.has(m.username));
   const el=document.getElementById('scoutList');
   if(!ps.length){el.innerHTML='<div class="spin-c" style="padding:30px">Niciun jucător</div>';return;}
-  el.innerHTML=ps.slice(0,150).map(p=>{
+  const C=125.66; // 2π×20
+  const thead=`<div class="sc-thead"><span class="sc-th">Local</span><span class="sc-th">Jucător</span><span class="sc-th">G+A</span><span class="sc-th">CS</span><span class="sc-th">Glob</span><span class="sc-th">Total</span><span class="sc-th">MD</span></div>`;
+  el.innerHTML=thead+ps.slice(0,150).map(p=>{
+    const clr=ringColor(p.fP);
+    const off=(C*(1-p.fP/100)).toFixed(1);
     const dots=mgrList.map(m=>{
       const o=(p.ownedBy||[]).includes(m.username);
       return`<span class="dot ${o?(m.guid===meGuid?'dot-me':'dot-ot'):'dot-em'}" title="${m.username}"></span>`;
     }).join('');
     const mdVal=p.curGDPts||0;
-    return`<div class="sc-card sc-card-${p.posCode}${p.isMine?' mine':''}" onclick="showP(${p.id})">
-      <div class="sc-left">
-        <div class="sc-pts-big${p.isMine?' fire':''}">${p.totPts}</div>
-        <div class="sc-pts-lbl">Total</div>
+    const ga=p.gaTotal||0;
+    const cs=p.cleanSheets||0;
+    return`<div class="sc-card${p.isMine?' mine':''}" onclick="showP(${p.id})">
+      <div class="sc-ring-wrap">
+        <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+          <circle class="sc-ring-bg" cx="23" cy="23" r="20"/>
+          <circle class="sc-ring-fg" cx="23" cy="23" r="20" stroke="${clr}" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
+        </svg>
+        <div class="sc-ring-num" style="color:${clr}">${p.fP}%</div>
+        <div class="sc-ring-sub">ligă</div>
       </div>
       <div class="sc-mid">
         <div class="sc-name">${p.name}${p.isMine?' <span class="fire-tag">🔥</span>':''}</div>
         <div class="sc-sub">
           <span class="pos-b pos-${p.posCode}">${p.posCode}</span>
           <span class="s-dot s${(p.status||'A').toLowerCase()}"></span>
-          ${teamLogo(p.teamCode,p.team,'team-logo')} ${p.team}
+          ${teamLogo(p.teamCode,p.team,'team-logo')}
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px">${p.team}</span>
         </div>
-        <div class="sc-badges">
-          <span class="pct-b ${pctCls(p.fP)}">${p.fP}%</span>
-          <span style="font-size:10px;color:var(--muted)">ligă</span>
-          <span class="pct-b plo">${p.selPer}%</span>
-          <span style="font-size:10px;color:var(--muted)">global</span>
+        <div class="sc-mini">
+          <span class="sc-mini-stat">⚽ <b>${ga}</b></span>
+          <span class="sc-mini-stat">🧤 <b>${cs}</b></span>
+          <span class="sc-mini-stat" style="opacity:.6">${p.selPer}% glob</span>
         </div>
-        <div class="dots">${dots}</div>
+        <div class="sc-dots">${dots}</div>
       </div>
+      <div class="sc-cell">${ga}</div>
+      <div class="sc-cell">${cs}</div>
+      <div class="sc-cell sc-cell-muted">${p.selPer}%</div>
       <div class="sc-right">
-        <div class="sc-md-pts">${mdVal}</div>
-        <div class="sc-md-lbl">MD Pts</div>
+        <div class="sc-tot${p.isMine?' mine':''}">${p.totPts}</div>
+        <div class="sc-tot-lbl">Total</div>
+        <div class="sc-md${mdVal>0?' hot':''}">${mdVal}</div>
+        <div class="sc-md-lbl">MD</div>
       </div>
     </div>`;
   }).join('');
