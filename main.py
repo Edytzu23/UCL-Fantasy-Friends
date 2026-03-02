@@ -303,6 +303,8 @@ def github_put_file(path, content_str, sha=None, message=None):
     if sha:
         payload["sha"] = sha
     r = requests.put(url, headers=_gh_headers(), json=payload)
+    if r.status_code not in (200, 201):
+        print(f"[GitHub] PUT failed {r.status_code}: {r.text[:500]}")
     return r.status_code in (200, 201)
 
 
@@ -374,13 +376,26 @@ def save_snapshot(md: int = 10):
 
     # Check if file already exists (need SHA to update)
     _, sha = github_get_file(path)
-    success = github_put_file(
-        path, content_str, sha=sha,
-        message=f"snapshot MD{md} — {datetime.now().strftime('%Y-%m-%d %H:%M')}"
-    )
-    if success:
+
+    import base64
+    url = f"{GH_API}/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{path}"
+    payload = {
+        "message": f"snapshot MD{md} — {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        "content": base64.b64encode(content_str.encode("utf-8")).decode("utf-8"),
+        "branch": GITHUB_BRANCH,
+    }
+    if sha:
+        payload["sha"] = sha
+    r = requests.put(url, headers=_gh_headers(), json=payload)
+    if r.status_code in (200, 201):
         return JSONResponse({"status": "saved", "path": path, "matchday": md})
-    return JSONResponse({"error": "GitHub write failed"}, status_code=500)
+    # Return exact GitHub error for debugging
+    try:
+        gh_err = r.json()
+    except:
+        gh_err = r.text
+    print(f"[GitHub] save failed {r.status_code}: {gh_err}")
+    return JSONResponse({"error": f"GitHub {r.status_code}: {gh_err}"}, status_code=500)
 
 
 @app.get("/api/snapshot/load")
