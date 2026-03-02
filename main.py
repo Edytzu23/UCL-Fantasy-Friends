@@ -145,6 +145,16 @@ def build_data(matchday=10):
         except Exception as e:
             print(f"Could not fetch MD{matchday-1} for diff: {e}")
 
+    # Fetch previous MD team rosters to detect transfers
+    prev_team_ids = {}  # guid -> set of player IDs
+    if matchday > 1:
+        try:
+            prev_managers_raw = fetch_team_data(matchday - 1)
+            for mgr in prev_managers_raw:
+                prev_team_ids[mgr["guid"]] = {int(rp["id"]) for rp in mgr["rawPlayers"]}
+        except Exception as e:
+            print(f"Could not fetch MD{matchday-1} teams for transfer diff: {e}")
+
     def md_stat(pid, field, current_players, previous_players):
         """Goals/assists/CS for this MD only = current cumulative - previous cumulative"""
         cur = current_players.get(pid, {}).get(field, 0) or 0
@@ -158,6 +168,22 @@ def build_data(matchday=10):
     managers = []
     for mgr in managers_raw:
         enriched = []
+        current_ids = {int(rp["id"]) for rp in mgr["rawPlayers"]}
+        prev_ids = prev_team_ids.get(mgr["guid"], set())
+        transferred_in = current_ids - prev_ids if prev_ids else set()
+        transferred_out_ids = prev_ids - current_ids if prev_ids else set()
+        transfers_out = []
+        for out_pid in transferred_out_ids:
+            pub = public_players.get(out_pid, {})
+            if pub:
+                transfers_out.append({
+                    "id": out_pid,
+                    "name": pub.get("name", f"#{out_pid}"),
+                    "teamCode": pub.get("teamCode", ""),
+                    "team": pub.get("team", ""),
+                    "posCode": pub.get("posCode", "MID"),
+                    "mdPoints": pub.get("curGDPts", 0),
+                })
         for rp in mgr["rawPlayers"]:
             pid = int(rp["id"])
             pub = public_players.get(pid, {})
@@ -192,6 +218,7 @@ def build_data(matchday=10):
                 "status": pub.get("status", "A"),
                 "managerGuid": mgr["guid"],
                 "managerName": mgr["username"],
+                "isTransfer": pid in transferred_in,
             }
             enriched.append(player)
 
@@ -210,6 +237,7 @@ def build_data(matchday=10):
                 "ovRank": mgr["ovRank"],
                 "captainId": mgr["captainId"],
                 "players": enriched,
+                "transfersOut": transfers_out,
             }
         )
 

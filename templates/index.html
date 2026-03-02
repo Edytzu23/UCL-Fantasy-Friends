@@ -319,6 +319,19 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 .mm-bench-wrap{padding:0 18px 18px;}
 .mm-bench-lbl{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
 .mm-bench{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.mm-transfers{display:flex;flex-direction:column;gap:8px;}
+.mm-transfer-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mm-tc{border-radius:var(--rsm);padding:10px 10px 8px;text-align:center;position:relative;overflow:hidden;cursor:pointer;transition:opacity .15s;}
+.mm-tc:hover{opacity:.85;}
+.mm-tc-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.mm-tc-bg img{width:70%;height:70%;object-fit:contain;opacity:.2;}
+.mm-tc-lbl{font-size:8px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;position:relative;z-index:1;}
+.mm-tc-pos{margin-bottom:4px;position:relative;z-index:1;}
+.mm-tc-name{font-size:14px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;position:relative;z-index:1;line-height:1.2;margin-bottom:4px;}
+.mm-tc-club{font-size:10px;color:rgba(255,255,255,.55);position:relative;z-index:1;margin-bottom:4px;}
+.mm-tc-pts{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:#fff;line-height:1;position:relative;z-index:1;}
+.mm-tc-out{border:1px solid rgba(248,113,113,.5);background:linear-gradient(160deg,rgba(90,15,15,.95),rgba(50,8,8,.95));}
+.mm-tc-in{border:1px solid rgba(74,222,128,.5);background:linear-gradient(160deg,rgba(10,60,25,.95),rgba(8,40,15,.95));}
 .mm-bp{background:linear-gradient(180deg,rgba(15,45,100,.9),rgba(10,30,70,.9));border:1px solid rgba(100,180,255,.2);border-radius:var(--rsm);padding:8px 6px;text-align:center;position:relative;overflow:hidden;cursor:pointer;transition:background .15s;}
 .mm-bp:hover{background:rgba(30,60,120,.9);}
 .mm-bp-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
@@ -851,7 +864,43 @@ function showMgrModal(guid){
     <div class="mm-bench-wrap">
       <div class="mm-bench-lbl">Bancă</div>
       <div class="mm-bench">${benchCards}</div>
-    </div>`:''}`;
+    </div>`:''}
+    ${(()=>{
+      const posOrd={GK:0,DEF:1,MID:2,FWD:3};
+      const byPos=p=>(posOrd[p.posCode]??2);
+      const tOut=[...(m.transfersOut||[])].sort((a,b)=>byPos(a)-byPos(b));
+      const tIn=[...m.players.filter(p=>p.isTransfer)].sort((a,b)=>byPos(a)-byPos(b));
+      if(!tIn.length&&!tOut.length)return'';
+      const ptsIn=tIn.reduce((s,p)=>s+(p.mdPoints||0),0);
+      const ptsOut=tOut.reduce((s,p)=>s+(p.mdPoints||0),0);
+      const diff=ptsIn-ptsOut;
+      const diffColor=diff>0?'#4ade80':diff<0?'#f87171':'var(--muted)';
+      const tcCard=(p,type)=>`
+        <div class="mm-tc mm-tc-${type}" onclick="closeOv({target:{}});showP(${p.id})">
+          <div class="mm-tc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
+          <div class="mm-tc-lbl" style="color:${type==='out'?'#f87171':'#4ade80'}">${type==='out'?'▼ Plecat':'▲ Venit'}</div>
+          <div class="mm-tc-pos"><span class="pos-b pos-${p.posCode}" style="font-size:9px">${p.posCode}</span></div>
+          <span class="mm-tc-name">${p.name.split(' ').slice(-1)[0]}</span>
+          <div class="mm-tc-club">${p.team||''}</div>
+          <div class="mm-tc-pts">${p.mdPoints||0}</div>
+        </div>`;
+      const maxLen=Math.max(tIn.length,tOut.length);
+      let rows='';
+      for(let i=0;i<maxLen;i++){
+        const out=tOut[i];const inP=tIn[i];
+        rows+=`<div class="mm-transfer-row">
+          ${out?tcCard(out,'out'):'<div></div>'}
+          ${inP?tcCard(inP,'in'):'<div></div>'}
+        </div>`;
+      }
+      return`<div class="mm-bench-wrap">
+        <div class="mm-bench-lbl" style="display:flex;justify-content:space-between;align-items:center">
+          <span>Transferuri MD${MD}</span>
+          <span style="color:${diffColor};font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900">${diff>0?'+':''}${diff} pts</span>
+        </div>
+        <div class="mm-transfers">${rows}</div>
+      </div>`;
+    })()}`;
 
   document.getElementById('modal').innerHTML=html;
   document.getElementById('overlay').classList.add('open');
