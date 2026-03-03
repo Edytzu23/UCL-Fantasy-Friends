@@ -16,6 +16,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 async def lifespan(app):
     threading.Thread(target=lambda: refresh_cache(10), daemon=True).start()
     threading.Thread(target=scheduler_loop, daemon=True).start()
+    threading.Thread(target=lambda: load_live_schedule(), daemon=True).start()
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -48,6 +49,11 @@ SKILL_TO_POS = {1: "GK", 2: "DEF", 3: "MID", 4: "FWD"}
 
 cache = {}
 cache_lock = threading.Lock()
+
+# ── LIVE SNAPSHOT SCHEDULE ─────────────────────────────────────────────────
+CHECKPOINT_LABELS = ["HTM1", "FTM1", "HTM2", "FTM2", "FINALMD"]
+live_schedule = {"matchday": 0, "checkpoints": []}
+live_schedule_lock = threading.Lock()
 
 
 PUBLIC_HEADERS = {
@@ -280,7 +286,7 @@ def refresh_cache(matchday=10):
 
 
 def scheduler_loop():
-    """Run auto-refresh at 21:45, 23:15, 09:00"""
+    """Run auto-refresh at 21:45, 23:15, 09:00 + live checkpoint triggers."""
     while True:
         now = datetime.now()
         hm = (now.hour, now.minute)
@@ -288,6 +294,26 @@ def scheduler_loop():
             md = max(cache.keys()) if cache else 10
             refresh_cache(md)
             time.sleep(90)  # don't double-trigger within same minute
+
+        # Live checkpoint triggers
+        with live_schedule_lock:
+            sched = json.loads(json.dumps(live_schedule))
+        if sched.get("checkpoints"):
+            now_str = now.strftime("%H:%M")
+            for cp in sched["checkpoints"]:
+                if cp["time"] == now_str and not cp.get("fired"):
+                    md = sched["matchday"]
+                    label = cp["label"]
+                    print(f"[AutoSnap] Firing '{label}' for MD{md} at {now_str}")
+                    try:
+                        save_live_checkpoint(md, label)
+                        if label == "FINALMD":
+                            advance_to_next_md()
+                    except Exception as e:
+                        print(f"[AutoSnap] Error: {e}")
+                    time.sleep(90)
+                    break
+
         time.sleep(30)
 
 
@@ -334,6 +360,92 @@ def github_put_file(path, content_str, sha=None, message=None):
     if r.status_code not in (200, 201):
         print(f"[GitHub] PUT failed {r.status_code}: {r.text[:500]}")
     return r.status_code in (200, 201)
+
+
+# ── LIVE SCHEDULE HELPERS ──────────────────────────────────────────────────
+
+def load_live_schedule():
+    """Load schedule.json from GitHub into memory."""
+    global live_schedule
+    try:
+        content, _ = github_get_file(f"{SNAPSHOT_DIR}/schedule.json")
+        if content:
+            with live_schedule_lock:
+                live_schedule = json.loads(content)
+            print(f"[LiveSched] Loaded schedule for MD{live_schedule.get('matchday', '?')}")
+        else:
+            print("[LiveSched] No schedule.json found on GitHub")
+    except Exception as e:
+        print(f"[LiveSched] Error loading schedule: {e}")
+
+
+def save_live_schedule():
+    """Write current live_schedule to GitHub."""
+    with live_schedule_lock:
+        data = json.loads(json.dumps(live_schedule))
+    content_str = json.dumps(data, ensure_ascii=False, indent=2)
+    path = f"{SNAPSHOT_DIR}/schedule.json"
+    _, sha = github_get_file(path)
+    ok = github_put_file(path, content_str, sha=sha, message=f"schedule MD{data.get('matchday', '?')}")
+    if ok:
+        print(f"[LiveSched] Saved schedule for MD{data.get('matchday', '?')}")
+    return ok
+
+
+def save_live_checkpoint(md, label):
+    """Take a snapshot and append it as a checkpoint to md{XX}_live.json."""
+    # Refresh cache to get latest data
+    data = refresh_cache(md)
+    if not data:
+        raise Exception(f"Could not refresh data for MD{md}")
+
+    snapshot = build_snapshot(md, data)
+
+    # Load existing live file or create new
+    live_path = f"{SNAPSHOT_DIR}/md{md:02d}_live.json"
+    content, sha = github_get_file(live_path)
+    if content:
+        live_data = json.loads(content)
+    else:
+        live_data = {"matchday": md, "checkpoints": []}
+
+    # Append checkpoint
+    live_data["checkpoints"].append({
+        "label": label,
+        "savedAt": datetime.now().isoformat(),
+        "managers": snapshot["managers"],
+        "players": snapshot["players"],
+    })
+
+    # Save to GitHub
+    content_str = json.dumps(live_data, ensure_ascii=False, indent=2)
+    ok = github_put_file(live_path, content_str, sha=sha,
+                         message=f"live checkpoint {label} MD{md} — {datetime.now().strftime('%H:%M')}")
+    if not ok:
+        raise Exception(f"Failed to save live checkpoint to GitHub")
+
+    # Mark checkpoint as fired in schedule
+    with live_schedule_lock:
+        for cp in live_schedule.get("checkpoints", []):
+            if cp["label"] == label and not cp.get("fired"):
+                cp["fired"] = True
+                break
+    save_live_schedule()
+    print(f"[LiveSnap] Saved checkpoint '{label}' for MD{md}")
+
+
+def advance_to_next_md():
+    """After FINALMD fires, advance schedule to next matchday."""
+    global live_schedule
+    with live_schedule_lock:
+        current_md = live_schedule.get("matchday", 10)
+        next_md = current_md + 1
+        # Keep same times, reset fired flags
+        for cp in live_schedule.get("checkpoints", []):
+            cp["fired"] = False
+        live_schedule["matchday"] = next_md
+    save_live_schedule()
+    print(f"[LiveSched] Advanced from MD{current_md} to MD{next_md}")
 
 
 def build_snapshot(md, data):
@@ -448,13 +560,69 @@ def list_snapshots():
     if r.status_code == 200:
         files = [f["name"] for f in r.json() if f["name"].endswith(".json")]
         mds = []
+        live_mds = []
         for f in files:
-            try:
-                mds.append(int(f.replace("md","").replace(".json","")))
-            except:
-                pass
-        return JSONResponse({"snapshots": sorted(mds)})
-    return JSONResponse({"snapshots": []})
+            if f == "schedule.json":
+                continue
+            if "_live" in f:
+                try:
+                    live_mds.append(int(f.replace("md", "").replace("_live.json", "")))
+                except:
+                    pass
+            else:
+                try:
+                    mds.append(int(f.replace("md", "").replace(".json", "")))
+                except:
+                    pass
+        return JSONResponse({"snapshots": sorted(mds), "liveSnapshots": sorted(live_mds)})
+    return JSONResponse({"snapshots": [], "liveSnapshots": []})
+
+
+# ── LIVE SCHEDULE / SNAPSHOT ENDPOINTS ─────────────────────────────────────
+
+@app.get("/api/live-schedule")
+def get_live_schedule():
+    with live_schedule_lock:
+        return JSONResponse(live_schedule)
+
+
+@app.post("/api/live-schedule")
+def set_live_schedule(req: dict):
+    global live_schedule
+    md = req.get("matchday")
+    checkpoints = req.get("checkpoints", [])
+    # Ensure all 5 labels are valid and have fired flag
+    for cp in checkpoints:
+        cp["fired"] = cp.get("fired", False)
+    new_sched = {"matchday": md, "checkpoints": checkpoints}
+    with live_schedule_lock:
+        live_schedule = new_sched
+    save_live_schedule()
+    return JSONResponse({"status": "ok", "schedule": new_sched})
+
+
+@app.get("/api/live-snapshot/load")
+def load_live_snapshot(md: int):
+    if not GITHUB_TOKEN:
+        return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
+    path = f"{SNAPSHOT_DIR}/md{md:02d}_live.json"
+    content, _ = github_get_file(path)
+    if content:
+        return JSONResponse(json.loads(content))
+    return JSONResponse({"error": f"No live snapshot for MD{md}"}, status_code=404)
+
+
+@app.post("/api/live-snapshot/fire")
+def fire_live_snapshot(md: int, label: str = "Manual"):
+    if not GITHUB_TOKEN:
+        return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
+    try:
+        save_live_checkpoint(md, label)
+        if label == "FINALMD":
+            advance_to_next_md()
+        return JSONResponse({"status": "saved", "matchday": md, "label": label})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @app.get("/api/data")
