@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import requests
 import json
 import urllib3
-from datetime import datetime
+from datetime import datetime, timedelta
 import threading
 import time
 import os
@@ -275,6 +275,7 @@ def build_data(matchday=10):
 
 def refresh_cache(matchday=10):
     try:
+        public_players_cache.pop(matchday, None)  # clear stale player data
         data = build_data(matchday)
         with cache_lock:
             cache[matchday] = data
@@ -285,14 +286,42 @@ def refresh_cache(matchday=10):
         return None
 
 
+def is_match_window():
+    """Check if current time falls within a live match window."""
+    with live_schedule_lock:
+        sched = json.loads(json.dumps(live_schedule))
+    cps = sched.get("checkpoints", [])
+    if not cps:
+        return False
+    unfired = [cp for cp in cps if not cp.get("fired")]
+    if not unfired:
+        return False
+    now = datetime.now()
+    try:
+        times = []
+        for cp in cps:
+            h, m = map(int, cp["time"].split(":"))
+            t = now.replace(hour=h, minute=m, second=0, microsecond=0)
+            times.append(t)
+        window_start = min(times) - timedelta(minutes=30)
+        window_end = max(times) + timedelta(minutes=20)
+        return window_start <= now <= window_end
+    except Exception:
+        return False
+
+
 def scheduler_loop():
-    """Run auto-refresh at 21:45, 23:15, 09:00 + live checkpoint triggers."""
+    """Run auto-refresh at 21:45, 23:15, 09:00 + live checkpoint triggers + periodic during matches."""
+    last_periodic = 0
+    PERIODIC_INTERVAL = 300  # 5 minutes
+
     while True:
         now = datetime.now()
         hm = (now.hour, now.minute)
         if hm in [(21, 45), (23, 15), (9, 0)]:
             md = max(cache.keys()) if cache else 10
             refresh_cache(md)
+            last_periodic = time.time()
             time.sleep(90)  # don't double-trigger within same minute
 
         # Live checkpoint triggers
@@ -311,8 +340,16 @@ def scheduler_loop():
                             advance_to_next_md()
                     except Exception as e:
                         print(f"[AutoSnap] Error: {e}")
+                    last_periodic = time.time()
                     time.sleep(90)
                     break
+
+        # Periodic refresh during match windows
+        if is_match_window() and (time.time() - last_periodic) >= PERIODIC_INTERVAL:
+            md = sched.get("matchday") or (max(cache.keys()) if cache else 10)
+            print(f"[AutoRefresh] Periodic refresh for MD{md} (match window active)")
+            refresh_cache(md)
+            last_periodic = time.time()
 
         time.sleep(30)
 
@@ -634,6 +671,19 @@ def get_data(md: int = 10):
     if data:
         return JSONResponse(data)
     return JSONResponse({"error": "Failed to fetch data"}, status_code=500)
+
+
+@app.get("/api/status")
+def get_status():
+    md = max(cache.keys()) if cache else 10
+    with cache_lock:
+        data = cache.get(md)
+    last_updated = data["lastUpdated"] if data else None
+    return JSONResponse({
+        "matchday": md,
+        "lastUpdated": last_updated,
+        "liveWindow": is_match_window(),
+    })
 
 
 @app.post("/api/refresh")

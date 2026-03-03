@@ -217,6 +217,9 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 .yc-suspended{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);box-shadow:0 0 10px rgba(239,68,68,.1);}
 .yc-susp-pulse{animation:yc-pulse 2s ease-in-out infinite;}
 @keyframes yc-pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+/* ── AUTO-REFRESH INDICATOR ── */
+.ar-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;vertical-align:middle;animation:ar-pulse 2s ease-in-out infinite;}
+@keyframes ar-pulse{0%,100%{opacity:1;box-shadow:0 0 4px rgba(34,197,94,.4);}50%{opacity:.4;box-shadow:none;}}
 .yc-dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .yc-dot-filled{background:#eab308;}
 .yc-dot-empty{background:rgba(234,179,8,.2);}
@@ -1035,6 +1038,9 @@ function checkPin(input){
 let D=null, MD=10, meGuid=null, curTab='clasament';
 let posF='ALL', mgrOn=new Set(), sCol='localOwnership', sDir=1, emdSort='md';
 const mdCache={};
+// ── AUTO-REFRESH ──────────────────────────
+let arInterval=null, arActive=false;
+const AR_LIVE_MS=60000, AR_IDLE_MS=300000;
 
 // ── TEAM LOGO helper ───────────────────────
 // Returns <img> with logo if file exists, falls back to text
@@ -1050,6 +1056,7 @@ window.onload=()=>loadAllMDs();
 // Load MD10 first (visible), then silently preload all past MDs sequentially
 async function loadAllMDs(){
   await load(10); // load current MD first so user sees content immediately
+  arCheck(); arSetInterval(AR_IDLE_MS); // start auto-refresh polling
   // Then fetch other MDs one by one with small delay — avoids hammering server
   for(let i=1;i<=TOTAL_MDs;i++){
     if(i===10)continue;
@@ -1090,10 +1097,52 @@ async function load(md){
     mdCache[md]=D;
     updateBestRanks(md, D.managers);
     buildMdBar(); buildMgrSel(); buildMgrChips(); render();
-    const d=new Date(D.lastUpdated);
-    document.getElementById('updBar').textContent=
-      'Actualizat: '+d.toLocaleString('ro-RO',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' · MD'+MD;
+    arUpdateBar();
   }catch(e){document.getElementById('updBar').textContent='Eroare la încărcare';}
+}
+
+// ── AUTO-REFRESH POLLING ────────────────────
+function arUpdateBar(){
+  if(!D)return;
+  const d=new Date(D.lastUpdated);
+  document.getElementById('updBar').innerHTML=
+    (arActive?'<span class="ar-dot"></span>':'')+
+    'Actualizat: '+d.toLocaleString('ro-RO',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' · MD'+MD+
+    (arActive?' · <span style="color:#22c55e;font-weight:600">LIVE</span>':'');
+}
+
+async function arCheck(){
+  try{
+    const r=await fetch('/api/status');
+    const s=await r.json();
+    const wasActive=arActive;
+    arActive=s.liveWindow;
+    if(arActive!==wasActive) arSetInterval(arActive?AR_LIVE_MS:AR_IDLE_MS);
+    if(s.lastUpdated && D && s.lastUpdated!==D.lastUpdated) await arReload();
+    arUpdateBar();
+  }catch(e){/* silent */}
+}
+
+async function arReload(){
+  try{
+    const r=await fetch(`/api/data?md=${MD}`);
+    const newD=await r.json();
+    if(newD.lastUpdated===D?.lastUpdated)return;
+    newD.managers.forEach(m=>{
+      m.username=fixName(m.username);
+      m.players.forEach(p=>{if(p.managerName)p.managerName=fixName(p.managerName);});
+    });
+    newD.allPlayers.forEach(p=>{if(p.ownedBy)p.ownedBy=p.ownedBy.map(fixName);});
+    D=newD; mdCache[MD]=D;
+    updateBestRanks(MD,D.managers);
+    render();
+    arUpdateBar();
+  }catch(e){/* silent */}
+}
+
+function arSetInterval(ms){
+  if(arInterval)clearInterval(arInterval);
+  arInterval=setInterval(arCheck,ms);
 }
 
 function showSpinner(){
