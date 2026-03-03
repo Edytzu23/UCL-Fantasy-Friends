@@ -114,6 +114,13 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 .snap-list{display:flex;flex-wrap:wrap;gap:8px;padding-top:10px;min-height:40px;}
 .snap-pill{background:rgba(96,165,250,.12);color:var(--acc);border:1px solid rgba(96,165,250,.25);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;}
 .snap-pill.saved{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.25);}
+.snap-pill.live{background:rgba(249,115,22,.12);color:var(--fire);border-color:rgba(249,115,22,.25);cursor:pointer;transition:opacity .15s;}
+.snap-pill.live:hover{opacity:.8;}
+.snap-pill.live.active{background:rgba(249,115,22,.25);border-color:var(--fire);}
+.sched-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+.sched-row .sched-label{font-size:13px;font-weight:700;color:var(--text);min-width:70px;}
+.sched-row .sched-fired{font-size:11px;font-weight:700;color:#4ade80;margin-left:4px;}
+.sched-row .sched-pending{font-size:11px;font-weight:700;color:var(--muted);margin-left:4px;}
 /* comparison table */
 .cmp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px;}
 .cmp-table th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:6px 4px;text-align:left;border-bottom:1px solid var(--border);}
@@ -204,6 +211,16 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 .sc-md{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--muted);line-height:1.3;}
 .sc-md.hot{color:var(--fire);}
 .sc-md-lbl{font-size:8px;color:var(--muted);font-weight:600;text-transform:uppercase;}
+/* ── YC Suspension Badge ── */
+.yc-badge{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:6px;font-size:9px;font-weight:700;letter-spacing:.03em;line-height:1.5;white-space:nowrap;flex-shrink:0;margin-left:6px;vertical-align:middle;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;}
+.yc-risk{background:rgba(234,179,8,.12);color:#eab308;border:1px solid rgba(234,179,8,.18);box-shadow:0 0 8px rgba(234,179,8,.08);}
+.yc-suspended{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);box-shadow:0 0 10px rgba(239,68,68,.1);}
+.yc-susp-pulse{animation:yc-pulse 2s ease-in-out infinite;}
+@keyframes yc-pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+.yc-dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.yc-dot-filled{background:#eab308;}
+.yc-dot-empty{background:rgba(234,179,8,.2);}
+.yc-dot-red{background:#f87171;}
 /* Desktop stat cells — hidden on mobile */
 .sc-cell{display:none;}
 .sc-thead{display:none;}
@@ -774,6 +791,18 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 .pin-err{font-size:12px;color:var(--fwd);margin-bottom:10px;min-height:16px;text-align:center;}
 .pin-cancel{width:100%;padding:10px;border-radius:20px;border:none;background:rgba(255,255,255,.06);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s;}
 .pin-cancel:hover{background:rgba(255,255,255,.1);}
+
+/* ── MD EVENT ICONS on player cards ── */
+.fm-pc-events{display:flex;gap:4px;justify-content:center;align-items:center;margin-top:5px;flex-wrap:wrap;min-height:22px;}
+.fm-ev{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fm-ev.goal{filter:drop-shadow(0 0 2px #FF4444) drop-shadow(0 0 5px rgba(255,68,68,.4));}
+.fm-ev.assist{filter:drop-shadow(0 0 2px #4488FF) drop-shadow(0 0 5px rgba(68,136,255,.4));}
+.fm-ev.cs{filter:drop-shadow(0 0 2px #00E676) drop-shadow(0 0 5px rgba(0,230,118,.4));}
+.fm-br-events{display:inline-flex;gap:3px;align-items:center;margin-left:4px;vertical-align:middle;}
+.fm-ev-sm{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fm-ev-sm.goal{filter:drop-shadow(0 0 1.5px #FF4444) drop-shadow(0 0 3px rgba(255,68,68,.4));}
+.fm-ev-sm.assist{filter:drop-shadow(0 0 1.5px #4488FF) drop-shadow(0 0 3px rgba(68,136,255,.4));}
+.fm-ev-sm.cs{filter:drop-shadow(0 0 1.5px #00E676) drop-shadow(0 0 3px rgba(0,230,118,.4));}
 </style>
 </head>
 <body>
@@ -843,6 +872,37 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
       <div id="cmpResult" style="margin-top:14px;"></div>
     </div>
 
+    <!-- LIVE SNAPSHOT SCHEDULE -->
+    <div class="stats-section" style="margin-top:16px;">
+      <div class="stats-sec-title">⏱️ Auto-Snapshot Schedule</div>
+      <div class="stats-sec-desc">Configurează orele la care se salvează automat checkpoint-uri live (HTM1, FTM1, HTM2, FTM2, FINALMD).</div>
+      <div id="liveSchedForm" style="margin-top:12px;">
+        <div id="liveSchedRows"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <button class="stats-save-btn" onclick="saveSchedConfig()" style="background:var(--acc);">💾 Salvează program</button>
+          <select class="stats-sel" id="fireLabel">
+            <option value="HTM1">HTM1</option>
+            <option value="FTM1">FTM1</option>
+            <option value="HTM2">HTM2</option>
+            <option value="FTM2">FTM2</option>
+            <option value="FINALMD">FINALMD</option>
+          </select>
+          <button class="stats-save-btn" onclick="fireManualSnap()" style="background:var(--fire);">▶ Fire manual</button>
+        </div>
+        <div id="liveSchedStatus" class="stats-status" style="margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <!-- LIVE CHECKPOINTS VIEWER -->
+    <div class="stats-section" style="margin-top:16px;">
+      <div class="stats-sec-title">📡 Live Checkpoints</div>
+      <div class="stats-sec-desc">Vizualizează diferențele de goluri/assisturi între checkpoint-urile MD-ului curent.</div>
+      <div id="liveCpPills" class="snap-list" style="margin-top:10px;"></div>
+      <div id="liveCpView" style="margin-top:12px;">
+        <div style="color:var(--muted);font-size:12px;">Niciun checkpoint salvat încă.</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -861,6 +921,7 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
           <button class="pos-seg-btn" data-pos="MID" onclick="setPos(this)">MID</button>
           <button class="pos-seg-btn" data-pos="FWD" onclick="setPos(this)">FWD</button>
         </div>
+        <button class="pos-seg-btn" id="ycFilterBtn" onclick="toggleYcFilter()" style="margin-left:8px;border-left:1px solid var(--border);padding-left:10px;gap:4px;display:inline-flex;align-items:center"><span class="yc-dot yc-dot-filled" style="width:6px;height:6px"></span> Risc YC</button>
         <div class="chips" id="mgrChips"></div>
       </div>
     </div>
@@ -1217,6 +1278,7 @@ function showMgrModal(guid){
           <div class="fm-pc-n">${shortName}</div>
           <div class="fm-pc-p ${ptsCls(pts)}">${pts}</div>
         </div>
+        ${mdEventIcons(p)}
       </div>`;
     }).join('');
     return`<div class="fm-row">${cards}</div>`;
@@ -1228,7 +1290,7 @@ function showMgrModal(guid){
       <span class="fm-br-pos ${p.posCode}">${p.posCode}</span>
       <div class="fm-br-crest"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.opacity='.3'"/></div>
       <div class="fm-br-info">
-        <div class="fm-br-name">${p.name.split(' ').pop()}</div>
+        <div style="display:flex;align-items:center;gap:4px;"><div class="fm-br-name">${p.name.split(' ').pop()}</div>${mdEventIcons(p,true)}</div>
         <div class="fm-br-club">${p.team||''}</div>
       </div>
       <div class="fm-br-pts${bp(p)===0?' zero':''}">${bp(p)}</div>
@@ -1340,6 +1402,8 @@ async function renderStatsMD(){
   if(!D)return;
   document.getElementById('snapMdNum').textContent=MD;
   await loadSnapshotList();
+  await loadLiveSchedule();
+  await loadLiveSnapView();
 }
 
 async function loadSnapshotList(){
@@ -1499,6 +1563,263 @@ function renderComparison(el,snapA,snapB,mdA,mdB){
     </table>`;
 }
 
+// ── LIVE SNAPSHOTS ──────────────────────────
+const CP_LABELS=["HTM1","FTM1","HTM2","FTM2","FINALMD"];
+let liveSchedule={matchday:0,checkpoints:[]};
+let liveSnapData=null;
+let activeCpIdx=0;
+
+async function loadLiveSchedule(){
+  try{
+    const r=await fetch('/api/live-schedule');
+    const data=await r.json();
+    liveSchedule=data||{matchday:0,checkpoints:[]};
+    renderSchedRows();
+  }catch(e){
+    console.error('loadLiveSchedule error:',e);
+  }
+}
+
+function renderSchedRows(){
+  const el=document.getElementById('liveSchedRows');
+  const cps=liveSchedule.checkpoints||[];
+  // Build rows for all 5 labels
+  el.innerHTML=CP_LABELS.map(label=>{
+    const cp=cps.find(c=>c.label===label)||{time:'',label,fired:false};
+    const statusHtml=cp.fired
+      ?'<span class="sched-fired">✓ Fired</span>'
+      :'<span class="sched-pending">○ Pending</span>';
+    return`<div class="sched-row">
+      <span class="sched-label">${label}</span>
+      <input type="time" class="stats-sel sched-time" data-label="${label}" value="${cp.time||''}" style="width:110px;"/>
+      ${statusHtml}
+    </div>`;
+  }).join('');
+}
+
+async function saveSchedConfig(){
+  const status=document.getElementById('liveSchedStatus');
+  const rows=document.querySelectorAll('#liveSchedRows .sched-row');
+  const checkpoints=[];
+  rows.forEach(row=>{
+    const label=row.querySelector('.sched-label').textContent;
+    const time=row.querySelector('.sched-time').value;
+    if(time){
+      const existing=(liveSchedule.checkpoints||[]).find(c=>c.label===label);
+      checkpoints.push({time,label,fired:existing?existing.fired:false});
+    }
+  });
+  const body={matchday:MD,checkpoints};
+  status.textContent='Se salvează...';status.className='stats-status';
+  try{
+    const r=await fetch('/api/live-schedule',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await r.json();
+    if(data.status==='ok'){
+      status.textContent=`✓ Program salvat pentru MD${MD}`;
+      status.className='stats-status ok';
+      liveSchedule=data.schedule;
+      renderSchedRows();
+    }else{
+      status.textContent='Eroare: '+(data.error||'necunoscută');
+      status.className='stats-status err';
+    }
+  }catch(e){
+    status.textContent='Eroare de rețea';
+    status.className='stats-status err';
+  }
+}
+
+async function fireManualSnap(){
+  const label=document.getElementById('fireLabel').value;
+  const status=document.getElementById('liveSchedStatus');
+  status.textContent=`Se salvează ${label}...`;status.className='stats-status';
+  try{
+    const r=await fetch(`/api/live-snapshot/fire?md=${MD}&label=${label}`,{method:'POST'});
+    const data=await r.json();
+    if(data.status==='saved'){
+      status.textContent=`✓ ${label} salvat pentru MD${MD}`;
+      status.className='stats-status ok';
+      await loadLiveSchedule();
+      await loadLiveSnapView();
+    }else{
+      status.textContent='Eroare: '+(data.error||'necunoscută');
+      status.className='stats-status err';
+    }
+  }catch(e){
+    status.textContent='Eroare de rețea';
+    status.className='stats-status err';
+  }
+}
+
+async function loadLiveSnapView(){
+  const pillsEl=document.getElementById('liveCpPills');
+  const viewEl=document.getElementById('liveCpView');
+  try{
+    const r=await fetch(`/api/live-snapshot/load?md=${MD}`);
+    if(r.status===404){
+      pillsEl.innerHTML='';
+      viewEl.innerHTML='<div style="color:var(--muted);font-size:12px;">Niciun checkpoint salvat încă pentru MD'+MD+'.</div>';
+      liveSnapData=null;
+      return;
+    }
+    liveSnapData=await r.json();
+    renderLivePills();
+    renderLiveCpDetail(activeCpIdx);
+  }catch(e){
+    pillsEl.innerHTML='';
+    viewEl.innerHTML='<div style="color:var(--muted);font-size:12px;">Eroare la încărcarea checkpoint-urilor.</div>';
+  }
+}
+
+function renderLivePills(){
+  const el=document.getElementById('liveCpPills');
+  if(!liveSnapData||!liveSnapData.checkpoints||!liveSnapData.checkpoints.length){
+    el.innerHTML='';return;
+  }
+  el.innerHTML=liveSnapData.checkpoints.map((cp,i)=>{
+    const time=cp.savedAt?cp.savedAt.split('T')[1].substring(0,5):'';
+    const cls=i===activeCpIdx?'snap-pill live active':'snap-pill live';
+    return`<span class="${cls}" onclick="selectLiveCp(${i})">${cp.label} ${time}</span>`;
+  }).join('');
+}
+
+function selectLiveCp(idx){
+  activeCpIdx=idx;
+  renderLivePills();
+  renderLiveCpDetail(idx);
+}
+
+async function renderLiveCpDetail(idx){
+  const el=document.getElementById('liveCpView');
+  if(!liveSnapData||!liveSnapData.checkpoints||!liveSnapData.checkpoints[idx]){
+    el.innerHTML='<div style="color:var(--muted);font-size:12px;">Selectează un checkpoint.</div>';
+    return;
+  }
+  const cp=liveSnapData.checkpoints[idx];
+  // Load base snapshot (previous MD) for diff
+  const baseMd=liveSnapData.matchday;
+  let baseSnap=null;
+  // Use first checkpoint as base if idx>0, otherwise try to load mdX-1 or mdX snapshot
+  if(idx>0){
+    baseSnap=liveSnapData.checkpoints[0];
+  }else{
+    // Try to load previous MD snapshot for diff
+    try{
+      const r=await fetch(`/api/snapshot/load?md=${baseMd-1}`);
+      if(r.ok)baseSnap=await r.json();
+    }catch(e){}
+    if(!baseSnap){
+      try{
+        const r=await fetch(`/api/snapshot/load?md=${baseMd}`);
+        if(r.ok)baseSnap=await r.json();
+      }catch(e){}
+    }
+  }
+
+  if(!baseSnap){
+    // No base to diff against, show raw stats
+    el.innerHTML=renderRawCpTable(cp);
+    return;
+  }
+
+  // Build diff
+  const baseMap={};
+  (baseSnap.players||[]).forEach(p=>{baseMap[p.id]=p;});
+
+  const STATS=[
+    {key:'goals',label:'⚽',emoji:true},
+    {key:'assists',label:'👟',emoji:true},
+    {key:'cleanSheets',label:'🧤',emoji:true},
+    {key:'totPts',label:'Pts'},
+    {key:'curGDPts',label:'GD Pts'},
+  ];
+
+  const rows=cp.players
+    .filter(p=>baseMap[p.id])
+    .map(p=>{
+      const base=baseMap[p.id];
+      const diffs=STATS.map(s=>({...s,val:p[s.key]||0,base:base[s.key]||0,diff:(p[s.key]||0)-(base[s.key]||0)}));
+      const score=diffs.reduce((a,s)=>a+Math.abs(s.diff),0);
+      return{...p,diffs,score};
+    })
+    .filter(p=>p.score>0)
+    .sort((a,b)=>{
+      const gA=a.diffs[0].diff,gB=b.diffs[0].diff;
+      if(gB!==gA)return gB-gA;
+      return b.score-a.score;
+    });
+
+  const baseLabel=idx>0?liveSnapData.checkpoints[0].label:`MD${baseMd-1}`;
+  const diffTime=cp.savedAt?cp.savedAt.split('T')[1].substring(0,5):'';
+
+  if(!rows.length){
+    el.innerHTML=`<div style="color:var(--muted);font-size:12px;padding:8px 0">Nicio diferență între ${baseLabel} și ${cp.label}.</div>`;
+    return;
+  }
+
+  // Manager points diff
+  const baseMgrMap={};
+  (baseSnap.managers||[]).forEach(m=>{baseMgrMap[m.guid]=m;});
+  const mgrRows=(cp.managers||[]).filter(m=>baseMgrMap[m.guid]).map(m=>{
+    const bm=baseMgrMap[m.guid];
+    return{...m,gdDiff:m.gdPoints-bm.gdPoints,ovDiff:m.ovPoints-bm.ovPoints};
+  }).sort((a,b)=>b.gdDiff-a.gdDiff);
+
+  function diffH(d){
+    if(d===0)return'<span style="color:var(--muted)">—</span>';
+    return d>0?`<span style="color:#4ade80;font-weight:700">+${d}</span>`:`<span style="color:#f87171;font-weight:700">${d}</span>`;
+  }
+
+  el.innerHTML=`
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${baseLabel} → ${cp.label} (${diffTime}) · ${rows.length} jucători cu modificări</div>
+    ${mgrRows.length?`<div style="margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">Manageri</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${mgrRows.map(m=>
+        `<span style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:12px;">
+          <span style="font-weight:700">${m.username}</span> ${diffH(m.gdDiff)}
+        </span>`
+      ).join('')}</div>
+    </div>`:''}
+    <table class="cmp-table">
+      <thead><tr>
+        <th>Jucător</th>
+        <th class="r">⚽</th>
+        <th class="r">👟</th>
+        <th class="r">🧤</th>
+        <th class="r">Pts</th>
+        <th class="r">GD</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(p=>{
+          const d=p.diffs;
+          return`<tr>
+            <td>
+              <div style="font-weight:700;font-size:13px">${p.name}</div>
+              <div style="font-size:10px;color:var(--muted)">${p.posCode} · ${p.teamCode}</div>
+            </td>
+            <td class="r">${diffH(d[0].diff)}</td>
+            <td class="r">${diffH(d[1].diff)}</td>
+            <td class="r">${diffH(d[2].diff)}</td>
+            <td class="r">${diffH(d[3].diff)}</td>
+            <td class="r">${diffH(d[4].diff)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function renderRawCpTable(cp){
+  const rows=cp.players.filter(p=>p.goals>0||p.assists>0).sort((a,b)=>b.goals-a.goals||b.assists-a.assists);
+  if(!rows.length)return'<div style="color:var(--muted);font-size:12px;">Nicio statistică notabilă.</div>';
+  return`<table class="cmp-table">
+    <thead><tr><th>Jucător</th><th class="r">⚽</th><th class="r">👟</th><th class="r">Pts</th></tr></thead>
+    <tbody>${rows.map(p=>`<tr>
+      <td><div style="font-weight:700;font-size:13px">${p.name}</div><div style="font-size:10px;color:var(--muted)">${p.posCode} · ${p.teamCode}</div></td>
+      <td class="r">${p.goals}</td><td class="r">${p.assists}</td><td class="r">${p.totPts}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
 // ── SCOUTING ────────────────────────────────
 function setPos(el){
   document.querySelectorAll('#posSegment .pos-seg-btn').forEach(c=>c.classList.remove('on','gk-on','def-on','mid-on','fwd-on'));
@@ -1511,12 +1832,29 @@ function setPos(el){
   posF=pos; renderScouting();
 }
 
+let ycFilter=false;
+function toggleYcFilter(){
+  ycFilter=!ycFilter;
+  document.getElementById('ycFilterBtn').classList.toggle('on',ycFilter);
+  renderScouting();
+}
+
 function ringColor(pct){
   if(pct===100)return'#dc2626';
   if(pct>=70)return'#f97316';
   if(pct>=40)return'#eab308';
   if(pct>0)return'#3b82f6';
   return'rgba(255,255,255,.12)';
+}
+
+function ycStatus(yc){
+  // Suspensions trigger at 3, 5, 7 yellows (1-match ban).
+  // The count doesn't reset after serving — can't tell if ban is pending or served.
+  // Only flag players exactly 1 card away from the next threshold.
+  if(yc===2)return{level:'risk',current:2,threshold:3,until:1};
+  if(yc===4)return{level:'risk',current:4,threshold:5,until:1};
+  if(yc===6)return{level:'risk',current:6,threshold:7,until:1};
+  return{level:'safe',current:yc,threshold:null,until:null};
 }
 
 const SORT_OPTS=[
@@ -1526,6 +1864,7 @@ const SORT_OPTS=[
   {key:'gaTotal',label:'G+A'},
   {key:'cleanSheets',label:'CS'},
   {key:'selPer',label:'Global %'},
+  {key:'yellowCards',label:'🟡 YC'},
 ];
 
 function buildScoutSortRow(){
@@ -1553,6 +1892,7 @@ function renderScouting(){
   });
   if(posF!=='ALL')ps=ps.filter(p=>p.posCode===posF);
   if(q)ps=ps.filter(p=>p.name.toLowerCase().includes(q)||(p.fullName||'').toLowerCase().includes(q)||p.team.toLowerCase().includes(q));
+  if(ycFilter)ps=ps.filter(p=>{const s=ycStatus(p.yellowCards||0);return s.level==='risk'||s.level==='suspended';});
   ps.sort((a,b)=>{
     const av=sCol==='localOwnership'?a.fL:(a[sCol]??0);
     const bv=sCol==='localOwnership'?b.fL:(b[sCol]??0);
@@ -1573,6 +1913,10 @@ function renderScouting(){
     const mdVal=p.curGDPts||0;
     const ga=p.gaTotal||0;
     const cs=p.cleanSheets||0;
+    const ycs=ycStatus(p.yellowCards||0);
+    const ycBadge=ycs.level==='risk'
+      ?`<span class="yc-badge yc-risk"><span class="yc-dot yc-dot-filled"></span>${ycs.current}/${ycs.threshold}</span>`
+      :'';
     return`<div class="sc-card${p.isMine?' mine':''}" onclick="showP(${p.id})">
       <div class="sc-ring-wrap">
         <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
@@ -1583,7 +1927,7 @@ function renderScouting(){
         <div class="sc-ring-sub">ligă</div>
       </div>
       <div class="sc-mid">
-        <div class="sc-name">${p.name}${p.isMine?' <span class="fire-tag">🔥</span>':''}</div>
+        <div class="sc-name">${p.name}${p.isMine?' <span class="fire-tag">🔥</span>':''}${ycBadge}</div>
         <div class="sc-sub">
           <span class="pos-b pos-${p.posCode}">${p.posCode}</span>
           <span class="s-dot s${(p.status||'A').toLowerCase()}"></span>
@@ -1719,6 +2063,36 @@ function buildPitch({squad,d,m,f},ids){
   return h;
 }
 
+// ── MD EVENT ICONS ─────────────────────────────
+// VISUAL_TEST: force Vini badges for design preview — set false once real data flows (MD≥11)
+const VISUAL_TEST=true;
+function getDisplayStats(p){
+  if(VISUAL_TEST&&p.name&&/vini/i.test(p.name))
+    return{mdGoals:1,mdAssists:1,mdCleanSheet:1};
+  return{mdGoals:p.mdGoals||0,mdAssists:p.mdAssists||0,mdCleanSheet:p.mdCleanSheet||0};
+}
+function mdEventIcons(p,mini=false){
+  const s=getDisplayStats(p);
+  const ball=`<svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#FF4444" stroke-width="1.3"/><path d="M10 4.5L13 7.5L11.8 11.5H8.2L7 7.5Z" stroke="#FF4444" stroke-width="1" stroke-linejoin="round" fill="none"/><line x1="10" y1="4.5" x2="10" y2="1.5" stroke="#FF4444" stroke-width=".8"/><line x1="13" y1="7.5" x2="17.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="11.8" y1="11.5" x2="15.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="8.2" y1="11.5" x2="4.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="7" y1="7.5" x2="2.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/></svg>`;
+  const boot=`<svg width="22" height="15" viewBox="0 0 28 18" fill="none"><path d="M6 1Q3 1 3 4L3 13L26 13Q28 13 28 11Q28 9 26 9L16 9L13 4Q13 1 10 1Z" stroke="#4488FF" stroke-width="1.3" stroke-linejoin="round" fill="none"/><line x1="7" y1="13" x2="7" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="13" x2="15" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="23" y1="13" x2="23" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/></svg>`;
+  const shield=`<svg width="15" height="17" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg>`;
+  const c=mini?'fm-ev-sm':'fm-ev';
+  if(mini){
+    if(!s.mdGoals&&!s.mdAssists&&!s.mdCleanSheet)return'';
+    let h='<span class="fm-br-events">';
+    for(let i=0;i<Math.min(s.mdGoals,3);i++) h+=`<span class="${c} goal" title="Gol MD">${ball}</span>`;
+    for(let i=0;i<Math.min(s.mdAssists,3);i++) h+=`<span class="${c} assist" title="Assist MD">${boot}</span>`;
+    if(s.mdCleanSheet) h+=`<span class="${c} cs" title="Clean Sheet MD">${shield}</span>`;
+    return h+'</span>';
+  } else {
+    let h='<div class="fm-pc-events">';
+    for(let i=0;i<Math.min(s.mdGoals,3);i++) h+=`<span class="${c} goal" title="Gol MD">${ball}</span>`;
+    for(let i=0;i<Math.min(s.mdAssists,3);i++) h+=`<span class="${c} assist" title="Assist MD">${boot}</span>`;
+    if(s.mdCleanSheet) h+=`<span class="${c} cs" title="Clean Sheet MD">${shield}</span>`;
+    return h+'</div>';
+  }
+}
+
 // ── PLAYER MODAL ────────────────────────────
 function showP(id){
   const p=D.allPlayers.find(x=>x.id===id);if(!p)return;
@@ -1744,7 +2118,7 @@ function showP(id){
     <div class="srow"><span>Assist-uri</span><b>${p.assists||0}</b></div>
     <div class="srow"><span>Clean sheets</span><b>${p.cleanSheets||0}</b></div>
     <div class="srow"><span>Man of the Match</span><b>${p.momCount||0}x</b></div>
-    <div class="srow"><span>Cărți galbene</span><b>${p.yellowCards||0}</b></div>
+    <div class="srow"><span>Cărți galbene</span><b>${p.yellowCards||0}${ycStatus(p.yellowCards||0).level==='risk'?` <span class="yc-badge yc-risk" style="font-size:10px">⚠ 1 până la susp.</span>`:''}</b></div>
     <div class="srow"><span>Selecție globală</span><b>${p.selPer}%</b></div>
     <div class="sec-lbl">Deținut de</div>
     <div class="owned-wrap">${chips}</div>`;
