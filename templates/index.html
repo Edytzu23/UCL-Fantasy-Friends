@@ -113,7 +113,9 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 .stats-sel{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;}
 .snap-list{display:flex;flex-wrap:wrap;gap:8px;padding-top:10px;min-height:40px;}
 .snap-pill{background:rgba(96,165,250,.12);color:var(--acc);border:1px solid rgba(96,165,250,.25);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;}
-.snap-pill.saved{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.25);}
+.snap-pill.saved{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.25);cursor:pointer;transition:opacity .15s;}
+.snap-pill.saved:hover{opacity:.8;}
+.snap-pill.saved.active{background:rgba(34,197,94,.25);border-color:#4ade80;}
 .snap-pill.live{background:rgba(249,115,22,.12);color:var(--fire);border-color:rgba(249,115,22,.25);cursor:pointer;transition:opacity .15s;}
 .snap-pill.live:hover{opacity:.8;}
 .snap-pill.live.active{background:rgba(249,115,22,.25);border-color:var(--fire);}
@@ -863,6 +865,7 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
     <div class="stats-section" style="margin-top:16px;">
       <div class="stats-sec-title">📦 Snapshot-uri disponibile</div>
       <div id="snapList" class="snap-list"><div class="spin-c" style="padding:20px 0"><div class="spinner"></div></div></div>
+      <div id="snapDetail" style="margin-top:12px;"></div>
     </div>
 
     <!-- COMPARISON SECTION -->
@@ -1489,13 +1492,51 @@ async function loadSnapshotList(){
   }
 }
 
+let activeSnapMd=null;
 function renderSnapPills(){
   const el=document.getElementById('snapList');
   if(!snapshots.length){
     el.innerHTML='<div style="color:var(--muted);font-size:12px">Niciun snapshot salvat încă.</div>';
     return;
   }
-  el.innerHTML=snapshots.map(md=>`<span class="snap-pill saved">✓ MD${md}</span>`).join('');
+  el.innerHTML=snapshots.map(md=>`<span class="snap-pill saved${activeSnapMd===md?' active':''}" onclick="showSnapDetail(${md})">✓ MD${md}</span>`).join('');
+}
+
+async function showSnapDetail(md){
+  const el=document.getElementById('snapDetail');
+  if(activeSnapMd===md){activeSnapMd=null;el.innerHTML='';renderSnapPills();return;}
+  activeSnapMd=md;renderSnapPills();
+  el.innerHTML='<div class="spin-c" style="padding:20px 0"><div class="spinner"></div></div>';
+  try{
+    const r=await fetch(`/api/snapshot/load?md=${md}`);
+    const snap=await r.json();
+    if(snap.error){el.innerHTML=`<div class="stats-status err">${snap.error}</div>`;return;}
+    const saved=snap.savedAt?new Date(snap.savedAt).toLocaleString('ro-RO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+    const mgrs=snap.managers||[];
+    const players=(snap.players||[]).slice().sort((a,b)=>(b.totPts||0)-(a.totPts||0));
+    let h=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Snapshot MD${md} · salvat ${saved} · ${mgrs.length} manageri · ${players.length} jucători</div>`;
+    // Manager summary
+    if(mgrs.length){
+      h+=`<div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:4px;">Manageri</div>`;
+      h+=`<table class="cmp-table"><thead><tr><th>Username</th><th class="r">GD Pts</th><th class="r">GD Rank</th><th class="r">OV Pts</th><th class="r">OV Rank</th></tr></thead><tbody>`;
+      mgrs.forEach(m=>{
+        h+=`<tr><td style="font-weight:700">${m.username||m.teamName||'—'}</td><td class="r">${m.gdPoints??'—'}</td><td class="r">${m.gdRank??'—'}</td><td class="r">${m.ovPoints??'—'}</td><td class="r">${m.ovRank??'—'}</td></tr>`;
+      });
+      h+=`</tbody></table>`;
+    }
+    // Player table
+    if(players.length){
+      h+=`<div style="font-size:11px;font-weight:700;color:var(--text);margin:10px 0 4px;">Jucători</div>`;
+      h+=`<table class="cmp-table"><thead><tr><th>Jucător</th><th class="r">Tot Pts</th><th class="r">GD Pts</th><th class="r">⚽</th><th class="r">👟</th><th class="r">🧤</th><th class="r">🏆</th><th class="r">🟨</th><th class="r">🟥</th><th class="r">Val</th></tr></thead><tbody>`;
+      players.forEach(p=>{
+        h+=`<tr><td><div style="font-weight:700;font-size:13px">${p.name||p.fullName||'—'}</div><div style="font-size:10px;color:var(--muted)">${p.posCode||''} · ${p.team||''}</div></td><td class="r">${p.totPts??0}</td><td class="r">${p.curGDPts??0}</td><td class="r">${p.goals??0}</td><td class="r">${p.assists??0}</td><td class="r">${p.cleanSheets??0}</td><td class="r">${p.momCount??0}</td><td class="r">${p.yellowCards??0}</td><td class="r">${p.redCards??0}</td><td class="r">${p.value??'—'}</td></tr>`;
+      });
+      h+=`</tbody></table>`;
+    }
+    el.innerHTML=h;
+  }catch(e){
+    el.innerHTML='<div class="stats-status err">Eroare la încărcarea snapshot-ului</div>';
+  }
 }
 
 function populateCmpSelects(){
