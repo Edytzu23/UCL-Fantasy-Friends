@@ -74,6 +74,20 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 
 /* ── CLASAMENT ── */
 .rank-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:start;}
+/* Mobile sub-tabs for clasament columns */
+.rank-subtabs{display:none;gap:0;margin-bottom:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.rank-subtab{flex:1;padding:9px 6px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);cursor:pointer;border:none;background:none;transition:color .15s,background .15s;}
+.rank-subtab:not(:last-child){border-right:1px solid var(--border);}
+.rank-subtab.on{color:var(--fire);background:rgba(249,115,22,.1);}
+.rank-subtab:hover:not(.on){color:var(--text);}
+.rank-subtab:focus-visible{outline:2px solid var(--fire);outline-offset:-2px;}
+.rank-subtab:active{opacity:.8;}
+@media(max-width:599px){
+  .rank-subtabs{display:flex;}
+  .rank-grid{grid-template-columns:1fr;}
+  .rank-grid>.rank-col{display:none;}
+  .rank-grid>.rank-col.rank-col-on{display:flex;}
+}
 .rank-grid>div{display:flex;flex-direction:column;}
 .rank-col-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:center;padding-bottom:6px;border-bottom:1px solid var(--border);min-height:40px;display:flex;align-items:center;justify-content:center;}
 .fire-txt{color:var(--fire);}.blue-txt{color:var(--acc);}.ps5-txt{color:#a78bfa;}
@@ -408,6 +422,14 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 }
 
 /* ── TOTW Responsive ── */
+@media(max-width:499px){
+  .totw-half .pcard-body{width:62px;padding:10px 6px;}
+  .totw-half .pcard-name{font-size:10px;}
+  .totw-half .pcard-pts{font-size:22px;}
+  .totw-half .f-row{gap:4px;padding:0 2px;}
+  .totw-half .pitch{padding:28px 6px 22px;min-height:420px;overflow:hidden;}
+  .totw-half .captain-badge{width:16px;height:16px;font-size:8px;}
+}
 @media(min-width:700px){
   .totw-half .pcard-body{width:120px;padding:16px 12px;}
   .totw-half .pcard-name{font-size:15px;}
@@ -1074,6 +1096,11 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 <!-- CLASAMENT -->
 <div class="view on" id="view-clasament">
   <div class="page inner">
+    <div class="rank-subtabs" id="rankSubtabs">
+      <button class="rank-subtab on" data-col="0">Etapa</button>
+      <button class="rank-subtab" data-col="1">Overall</button>
+      <button class="rank-subtab" data-col="2">PS5</button>
+    </div>
     <div class="rank-grid" id="rankGrid">
       <div class="spin-c" style="grid-column:1/-1"><div class="spinner"></div>Se încarcă...</div>
     </div>
@@ -1449,6 +1476,16 @@ function goTab(t){
   document.getElementById('view-'+t).classList.add('on');
   render();
 }
+// ── CLASAMENT SUB-TABS (mobile) ────────────
+document.getElementById('rankSubtabs').addEventListener('click',e=>{
+  const btn=e.target.closest('.rank-subtab');if(!btn)return;
+  const idx=btn.dataset.col;
+  document.querySelectorAll('.rank-subtab').forEach(b=>b.classList.toggle('on',b===btn));
+  const grid=document.getElementById('rankGrid');
+  grid.dataset.activeCol=idx;
+  grid.querySelectorAll('.rank-col').forEach((c,i)=>c.classList.toggle('rank-col-on',String(i)===idx));
+});
+
 function render(){
   if(!D)return;
   if(curTab==='clasament')renderClasament();
@@ -1462,16 +1499,17 @@ function renderClasament(){
   const byMD=[...D.managers].sort((a,b)=>b.gdPoints-a.gdPoints||(a.gdRank||999999)-(b.gdRank||999999));
   const byOv=[...D.managers].sort((a,b)=>b.ovPoints-a.ovPoints||(a.ovRank||999999)-(b.ovRank||999999));
   const el=document.getElementById('rankGrid');
+  const activeCol=el.dataset.activeCol||'0';
   el.innerHTML=`
-    <div>
+    <div class="rank-col${activeCol==='0'?' rank-col-on':''}">
       <div class="rank-col-title fire-txt">Etapa ${MD}</div>
       <div class="rank-list" id="rl-md"></div>
     </div>
-    <div>
+    <div class="rank-col${activeCol==='1'?' rank-col-on':''}">
       <div class="rank-col-title blue-txt">Overall</div>
       <div class="rank-list" id="rl-ov"></div>
     </div>
-    <div>
+    <div class="rank-col${activeCol==='2'?' rank-col-on':''}">
       <div class="rank-col-title ps5-txt">🎮 Cel mai aproape de PS5</div>
       <div class="rank-list" id="rl-ps5"></div>
     </div>`;
