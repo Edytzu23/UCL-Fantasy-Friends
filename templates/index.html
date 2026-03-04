@@ -263,14 +263,172 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 
 /* ── TOTW — pitch only, full width ── */
 .totw-wrap{padding:10px 14px 30px;}
-/* wrap: first 2 side-by-side, 3rd below if no room */
-.totw-trio{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;}
-.totw-half{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;}
-/* on wide screens all 3 fit in one row; on narrower screens 3rd wraps below */
-@media(min-width:960px){.totw-half{flex:1 1 0;}}
-.totw-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.totw-wrap .page{max-width:100%;}
+/* side-by-side when room, stacked on mobile */
+.totw-trio{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;}
+.totw-half{flex:1 1 400px;min-width:0;display:flex;flex-direction:column;}
+.totw-label{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;text-align:center;}
 .totw-label.local{color:var(--fire);}.totw-label.global{color:var(--acc);}.totw-label.best{color:#a78bfa;}
-.totw-label-line{flex:1;height:1px;background:var(--border);}
+.totw-sublabel{text-align:center;font-size:10px;color:rgba(255,255,255,.45);font-style:italic;margin-bottom:8px;letter-spacing:.2px;}
+
+/* ── TOTW PITCH OVERRIDE — team-view-mockup style ── */
+.totw-half .pitch{
+  background:#0D1F0E;
+  background-image:
+    linear-gradient(rgba(46,125,50,0.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(46,125,50,0.07) 1px,transparent 1px);
+  background-size:52px 52px;
+  border:1px solid rgba(46,125,50,0.3);
+  border-radius:10px;
+  padding:32px 20px 28px;
+  justify-content:space-between;
+  gap:10px;
+  min-height:520px;
+  overflow:visible;
+}
+.totw-half .pitch::before{
+  inset:auto;top:0;left:0;right:0;bottom:auto;height:2px;
+  background:linear-gradient(90deg,transparent,#4CAF50,transparent);
+}
+/* Pitch markings — mockup style */
+.totw-half .pitch-center-line{
+  position:absolute;top:50%;left:8%;right:8%;
+  height:2px;background:rgba(255,255,255,0.15);pointer-events:none;
+}
+.totw-half .pitch-center-circle{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:100px;height:100px;border-radius:50%;
+  border:1px solid rgba(46,125,50,0.18);pointer-events:none;
+}
+.totw-half .pitch-gbox-t{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:140px;height:34px;
+  border:1px solid rgba(46,125,50,0.18);border-top:none;
+  border-radius:0 0 6px 6px;pointer-events:none;
+}
+.totw-half .pitch-gbox-b{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:140px;height:34px;
+  border:1px solid rgba(46,125,50,0.18);border-bottom:none;
+  border-radius:6px 6px 0 0;pointer-events:none;
+}
+/* hide old markings inside totw */
+.totw-half .pitch-midcircle,
+.totw-half .pitch-box-t,
+.totw-half .pitch-box-b{display:none;}
+
+/* Formation rows */
+.totw-half .f-row{
+  display:flex;justify-content:center;align-items:center;
+  gap:14px;position:relative;z-index:1;
+  width:100%;padding:0 8px;
+}
+
+/* ── TOTW PLAYER CARDS — large mockup style ── */
+.totw-half .pcard{
+  width:auto;height:auto;border:none;border-radius:0;
+  background:none;padding:0;overflow:visible;
+  transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  flex:0 0 auto;
+}
+.totw-half .pcard:hover{transform:translateY(-4px);box-shadow:none;}
+.totw-half .pcard:active{transform:scale(0.96);}
+
+.totw-half .pcard-body{
+  width:100px;
+  background:var(--surface,#1A1F2A);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:10px;
+  padding:14px 10px 14px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 4px 18px rgba(0,0,0,0.6);
+  transition:border-color 0.12s,box-shadow 0.12s;
+}
+.totw-half .pcard-body::after{
+  content:'';position:absolute;
+  top:12%;bottom:12%;right:0;
+  width:3px;background:#4CAF50;
+  border-radius:2px 0 0 2px;opacity:0.5;
+}
+.totw-half .pcard:hover .pcard-body{
+  border-color:rgba(255,255,255,0.22);
+  box-shadow:0 6px 24px rgba(0,0,0,0.7);
+}
+
+/* Logo bg in card */
+.totw-half .pcard-bg{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;overflow:hidden;border-radius:10px;
+}
+.totw-half .pcard-bg img{width:70%;height:70%;object-fit:contain;opacity:0.22;filter:grayscale(10%);}
+
+/* Text */
+.totw-half .pcard-name{
+  position:relative;z-index:1;
+  font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:700;
+  color:#F0F2F5;letter-spacing:0.3px;
+  margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:100%;line-height:1.2;text-shadow:none;
+}
+.totw-half .pcard-pts{
+  position:relative;z-index:1;
+  font-family:'Oswald',sans-serif;font-size:34px;font-weight:700;
+  letter-spacing:-0.5px;line-height:1;color:#F0F2F5;text-shadow:none;
+}
+/* Captain badge — keep badge but no card border change */
+.totw-half .captain-badge{
+  position:absolute;top:-1px;right:-1px;
+  background:#FF5722;color:#fff;
+  font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;
+  width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:0 9px 0 8px;z-index:2;
+}
+
+/* Default cards: hide accent bar */
+.totw-half .pcard-body::after{opacity:0;}
+
+/* Mine variant — green glow */
+.totw-half .pcard.mine .pcard-body{
+  border-color:rgba(76,175,80,0.6);
+  box-shadow:0 0 14px rgba(76,175,80,0.35),0 4px 18px rgba(0,0,0,0.6);
+  background:linear-gradient(160deg,rgba(76,175,80,0.12),var(--surface,#1A1F2A));
+}
+.totw-half .pcard.mine .pcard-body::after{background:#4CAF50;opacity:0.8;}
+.totw-half .pcard.mine .pcard-pts{color:#4CAF50;}
+.totw-half .pcard.mine .pcard-name{color:#C8E6C9;}
+.totw-half .pcard.mine{background:none;border:none;box-shadow:none;}
+
+/* Total */
+.totw-half .pitch-total{
+  font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;
+  letter-spacing:0.5px;
+}
+
+/* ── TOTW Responsive ── */
+@media(min-width:700px){
+  .totw-half .pcard-body{width:120px;padding:16px 12px;}
+  .totw-half .pcard-name{font-size:15px;}
+  .totw-half .pcard-pts{font-size:42px;}
+  .totw-half .pitch{min-height:560px;padding:32px 20px 28px;}
+  .totw-half .f-row{gap:14px;}
+}
+@media(min-width:1200px){
+  .totw-half .pcard-body{width:140px;padding:18px 14px;}
+  .totw-half .pcard-name{font-size:16px;}
+  .totw-half .pcard-pts{font-size:48px;}
+  .totw-half .f-row{gap:16px;}
+  .totw-half .pitch{min-height:620px;padding:36px 24px 32px;}
+}
+@media(min-width:1600px){
+  .totw-half .pcard-body{width:160px;padding:20px 16px;}
+  .totw-half .pcard-name{font-size:17px;}
+  .totw-half .pcard-pts{font-size:54px;}
+  .totw-half .f-row{gap:20px;}
+  .totw-half .pitch{min-height:700px;padding:40px 28px 36px;}
+}
 
 /* Pitch — auto height, distributes rows evenly */
 .pitch{
@@ -278,6 +436,7 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
   border-radius:var(--r);border:1.5px solid rgba(255,255,255,.12);overflow:hidden;
   position:relative;display:flex;flex-direction:column;justify-content:space-evenly;
   padding:36px 4px 10px;gap:6px;
+  transform:scale(0.9);transform-origin:top center;margin-bottom:-10%;
 }
 .pitch::before{content:'';position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px);background-size:100% 25%;}
@@ -285,10 +444,11 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 .pitch-box-t{position:absolute;top:0;left:50%;transform:translateX(-50%);width:50%;height:15%;border:1.5px solid rgba(255,255,255,.1);border-top:none;border-radius:0 0 8px 8px;pointer-events:none;}
 .pitch-box-b{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);width:50%;height:14%;border:1.5px solid rgba(255,255,255,.1);border-bottom:none;border-radius:8px 8px 0 0;pointer-events:none;}
 .pitch-row{display:flex;justify-content:space-around;align-items:center;position:relative;z-index:2;width:100%;gap:2px;}
-.form-tag{position:absolute;top:9px;left:9px;background:rgba(0,0,0,.6);color:rgba(255,255,255,.85);font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;z-index:3;letter-spacing:.3px;}
-.pitch-counter{position:absolute;top:9px;right:9px;background:rgba(0,0,0,.6);color:rgba(255,255,255,.6);font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;z-index:3;}
-.pitch-counter.has-mine{color:var(--fire);}
-.pitch-total{text-align:center;color:rgba(255,255,255,.9);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;padding:3px 0 0;position:relative;z-index:2;letter-spacing:.5px;flex-shrink:0;}
+.form-tag{position:absolute;top:9px;left:9px;background:rgba(0,0,0,.6);color:rgba(255,255,255,.85);font-size:13px;font-weight:800;padding:2px 8px;border-radius:20px;z-index:3;letter-spacing:.3px;}
+.pitch-counter{position:absolute;top:9px;right:9px;background:rgba(0,0,0,.6);color:rgba(255,255,255,.6);font-size:17px;font-weight:800;padding:2px 8px;border-radius:20px;z-index:3;}
+.pitch-counter.has-mine{color:#4CAF50;}
+.pitch-counter-label{position:absolute;top:40px;right:9px;font-size:9px;color:rgba(255,255,255,.45);z-index:3;text-align:right;max-width:90px;line-height:1.3;font-style:italic;}
+.pitch-total{text-align:center;color:rgba(255,255,255,.9);font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;padding:3px 0 0;position:relative;z-index:2;letter-spacing:.5px;flex-shrink:0;}
 .pitch-total span{color:var(--gold);}
 
 /* Player cards — logo background variant */
@@ -815,8 +975,8 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 
 /* ── FIRE TIERS ── */
 /* T1: 1+ goal/assist → neon green border */
-.fm-pc.fire-t1 .fm-pc-body{border-color:rgba(74,222,128,.55);box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 8px rgba(74,222,128,.15),0 0 20px rgba(74,222,128,.08);}
-.fm-pc.fire-t1 .fm-pc-body::after{background:#4ade80;opacity:.8;}
+.fm-pc.fire-t1 .fm-pc-body{border-color:rgba(74,222,128,.75);border-width:1.5px;box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 10px rgba(74,222,128,.25),0 0 24px rgba(74,222,128,.12);}
+.fm-pc.fire-t1 .fm-pc-body::after{background:#4ade80;opacity:1;}
 /* T2: 10+ pts → inner fire */
 .fm-pc.fire-t2 .fm-pc-body{border-color:rgba(249,115,22,.55);box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 10px rgba(249,115,22,.2),0 0 25px rgba(249,115,22,.1);}
 .fm-pc.fire-t2 .fm-pc-body::after{background:#f97316;opacity:1;}
@@ -2221,18 +2381,22 @@ function renderTOTW(){
     ? `${bestMgr.username} · <span style="font-size:9px;opacity:.7">#${(bestMgr.gdRank||0).toLocaleString()} global</span>`
     : '—';
 
+  const myName=me().username;
+  const globalTotalPts=(globalRes.squad||[]).reduce((s,p)=>s+p.mdPoints,0);
   document.getElementById('totwPair').innerHTML=`
     <div class="totw-half">
-      <div class="totw-label local">Liga Noastră <div class="totw-label-line"></div></div>
-      ${buildPitch(localRes,ids)}
+      <div class="totw-label local">Liga Noastră</div>
+      <div class="totw-sublabel">cea mai bună echipă posibilă formată din jucători din liga noastră</div>
+      ${buildPitch(localRes,ids,myName,globalTotalPts)}
     </div>
     <div class="totw-half">
-      <div class="totw-label global">Global TOTW <div class="totw-label-line"></div></div>
-      ${buildPitch(globalRes,ids)}
+      <div class="totw-label global">Global TOTW</div>
+      <div class="totw-sublabel">cea mai bună echipă posibilă formată din toți jucătorii</div>
+      ${buildPitch(globalRes,ids,myName)}
     </div>`;
 }
 
-function buildPitch({squad,d,m,f},ids){
+function buildPitch({squad,d,m,f},ids,ownerName='',globalPts=null){
   if(!squad||!squad.length){
     return`<div class="pitch" style="height:480px"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.4);font-size:13px">Fără date</div></div>`;
   }
@@ -2247,28 +2411,41 @@ function buildPitch({squad,d,m,f},ids){
   const rows=[byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].filter(r=>r.length>0);
 
   let h=`<div class="pitch">
+    <div class="pitch-center-line"></div>
+    <div class="pitch-center-circle"></div>
+    <div class="pitch-gbox-t"></div>
+    <div class="pitch-gbox-b"></div>
     <div class="pitch-midcircle"></div>
     <div class="pitch-box-t"></div>
     <div class="pitch-box-b"></div>
     <div class="form-tag">${form}</div>
-    <div class="pitch-counter${counterCls}">${mineCount}/11</div>`;
+    <div class="pitch-counter${counterCls}">${mineCount}/11</div>
+    ${ownerName?`<div class="pitch-counter-label">jucători din echipa lui ${ownerName}</div>`:''}`;
+
 
   rows.forEach((row,ri)=>{
-    h+=`<div class="pitch-row">`;
+    h+=`<div class="f-row pitch-row">`;
     row.forEach(p=>{
       const mine=ids.has(p.id);
+      const isCap=!!p.isCaptain;
       const shortName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
-      h+=`<div class="pcard${mine?' mine':''}" onclick="showP(${p.id})">
-        <div class="pcard-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
-        <div class="pcard-name">${shortName}</div>
-        <div class="pcard-pts">${p.mdPoints}</div>
+      const ptsVal=p.mdPoints||0;
+      const cardCls='pcard'+(mine?' mine':'')+(isCap?' captain':'');
+      h+=`<div class="${cardCls}" onclick="showP(${p.id})">
+        ${isCap?'<div class="captain-badge">©</div>':''}
+        <div class="pcard-body">
+          <div class="pcard-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display=&apos;none&apos;"/></div>
+          <div class="pcard-name">${shortName}</div>
+          <div class="pcard-pts">${ptsVal}</div>
+        </div>
       </div>`;
     });
     h+=`</div>`;
   });
 
   // Total always at bottom inside pitch
-  h+=`<div class="pitch-total">Total: <span>${totalPts} pts</span></div>`;
+  const pctTag=globalPts&&globalPts>0?` <span style="color:var(--fire)">(${Math.round(totalPts/globalPts*100)}%)</span>`:'';
+  h+=`<div class="pitch-total">Total: <span>${totalPts} pts</span>${pctTag}</div>`;
   h+=`</div>`;
   return h;
 }
