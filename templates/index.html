@@ -681,6 +681,7 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 }
 .fm-pc-p.hi{color:#4CAF50;}
 .fm-pc-p.zero{color:rgba(255,255,255,.22);}
+.fm-pc-p.blaze{color:#f97316;}
 
 /* ── FM RIGHT: bench + transfers */
 .fm-right{
@@ -811,6 +812,79 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50
 .fm-ev-sm.goal{filter:drop-shadow(0 0 1.5px #FF4444) drop-shadow(0 0 3px rgba(255,68,68,.4));}
 .fm-ev-sm.assist{filter:drop-shadow(0 0 1.5px #4488FF) drop-shadow(0 0 3px rgba(68,136,255,.4));}
 .fm-ev-sm.cs{filter:drop-shadow(0 0 1.5px #00E676) drop-shadow(0 0 3px rgba(0,230,118,.4));}
+
+/* ── FIRE TIERS ── */
+/* T1: 1+ goal/assist → neon green border */
+.fm-pc.fire-t1 .fm-pc-body{border-color:rgba(74,222,128,.55);box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 8px rgba(74,222,128,.15),0 0 20px rgba(74,222,128,.08);}
+.fm-pc.fire-t1 .fm-pc-body::after{background:#4ade80;opacity:.8;}
+/* T2: 10+ pts → inner fire */
+.fm-pc.fire-t2 .fm-pc-body{border-color:rgba(249,115,22,.55);box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 10px rgba(249,115,22,.2),0 0 25px rgba(249,115,22,.1);}
+.fm-pc.fire-t2 .fm-pc-body::after{background:#f97316;opacity:1;}
+.fm-pc.fire-t2 .fm-pc-body::before{content:'';position:absolute;bottom:-8px;left:10%;right:10%;height:40px;background:radial-gradient(ellipse at center bottom,rgba(249,115,22,.35) 0%,rgba(249,115,22,.12) 40%,transparent 70%);z-index:0;animation:fireGlowSmall 2s ease-in-out infinite alternate;pointer-events:none;border-radius:50%;}
+/* T3: 15+ pts → full blaze */
+.fm-pc.fire-t3 .fm-pc-body{border-color:rgba(255,100,30,.8);overflow:visible;animation:borderPulse 2.5s ease-in-out infinite;}
+.fm-pc.fire-t3 .fm-pc-body::after{background:#ff6b35;opacity:1;box-shadow:0 0 8px rgba(255,107,53,.8);}
+.fm-pc.fire-t3 .fm-pc-body::before{content:'';position:absolute;bottom:-18px;left:-10%;right:-10%;height:70px;background:radial-gradient(ellipse at center bottom,rgba(255,80,10,.55) 0%,rgba(249,115,22,.25) 35%,transparent 80%);z-index:-1;animation:fireGlowBig 1.2s ease-in-out infinite alternate;pointer-events:none;border-radius:50%;}
+/* inner particles */
+.fire-particles-inner{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;border-radius:8px;}
+.fire-particles-inner .fp{position:absolute;bottom:-2px;border-radius:50%;opacity:0;}
+.fm-pc.fire-t2 .fire-particles-inner .fp{width:3px;height:3px;background:#f97316;animation:particleRise 1.8s ease-out infinite;}
+.fm-pc.fire-t2 .fire-particles-inner .fp:nth-child(1){left:15%;animation-delay:0s;animation-duration:1.6s;}
+.fm-pc.fire-t2 .fire-particles-inner .fp:nth-child(2){left:30%;animation-delay:.4s;animation-duration:2s;}
+.fm-pc.fire-t2 .fire-particles-inner .fp:nth-child(3){left:50%;animation-delay:.2s;animation-duration:1.7s;}
+.fm-pc.fire-t2 .fire-particles-inner .fp:nth-child(4){left:65%;animation-delay:.6s;animation-duration:1.9s;}
+.fm-pc.fire-t2 .fire-particles-inner .fp:nth-child(5){left:80%;animation-delay:.8s;animation-duration:2.1s;}
+.fm-pc.fire-t2 .fire-particles-inner .fp:nth-child(6){left:40%;animation-delay:1s;animation-duration:1.5s;}
+.fm-pc.fire-t2 .fire-particles-inner .fp:nth-child(7){left:60%;animation-delay:.3s;animation-duration:1.8s;}
+.fm-pc.fire-t2 .fire-particles-inner .fp:nth-child(8){left:25%;animation-delay:.7s;animation-duration:2.2s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp{animation:particleRise 1.5s ease-out infinite;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(odd){background:#f97316;width:4px;height:4px;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(even){background:#ff6b35;width:3px;height:3px;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(1){left:10%;animation-delay:0s;animation-duration:1.2s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(2){left:22%;animation-delay:.15s;animation-duration:1.5s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(3){left:35%;animation-delay:.35s;animation-duration:1.3s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(4){left:48%;animation-delay:.1s;animation-duration:1.6s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(5){left:60%;animation-delay:.45s;animation-duration:1.4s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(6){left:72%;animation-delay:.25s;animation-duration:1.2s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(7){left:85%;animation-delay:.55s;animation-duration:1.7s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(8){left:95%;animation-delay:.1s;animation-duration:1.3s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(9){left:15%;animation-delay:.7s;animation-duration:1.6s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(10){left:45%;animation-delay:.35s;animation-duration:1.2s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(11){left:65%;animation-delay:.55s;animation-duration:1.9s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(12){left:30%;width:5px;height:5px;background:#ffaa33;animation-delay:.5s;animation-duration:1.1s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(13){left:75%;width:5px;height:5px;background:#ffaa33;animation-delay:.2s;animation-duration:1.3s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(14){left:55%;animation-delay:.4s;animation-duration:1.4s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(15){left:20%;animation-delay:.6s;animation-duration:1.5s;}
+.fm-pc.fire-t3 .fire-particles-inner .fp:nth-child(16){left:88%;animation-delay:.25s;animation-duration:1.3s;}
+/* outer wisps T3 */
+.fm-pc.fire-t3>.flame-wisps{position:absolute;inset:-12px;z-index:-1;pointer-events:none;}
+.fm-pc.fire-t3>.flame-wisps .wisp{position:absolute;width:10px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;opacity:0;}
+.fm-pc.fire-t3>.flame-wisps .wisp.bot{bottom:-4px;animation:wispRise 1.6s ease-out infinite;}
+.fm-pc.fire-t3>.flame-wisps .wisp.bot:nth-child(1){left:5%;height:28px;background:rgba(255,90,20,.65);animation-delay:0s;animation-duration:1.4s;}
+.fm-pc.fire-t3>.flame-wisps .wisp.bot:nth-child(2){left:20%;height:35px;background:rgba(255,70,10,.55);animation-delay:.25s;animation-duration:1.7s;width:12px;}
+.fm-pc.fire-t3>.flame-wisps .wisp.bot:nth-child(3){left:40%;height:30px;background:rgba(249,115,22,.6);animation-delay:.5s;animation-duration:1.5s;}
+.fm-pc.fire-t3>.flame-wisps .wisp.bot:nth-child(4){left:58%;height:32px;background:rgba(255,80,20,.55);animation-delay:.12s;animation-duration:1.8s;width:11px;}
+.fm-pc.fire-t3>.flame-wisps .wisp.bot:nth-child(5){left:75%;height:26px;background:rgba(249,115,22,.6);animation-delay:.4s;animation-duration:1.6s;}
+.fm-pc.fire-t3>.flame-wisps .wisp.bot:nth-child(6){right:2%;left:auto;height:22px;background:rgba(255,100,30,.5);animation-delay:.65s;animation-duration:1.5s;}
+.fm-pc.fire-t3>.flame-wisps .wisp.side-l{left:-4px;width:8px;animation:wispSideL 1.8s ease-out infinite;}
+.fm-pc.fire-t3>.flame-wisps .wisp.side-l:nth-child(7){bottom:10%;height:16px;background:rgba(249,115,22,.45);animation-delay:0s;animation-duration:1.6s;}
+.fm-pc.fire-t3>.flame-wisps .wisp.side-l:nth-child(8){bottom:40%;height:14px;background:rgba(255,90,20,.4);animation-delay:.4s;animation-duration:1.9s;}
+.fm-pc.fire-t3>.flame-wisps .wisp.side-l:nth-child(9){bottom:65%;height:12px;background:rgba(249,115,22,.35);animation-delay:.8s;animation-duration:1.7s;}
+.fm-pc.fire-t3>.flame-wisps .wisp.side-r{right:-4px;left:auto;width:8px;animation:wispSideR 1.8s ease-out infinite;}
+.fm-pc.fire-t3>.flame-wisps .wisp.side-r:nth-child(10){bottom:15%;height:15px;background:rgba(255,80,20,.45);animation-delay:.2s;animation-duration:1.7s;}
+.fm-pc.fire-t3>.flame-wisps .wisp.side-r:nth-child(11){bottom:45%;height:13px;background:rgba(249,115,22,.4);animation-delay:.6s;animation-duration:1.5s;}
+.fm-pc.fire-t3>.flame-wisps .wisp.side-r:nth-child(12){bottom:70%;height:11px;background:rgba(255,100,30,.35);animation-delay:.35s;animation-duration:1.8s;}
+/* outer glow T3 */
+.fm-pc.fire-t3>.fire-outer-glow{position:absolute;inset:-16px;z-index:-2;pointer-events:none;border-radius:20px;background:radial-gradient(ellipse at center 70%,rgba(255,80,10,.2) 0%,rgba(249,115,22,.08) 40%,transparent 70%);animation:outerGlowPulse 2s ease-in-out infinite alternate;}
+/* keyframes */
+@keyframes fireGlowSmall{0%{opacity:.6;transform:scaleX(.9);}100%{opacity:1;transform:scaleX(1.05);}}
+@keyframes fireGlowBig{0%{opacity:.7;transform:scaleX(.92) scaleY(.9);}100%{opacity:1;transform:scaleX(1.08) scaleY(1.1);}}
+@keyframes particleRise{0%{opacity:0;transform:translateY(0) scale(1);}15%{opacity:.9;}100%{opacity:0;transform:translateY(-70px) scale(.2);}}
+@keyframes wispRise{0%{opacity:0;transform:translateY(0) scaleY(1) scaleX(1);}10%{opacity:.8;}50%{opacity:.5;transform:translateY(-30px) scaleY(1.4) scaleX(.6);}100%{opacity:0;transform:translateY(-50px) scaleY(.4) scaleX(.3);}}
+@keyframes wispSideL{0%{opacity:0;transform:translate(0,0) scaleY(1) scaleX(1);}10%{opacity:.6;}50%{opacity:.3;transform:translate(-10px,-15px) scaleY(1.2) scaleX(.7);}100%{opacity:0;transform:translate(-18px,-25px) scaleY(.4) scaleX(.3);}}
+@keyframes wispSideR{0%{opacity:0;transform:translate(0,0) scaleY(1) scaleX(1);}10%{opacity:.6;}50%{opacity:.3;transform:translate(10px,-15px) scaleY(1.2) scaleX(.7);}100%{opacity:0;transform:translate(18px,-25px) scaleY(.4) scaleX(.3);}}
+@keyframes outerGlowPulse{0%{opacity:.5;transform:scale(.97);}100%{opacity:1;transform:scale(1.03);}}
+@keyframes borderPulse{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 18px rgba(249,115,22,.4),0 0 40px rgba(255,80,20,.2),0 0 60px rgba(255,60,10,.1),inset 0 -12px 28px rgba(249,115,22,.1);}50%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 25px rgba(249,115,22,.55),0 0 55px rgba(255,80,20,.3),0 0 75px rgba(255,60,10,.15),inset 0 -15px 32px rgba(249,115,22,.15);}}
 </style>
 </head>
 <body>
@@ -1306,6 +1380,24 @@ function buildRankCol(id,list,fn){
   });
 }
 
+function fireTier(p){
+  const pts=p.mdPoints||0;
+  const s=getDisplayStats(p);
+  if(pts>=15) return 3;
+  if(pts>=10) return 2;
+  if(s.mdGoals||s.mdAssists) return 1;
+  return 0;
+}
+const _wisps12='<div class="wisp bot"></div>'.repeat(6)+'<div class="wisp side-l"></div>'.repeat(3)+'<div class="wisp side-r"></div>'.repeat(3);
+function fireOuterHtml(tier){
+  if(tier!==3) return '';
+  return `<div class="fire-outer-glow"></div><div class="flame-wisps">${_wisps12}</div>`;
+}
+function fireInnerHtml(tier){
+  if(tier<2) return '';
+  return `<div class="fire-particles-inner">${'<div class="fp"></div>'.repeat(tier===3?16:8)}</div>`;
+}
+
 function showMgrModal(guid){
   const m=D.managers.find(x=>x.guid===guid);
   if(!m)return;
@@ -1319,16 +1411,19 @@ function showMgrModal(guid){
   const bench=m.players.filter(p=>!p.isStarter).sort((a,b)=>a.benchPosition-b.benchPosition);
 
   // pts color class
-  const ptsCls=pts=>pts>=8?'hi':pts===0?'zero':'';
+  const ptsCls=pts=>pts>=10?'blaze':pts>=5?'hi':'';
 
   // Pitch rows HTML (FM style)
   const pitchRows=[byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].filter(r=>r.length).map(row=>{
     const cards=row.map(p=>{
       const pts=p.mdPoints||0;
       const shortName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
-      return`<div class="fm-pc${p.isCaptain?' cap':''}" onclick="closeOv({target:{}});showP(${p.id})">
+      const tier=fireTier(p);
+      return`<div class="fm-pc${p.isCaptain?' cap':''}${tier?' fire-t'+tier:''}" onclick="closeOv({target:{}});showP(${p.id})">
+        ${fireOuterHtml(tier)}
         ${p.isCaptain?'<div class="fm-cap-badge">©</div>':''}
         <div class="fm-pc-body">
+          ${fireInnerHtml(tier)}
           <div class="fm-pc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
           <div class="fm-pc-n">${shortName}</div>
           <div class="fm-pc-p ${ptsCls(pts)}">${pts}</div>
@@ -1343,9 +1438,12 @@ function showMgrModal(guid){
   const benchHtml=bench.map(p=>{
     const bpts=p.mdPoints||0;
     const bName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
-    return`<div class="fm-pc fm-pc-bench${p.isCaptain?' cap':''}" onclick="closeOv({target:{}});showP(${p.id})">
+    const btier=fireTier(p);
+    return`<div class="fm-pc fm-pc-bench${p.isCaptain?' cap':''}${btier?' fire-t'+btier:''}" onclick="closeOv({target:{}});showP(${p.id})">
+      ${fireOuterHtml(btier)}
       ${p.isCaptain?'<div class="fm-cap-badge">©</div>':''}
       <div class="fm-pc-body">
+        ${fireInnerHtml(btier)}
         <span class="fm-br-pos ${p.posCode}" style="position:absolute;top:7px;left:7px;z-index:2;">${p.posCode}</span>
         <div class="fm-pc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
         <div class="fm-pc-n">${bName}</div>
