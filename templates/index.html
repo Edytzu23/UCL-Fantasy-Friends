@@ -2136,7 +2136,7 @@ function buildPitch({squad,d,m,f},ids){
 
 // ── MD EVENT ICONS ─────────────────────────────
 // VISUAL_TEST: force Vini badges for design preview — set false once real data flows (MD≥11)
-const VISUAL_TEST=true;
+const VISUAL_TEST=false;
 function getDisplayStats(p){
   if(VISUAL_TEST&&p.name&&/vini/i.test(p.name))
     return{mdGoals:1,mdAssists:1,mdCleanSheet:1};
