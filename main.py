@@ -45,6 +45,10 @@ HEADERS = {
     "entity": "ed0t4n$3!",
 }
 
+# Session cookie for leaderboard API — needs periodic refresh when it expires
+UCL_CLASSIC_007 = "4B0044004E00650067006100770045005500700049004A004400760063004A004B0075006C00670065005A00350046004D00570035006A00690059004900330031005A006A004A005000660031006F005A0076006E0072005100610047003400750075004F00760061006700360052004C0072005900560031004A0077004E0066007A002B00760045006800520072004B00570054004D0069007A007000350063006E00560075006200360073006F0043006D0059007800550078003500420070006400360044004400570030006D0045003500770074004E004D0053006F00590064004E002F0059006900760051006E00440048004E0059006D00630075004400750070004B00720048006A006B0071006C002B002F004700560048004E004C006F0037003600630041003D003D00"
+LEADERBOARD_HEADERS = {**HEADERS, "Cookie": f"UCL_CLASSIC_007={UCL_CLASSIC_007}"}
+
 SKILL_TO_POS = {1: "GK", 2: "DEF", 3: "MID", 4: "FWD"}
 
 cache = {}
@@ -136,6 +140,50 @@ def fetch_public_players_cached(matchday):
     data = fetch_public_players(matchday)
     public_players_cache[matchday] = data
     return data
+
+
+def fetch_world_leader_team(matchday, phase_id=2):
+    """Fetch the #1 global player's team from the World Leaderboard."""
+    try:
+        # Step 1: Get #1's GUID from leaderboard
+        lb_url = "https://gaming.uefa.com/en/uclfantasy/services/api//Leaderboard/leaders"
+        lb_params = {
+            "optType": 2, "phaseId": 0, "matchdayId": matchday,
+            "vPageChunk": 1, "vPageNo": 1, "vPageOneChunk": 1,
+        }
+        r = requests.get(lb_url, params=lb_params, headers=LEADERBOARD_HEADERS, verify=False, timeout=15)
+        if r.status_code != 200:
+            print(f"Leaderboard API returned {r.status_code}")
+            return None
+        leaders = r.json()["data"]["value"]["userInfo"]
+        if not leaders:
+            return None
+        leader = leaders[0]
+        guid = leader["guid"]
+
+        # Step 2: Fetch their team using existing opponent-team endpoint
+        team_url = f"https://gaming.uefa.com/en/uclfantasy/services/api/Gameplay/user/{guid}/opponent-team"
+        team_params = {"matchdayId": matchday, "phaseId": phase_id, "opponentguid": guid}
+        r2 = requests.get(team_url, params=team_params, headers=HEADERS, verify=False, timeout=10)
+        if r2.status_code != 200:
+            print(f"World leader team API returned {r2.status_code}")
+            return None
+        data = r2.json()["data"]["value"]
+
+        return {
+            "guid": guid,
+            "fullName": leader.get("fullName", "?"),
+            "teamName": leader.get("teamName", "?"),
+            "rank": leader.get("rank", 1),
+            "matchdayPoints": leader.get("overallPoints", 0),  # optType=2 puts MD pts here
+            "gdPoints": data.get("gdPoints", 0) or 0,
+            "ovPoints": data.get("ovPoints", 0) or 0,
+            "captainId": data.get("captplayerid"),
+            "rawPlayers": data.get("playerid", []),
+        }
+    except Exception as e:
+        print(f"Error fetching world leader: {e}")
+        return None
 
 
 def build_data(matchday=10):
@@ -264,12 +312,49 @@ def build_data(matchday=10):
         )
     all_players.sort(key=lambda x: x["totPts"], reverse=True)
 
+    # Fetch World #1's team
+    world_leader = None
+    try:
+        wl_raw = fetch_world_leader_team(matchday)
+        if wl_raw:
+            wl_players = []
+            for rp in wl_raw["rawPlayers"]:
+                pid = int(rp["id"])
+                pub = public_players.get(pid, {})
+                mdpts = rp.get("overallpoints") or 0
+                is_captain = rp.get("iscaptain", 0) == 1
+                is_starter = rp.get("benchposition", 0) == 0
+                wl_players.append({
+                    "id": pid,
+                    "name": pub.get("name", f"#{pid}"),
+                    "team": pub.get("team", ""),
+                    "teamCode": pub.get("teamCode", ""),
+                    "posCode": pub.get("posCode", SKILL_TO_POS.get(rp.get("skill", 3), "MID")),
+                    "mdPoints": mdpts,
+                    "isCaptain": is_captain,
+                    "isStarter": is_starter,
+                    "benchPosition": rp.get("benchposition", 0),
+                })
+            world_leader = {
+                "guid": wl_raw["guid"],
+                "fullName": wl_raw["fullName"],
+                "teamName": wl_raw["teamName"],
+                "rank": wl_raw["rank"],
+                "matchdayPoints": wl_raw["matchdayPoints"],
+                "gdPoints": wl_raw["gdPoints"],
+                "ovPoints": wl_raw["ovPoints"],
+                "players": wl_players,
+            }
+    except Exception as e:
+        print(f"World leader enrichment failed: {e}")
+
     return {
         "lastUpdated": datetime.now().isoformat(),
         "matchday": matchday,
         "totalManagers": len(FRIENDS_IDS),
         "managers": managers,
         "allPlayers": all_players,
+        "worldLeader": world_leader,
     }
 
 

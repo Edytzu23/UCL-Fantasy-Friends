@@ -2413,16 +2413,19 @@ function renderTOTW(){
   // 2) GLOBAL TOTW — all public players, curGDPts = already base
   const globalRes=pickBestXI(D.allPlayers.map(p=>({...p,mdPoints:p.curGDPts||0,ownedBy:p.ownedBy||[]})));
 
-  // 3) BEST IN LEAGUE this MD — manager with lowest gdRank = closest to global #1
-  //    Note: actual global #1's team isn't available via public API, so we show
-  //    the best manager from our league as comparison
-  const bestMgr=[...D.managers].filter(m=>m.gdRank>0).sort((a,b)=>a.gdRank-b.gdRank)[0];
-  const bestRes=bestMgr
-    ? pickBestXI(bestMgr.players.filter(p=>p.isStarter).map(p=>({...p,mdPoints:basePts(p),ownedBy:p.ownedBy||[]})))
-    : {squad:[],d:4,m:3,f:3};
-  const bestLabel=bestMgr
-    ? `${bestMgr.username} · <span style="font-size:9px;opacity:.7">#${(bestMgr.gdRank||0).toLocaleString()} global</span>`
+  // 3) WORLD #1 — actual team of the globally ranked #1 player
+  const wl=D.worldLeader;
+  let worldRes={squad:[],d:4,m:3,f:3};
+  if(wl&&wl.players&&wl.players.length){
+    const starters=wl.players.filter(p=>p.isStarter);
+    worldRes=pickBestXI(starters.map(p=>({...p,mdPoints:p.isCaptain?Math.round((p.mdPoints||0)/2):(p.mdPoints||0)})));
+  }
+  const worldLabel=wl
+    ? `${wl.fullName} · <span style="font-size:9px;opacity:.7">${wl.teamName}</span>`
     : '—';
+  const worldSub=wl
+    ? `${(wl.matchdayPoints||0)} pts matchday`
+    : '';
 
   const myName=me().username;
   const globalTotalPts=(globalRes.squad||[]).reduce((s,p)=>s+p.mdPoints,0);
@@ -2436,6 +2439,12 @@ function renderTOTW(){
       <div class="totw-label global">Global TOTW</div>
       <div class="totw-sublabel">cea mai bună echipă posibilă formată din toți jucătorii</div>
       ${buildPitch(globalRes,ids,myName)}
+    </div>
+    <div style="flex-basis:100%;height:0;flex-shrink:0;"></div>
+    <div class="totw-half" style="flex:0 0 876px;margin:0 auto;">
+      <div class="totw-label" style="background:linear-gradient(135deg,#FFD700,#FF8C00);-webkit-background-clip:text;-webkit-text-fill-color:transparent">🏆 World #1</div>
+      <div class="totw-sublabel">${wl?worldLabel:'date indisponibile'} — ${worldSub}</div>
+      ${buildPitch(worldRes,ids,myName)}
     </div>`;
 }
 
