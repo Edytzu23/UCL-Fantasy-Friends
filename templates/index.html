@@ -1002,6 +1002,8 @@ body::before{content:'';position:fixed;inset:0;opacity:.035;pointer-events:none;
 
 /* ── FIRE TIERS ── */
 /* T1: 1+ goal/assist → neon green border */
+/* live: in-match points changed → yellow border (lowest priority, below T1/T2/T3) */
+.fm-pc.fire-live .fm-pc-body{border-color:rgba(250,204,21,.65);border-width:1.5px;box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 8px rgba(250,204,21,.2),0 0 20px rgba(250,204,21,.08);}
 .fm-pc.fire-t1 .fm-pc-body{border-color:rgba(74,222,128,.75);border-width:1.5px;box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 10px rgba(74,222,128,.25),0 0 24px rgba(74,222,128,.12);}
 .fm-pc.fire-t1 .fm-pc-body::after{background:#4CAF50;opacity:1;}
 /* T2: 10+ pts → inner fire */
@@ -1312,6 +1314,9 @@ const mdCache={};
 // ── AUTO-REFRESH ──────────────────────────
 let arInterval=null, arActive=false;
 const AR_LIVE_MS=60000, AR_IDLE_MS=300000;
+// ── LIVE POINTS SNAPSHOT ───────────────────
+// Captured once per MD on first load; used to detect in-match point changes
+const initialMdPoints={}; // { md: { playerId: pts } }
 
 // ── TEAM LOGO helper ───────────────────────
 // Returns <img> with logo if file exists, falls back to text
@@ -1372,6 +1377,10 @@ async function load(md){
     });
     D.allPlayers.forEach(p=>{if(p.ownedBy)p.ownedBy=p.ownedBy.map(fixName);});
     mdCache[md]=D;
+    if(!initialMdPoints[md]){
+      initialMdPoints[md]={};
+      D.allPlayers.forEach(p=>{initialMdPoints[md][p.id]=p.mdPoints||0;});
+    }
     updateBestRanks(md, D.managers);
     buildMdBar(); buildMgrSel(); buildMgrChips(); render();
     arUpdateBar();
@@ -1597,6 +1606,9 @@ function fireTier(p){
   if(pts>=15) return 3;
   if(pts>=10) return 2;
   if(s.mdGoals||s.mdAssists) return 1;
+  // live: points changed since first fetch of this MD → yellow border
+  const snap=initialMdPoints[MD];
+  if(snap&&snap[p.id]!==undefined&&pts!==snap[p.id]) return 'live';
   return 0;
 }
 const _wisps12='<div class="wisp bot"></div>'.repeat(6)+'<div class="wisp side-l"></div>'.repeat(3)+'<div class="wisp side-r"></div>'.repeat(3);
@@ -1605,7 +1617,7 @@ function fireOuterHtml(tier){
   return `<div class="fire-outer-glow"></div><div class="flame-wisps">${_wisps12}</div>`;
 }
 function fireInnerHtml(tier){
-  if(tier<2) return '';
+  if(tier!==2&&tier!==3) return '';
   return `<div class="fire-particles-inner">${'<div class="fp"></div>'.repeat(tier===3?16:8)}</div>`;
 }
 
@@ -1630,7 +1642,7 @@ function showMgrModal(guid){
       const pts=p.mdPoints||0;
       const shortName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
       const tier=fireTier(p);
-      return`<div class="fm-pc${p.isCaptain?' cap':''}${tier?' fire-t'+tier:''}" onclick="closeOv({target:{}});showP(${p.id})">
+      return`<div class="fm-pc${p.isCaptain?' cap':''}${tier&&tier!=='live'?' fire-t'+tier:tier==='live'?' fire-live':''}" onclick="closeOv({target:{}});showP(${p.id})">
         ${fireOuterHtml(tier)}
         ${p.isCaptain?'<div class="fm-cap-badge">©</div>':''}
         <div class="fm-pc-body">
@@ -1650,7 +1662,7 @@ function showMgrModal(guid){
     const bpts=p.mdPoints||0;
     const bName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
     const btier=fireTier(p);
-    return`<div class="fm-pc fm-pc-bench${p.isCaptain?' cap':''}${btier?' fire-t'+btier:''}" onclick="closeOv({target:{}});showP(${p.id})">
+    return`<div class="fm-pc fm-pc-bench${p.isCaptain?' cap':''}${btier&&btier!=='live'?' fire-t'+btier:btier==='live'?' fire-live':''}" onclick="closeOv({target:{}});showP(${p.id})">
       ${fireOuterHtml(btier)}
       ${p.isCaptain?'<div class="fm-cap-badge">©</div>':''}
       <div class="fm-pc-body">
