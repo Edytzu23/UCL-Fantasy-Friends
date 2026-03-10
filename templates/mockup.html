@@ -1021,12 +1021,12 @@ function initials(name) {
 function renderClasament() {
   const list = document.getElementById('clsList');
   const sorted = getSorted();
-  const me = MANAGERS.find(x => x.guid === CURRENT_USER);
+  const me = MANAGERS.find(x => x.guid === selectedMgr);
   list.innerHTML = sorted.map((m, i) => {
     const rank = i + 1;
     const pts = currentSort === 'etapa' ? m.gdPoints : currentSort === 'overall' ? m.ovPoints : m.gdRank;
     const ptsLabel = currentSort === 'etapa' ? 'pts' : currentSort === 'overall' ? 'pts' : 'rank';
-    const isMe = m.guid === CURRENT_USER;
+    const isMe = m.guid === selectedMgr;
     const isActive = m.guid === selectedMgr;
     const rankClass = rank === 1 ? 'cls-rank rank-gold' : rank === 2 ? 'cls-rank rank-silver' : rank === 3 ? 'cls-rank rank-bronze' : 'cls-rank';
 
