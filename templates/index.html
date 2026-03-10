@@ -1428,10 +1428,35 @@ async function arCheck(){
     const wasActive=arActive;
     arActive=s.liveWindow;
     if(arActive!==wasActive) arSetInterval(arActive?AR_LIVE_MS:AR_IDLE_MS);
+    // If server detected a newer live MD, switch to it
+    if(s.matchday && s.matchday>MD && s.liveWindow){
+      MD=s.matchday;
+      if(!mdCache[MD]) await load(MD);
+      render();
+    }
     if(s.lastUpdated && D && s.lastUpdated!==D.lastUpdated) await arReload();
-    // Live scores polling
+    // Live scores polling — also probe next MD for live/recent data
     if(s.liveWindow){startLivePoll();}
-    else{stopLivePoll();if(liveData){liveData=null;renderLiveTicker();render();}}
+    else{
+      const nextMd=MD+1;
+      try{
+        const lr=await fetch(`/api/live-scores?md=${nextMd}`);
+        const ld=await lr.json();
+        const hasData=ld.matches&&ld.matches.length>0;
+        const hasPoints=hasData&&Object.values(ld.players||{}).some(p=>p.pts>0);
+        if(ld.live||hasPoints){
+          MD=nextMd;
+          if(!mdCache[MD]) await load(MD);
+          liveData=ld;
+          if(ld.live){arActive=true;arSetInterval(AR_LIVE_MS);startLivePoll();}
+          renderLiveTicker();render();
+        }else{
+          stopLivePoll();if(liveData){liveData=null;renderLiveTicker();render();}
+        }
+      }catch(e2){
+        stopLivePoll();if(liveData){liveData=null;renderLiveTicker();render();}
+      }
+    }
     arUpdateBar();
   }catch(e){/* silent */}
 }

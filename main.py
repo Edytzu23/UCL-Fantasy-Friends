@@ -255,6 +255,13 @@ def fetch_live_scores(matchday):
         "matches": [{"mId", "home", "away", "homeScore", "awayScore", "status", "minute"}],
         "players": {pid_str: {"pts", "goals", "assists", "cs", "yc", "rc", "saves", "mins"}}
     }
+
+    UEFA API structure (verified):
+    - data.value.pPoints: list of {pId, tPoints, gS, gA, cS, yC, rC, oF, ...}
+    - data.value.pStats:  list of {pId, gS, gA, cS, yC, rC, saves, oF, ...}
+    - data.value.scoreLine: [{tName, gS}, {tName, gS}]  (home=index 0, away=index 1)
+    - data.value.status: 3=live, 1=finished
+    - data.value.liveMinute: current match minute
     """
     match_ids = fetch_match_ids(matchday)
     if not match_ids:
@@ -274,40 +281,39 @@ def fetch_live_scores(matchday):
             if isinstance(data, dict) and "value" in data:
                 data = data["value"]
 
-            # Match info
+            # Match score comes from scoreLine array
+            score_line = data.get("scoreLine", [])
+            home_score = int(score_line[0].get("gS", 0)) if len(score_line) > 0 else 0
+            away_score = int(score_line[1].get("gS", 0)) if len(score_line) > 1 else 0
+            home_name = score_line[0].get("tName", "") if len(score_line) > 0 else ""
+            away_name = score_line[1].get("tName", "") if len(score_line) > 1 else ""
+
             match_info = {
                 "mId": mid,
-                "home": data.get("homeTeam", data.get("htName", "")),
-                "away": data.get("awayTeam", data.get("atName", "")),
-                "homeScore": data.get("homeScore", data.get("htScore", 0)) or 0,
-                "awayScore": data.get("awayScore", data.get("atScore", 0)) or 0,
-                "status": data.get("matchStatus", data.get("status", 0)),
-                "minute": data.get("minute", data.get("min", 0)) or 0,
+                "home": home_name,
+                "away": away_name,
+                "homeScore": home_score,
+                "awayScore": away_score,
+                "status": data.get("status", 0),
+                "minute": data.get("liveMinute", data.get("matchMinute", 0)) or 0,
             }
-            # Normalize scores to int
-            try:
-                match_info["homeScore"] = int(match_info["homeScore"])
-            except (ValueError, TypeError):
-                match_info["homeScore"] = 0
-            try:
-                match_info["awayScore"] = int(match_info["awayScore"])
-            except (ValueError, TypeError):
-                match_info["awayScore"] = 0
-
             matches.append(match_info)
 
-            # Player points & stats
-            p_points = data.get("pPoints", {})
-            p_stats = data.get("pStats", [])
-
+            # pPoints is a list of player objects with tPoints field
+            p_points = data.get("pPoints", [])
+            pp_dict = {}
             if isinstance(p_points, list):
-                # Sometimes pPoints is a list of {pId, pts} objects
-                pp_dict = {}
                 for pp in p_points:
                     if isinstance(pp, dict):
-                        pp_dict[str(pp.get("pId", ""))] = pp.get("pts", 0)
-                p_points = pp_dict
+                        pid = str(pp.get("pId", ""))
+                        if pid:
+                            pp_dict[pid] = pp.get("tPoints", 0) or 0
+            elif isinstance(p_points, dict):
+                # fallback: old dict format {pid: pts}
+                pp_dict = {str(k): v for k, v in p_points.items()}
 
+            # pStats has player stat details
+            p_stats = data.get("pStats", [])
             for ps in p_stats:
                 if not isinstance(ps, dict):
                     continue
@@ -315,14 +321,14 @@ def fetch_live_scores(matchday):
                 if not pid:
                     continue
                 players[pid] = {
-                    "pts": p_points.get(pid, 0) or 0,
+                    "pts": pp_dict.get(pid, 0),
                     "goals": ps.get("gS", 0) or 0,
                     "assists": ps.get("gA", 0) or 0,
                     "cs": 1 if ps.get("cS", 0) else 0,
                     "yc": ps.get("yC", 0) or 0,
                     "rc": ps.get("rC", 0) or 0,
-                    "saves": ps.get("sV", ps.get("sv", 0)) or 0,
-                    "mins": ps.get("mP", ps.get("oF", 0)) or 0,
+                    "saves": ps.get("saves", ps.get("sV", ps.get("sv", 0))) or 0,
+                    "mins": ps.get("oF", ps.get("mP", 0)) or 0,
                 }
         except Exception as e:
             print(f"Error fetching live-scores for match {mid}: {e}")
@@ -966,10 +972,24 @@ def get_status():
     with cache_lock:
         data = cache.get(md)
     last_updated = data["lastUpdated"] if data else None
+    live_window = is_match_window()
+
+    # Also check cached live-scores for current and next MD
+    # (avoid slow probe — let /api/live-scores do the fetching)
+    if not live_window:
+        now = time.time()
+        with live_scores_lock:
+            for check_md in (md, md + 1):
+                cached_live = live_scores_cache.get(check_md)
+                if cached_live and (now - cached_live["ts"]) < 300 and cached_live["data"].get("live"):
+                    live_window = True
+                    md = check_md
+                    break
+
     return JSONResponse({
         "matchday": md,
         "lastUpdated": last_updated,
-        "liveWindow": is_match_window(),
+        "liveWindow": live_window,
     })
 
 
