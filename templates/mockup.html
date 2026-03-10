@@ -448,18 +448,13 @@ body::before {
 
 .cls-pts {
   font-family: 'Clash Display', 'Barlow Condensed', sans-serif;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 300;
   color: transparent;
   -webkit-text-stroke: 1px var(--neon);
   flex-shrink: 0;
   filter: drop-shadow(0 0 4px rgba(0,240,255,.25));
-}
-.cls-pts-lbl {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
+  line-height: 1;
 }
 
 /* ─── CENTER PANEL ─── */
@@ -1025,7 +1020,6 @@ function renderClasament() {
   list.innerHTML = sorted.map((m, i) => {
     const rank = i + 1;
     const pts = currentSort === 'etapa' ? m.gdPoints : currentSort === 'overall' ? m.ovPoints : m.gdRank;
-    const ptsLabel = currentSort === 'etapa' ? 'pts' : currentSort === 'overall' ? 'pts' : 'rank';
     const isMe = m.guid === selectedMgr;
     const isActive = m.guid === selectedMgr;
     const rankClass = rank === 1 ? 'cls-rank rank-gold' : rank === 2 ? 'cls-rank rank-silver' : rank === 3 ? 'cls-rank rank-bronze' : 'cls-rank';
@@ -1048,7 +1042,6 @@ function renderClasament() {
       </div>
       <div style="text-align:right">
         <div class="cls-pts">${currentSort === 'ps5' ? '#' + pts.toLocaleString() : pts}</div>
-        <div class="cls-pts-lbl">${ptsLabel}</div>
       </div>
     </div>`;
   }).join('');
