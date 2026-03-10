@@ -1086,6 +1086,8 @@ body::before{content:'';position:fixed;inset:0;opacity:.035;pointer-events:none;
     <div class="hdr-mgr">
       <select class="hdr-sel" id="mgrSel"></select>
     </div>
+    <a href="/new" class="hdr-btn" style="text-decoration:none;margin-right:8px;">⚽ Pitch View</a>
+
     <button class="hdr-btn" id="refBtn" onclick="askRefresh()">↻ Refresh</button>
   </div>
 </div>
@@ -1320,7 +1322,13 @@ function teamLogo(teamCode, teamName, cls='team-logo'){
 let pinBuffer='';
 
 // ── BOOT ───────────────────────────────────
-window.onload=()=>loadAllMDs();
+window.onload=()=>{
+  loadAllMDs();
+  const urlTab=new URLSearchParams(location.search).get('tab');
+  if(urlTab&&['clasament','echipe-md','scouting','totw'].includes(urlTab)){
+    setTimeout(()=>goTab(urlTab),200);
+  }
+};
 
 // Load MD10 first (visible), then silently preload all past MDs sequentially
 async function loadAllMDs(){

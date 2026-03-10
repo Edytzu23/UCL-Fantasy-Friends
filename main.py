@@ -792,6 +792,16 @@ def index():
     return HTMLResponse("<h1>Eroare: templates/index.html lipseste din repo!</h1>", status_code=500)
 
 
+@app.get("/new")
+def mockup():
+    base = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base, "templates", "mockup.html")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return HTMLResponse(f.read())
+    return HTMLResponse("<h1>Eroare: templates/mockup.html lipseste din repo!</h1>", status_code=500)
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
