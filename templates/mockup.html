@@ -219,6 +219,32 @@ body::before {
   transition: background .15s, color .15s;
 }
 .md-drop-item:hover { background: rgba(255,255,255,.06); color: var(--text); }
+.md-drop-selected { color: var(--neon) !important; cursor: default !important; }
+.md-drop-selected:hover { background: transparent !important; }
+
+/* Manager select in nav */
+#mgrSelect {
+  height: 36px;
+  padding: 0 28px 0 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a5580'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: border-color .2s;
+  max-width: 160px;
+}
+#mgrSelect:hover { border-color: rgba(0,240,255,.3); }
+#mgrSelect option { background: #141828; }
 
 .nav-icon-btn {
   width: 36px; height: 36px;
@@ -841,6 +867,7 @@ body::before {
   <div class="nav-spacer"></div>
 
   <div class="nav-right">
+    <select id="mgrSelect" onchange="selectMgr(this.value)"></select>
     <div class="md-toggle">
       <div class="md-current"><span class="dot"></span> MD 10 (MD Curent)</div>
       <div class="md-istoric" onclick="toggleDropdown()">
@@ -889,6 +916,7 @@ body::before {
 <script>
 // ─── DATA (fetched from API) ───
 let MD = 0;
+let LATEST_MD = 0; // highest MD ever loaded — used so dropdown always includes current MD
 let MANAGERS = [];
 let ROSTERS = {};
 let CURRENT_USER = null;
@@ -1220,9 +1248,24 @@ function renderPitch() {
 // ─── INTERACTIONS ───
 function selectMgr(guid) {
   selectedMgr = guid;
+  const sel = document.getElementById('mgrSelect');
+  if (sel && sel.value !== guid) sel.value = guid;
   renderClasament();
   renderHeader();
   renderPitch();
+}
+
+function buildMgrSelect() {
+  const sel = document.getElementById('mgrSelect');
+  if (!sel) return;
+  sel.innerHTML = '';
+  MANAGERS.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.guid;
+    opt.textContent = displayName(m.username);
+    sel.appendChild(opt);
+  });
+  sel.value = selectedMgr || CURRENT_USER || '';
 }
 
 function switchClsTab(el, sort) {
@@ -1250,15 +1293,22 @@ document.addEventListener('click', e => {
 function buildMdDropdown() {
   const dropdown = document.getElementById('mdDropdown');
   dropdown.innerHTML = '';
-  for (let i = MD - 1; i >= 1; i--) {
+  for (let i = LATEST_MD; i >= 1; i--) {
+    const isCurrent = i === LATEST_MD;
+    const isSelected = i === MD;
     const item = document.createElement('div');
-    item.className = 'md-drop-item';
-    item.textContent = `MD ${i}`;
-    item.onclick = (e) => {
-      e.stopPropagation();
-      dropdown.classList.remove('open');
-      loadData(i);
-    };
+    item.className = 'md-drop-item' + (isSelected ? ' md-drop-selected' : '');
+    item.textContent = isCurrent ? `MD ${i} (Curent)` : `MD ${i}`;
+    if (!isSelected) {
+      item.onclick = (e) => {
+        e.stopPropagation();
+        dropdown.classList.remove('open');
+        loadData(i);
+      };
+    } else {
+      item.style.cursor = 'default';
+      item.onclick = (e) => e.stopPropagation();
+    }
     dropdown.appendChild(item);
   }
 }
@@ -1279,6 +1329,7 @@ async function loadData(matchday) {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     if (data.error) throw new Error(data.error);
+    if (matchday > LATEST_MD) LATEST_MD = matchday;
     adaptApiData(data);
 
     // Find Eduard as default user, fallback to first manager
@@ -1287,11 +1338,15 @@ async function loadData(matchday) {
     }
     selectedMgr = selectedMgr && MANAGERS.find(m => m.guid === selectedMgr) ? selectedMgr : CURRENT_USER;
 
-    // Update MD label
+    // Update MD label — show "(MD Curent)" only when viewing the latest MD
     const mdLabel = document.querySelector('.md-current');
-    if (mdLabel) mdLabel.innerHTML = `<span class="dot"></span> MD ${MD} (MD Curent)`;
+    const isLatest = MD === LATEST_MD;
+    if (mdLabel) mdLabel.innerHTML = isLatest
+      ? `<span class="dot"></span> MD ${MD} (MD Curent)`
+      : `<span class="dot" style="background:#8888cc;box-shadow:none;animation:none"></span> MD ${MD} (Istoric)`;
 
     buildMdDropdown();
+    buildMgrSelect();
     renderClasament();
     renderHeader();
     renderPitch();
