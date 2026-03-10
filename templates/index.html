@@ -1339,6 +1339,7 @@ const initialMdPoints={}; // { md: { playerId: pts } }
 // ── LIVE SCORES ──────────────────────────────
 let liveData=null;          // response from /api/live-scores
 let liveInterval=null;
+let liveMD=0;               // the MD that has live/recent data (0=none detected yet)
 const LIVE_POLL_MS=30000;   // 30s polling
 
 // ── TEAM LOGO helper ───────────────────────
@@ -1428,35 +1429,42 @@ async function arCheck(){
     const wasActive=arActive;
     arActive=s.liveWindow;
     if(arActive!==wasActive) arSetInterval(arActive?AR_LIVE_MS:AR_IDLE_MS);
-    // If server detected a newer live MD, switch to it
-    if(s.matchday && s.matchday>MD && s.liveWindow){
-      MD=s.matchday;
-      if(!mdCache[MD]) await load(MD);
-      render();
-    }
     if(s.lastUpdated && D && s.lastUpdated!==D.lastUpdated) await arReload();
-    // Live scores polling — also probe next MD for live/recent data
-    if(s.liveWindow){startLivePoll();}
-    else{
-      const nextMd=MD+1;
+
+    // Detect live MD: probe next MD if backend doesn't know yet
+    const maxMd=Math.max(...Object.keys(mdCache).map(Number),MD);
+    const probeMd=s.liveWindow?s.matchday:(maxMd+1);
+    if(!liveMD||liveMD<probeMd){
       try{
-        const lr=await fetch(`/api/live-scores?md=${nextMd}`);
+        const lr=await fetch(`/api/live-scores?md=${probeMd}`);
         const ld=await lr.json();
-        const hasData=ld.matches&&ld.matches.length>0;
-        const hasPoints=hasData&&Object.values(ld.players||{}).some(p=>p.pts>0);
+        const hasPoints=ld.matches&&ld.matches.length>0&&Object.values(ld.players||{}).some(p=>p.pts>0);
         if(ld.live||hasPoints){
-          MD=nextMd;
-          if(!mdCache[MD]) await load(MD);
+          liveMD=probeMd;
           liveData=ld;
+          // Auto-switch to live MD only on first detection
+          if(MD<liveMD){
+            MD=liveMD;
+            if(!mdCache[MD]) await load(MD);
+            render();
+          }
           if(ld.live){arActive=true;arSetInterval(AR_LIVE_MS);startLivePoll();}
-          renderLiveTicker();render();
-        }else{
-          stopLivePoll();if(liveData){liveData=null;renderLiveTicker();render();}
+          else{renderLiveTicker();render();}
         }
-      }catch(e2){
-        stopLivePoll();if(liveData){liveData=null;renderLiveTicker();render();}
-      }
+      }catch(e2){/* silent */}
     }
+
+    // Keep polling live data for the live MD (even if user navigated away)
+    if(liveMD&&!s.liveWindow){
+      try{
+        const lr=await fetch(`/api/live-scores?md=${liveMD}`);
+        const ld=await lr.json();
+        liveData=ld;
+        renderLiveTicker();
+        if(MD===liveMD) render();
+      }catch(e2){/* silent */}
+    }
+    if(s.liveWindow){startLivePoll();}
     arUpdateBar();
   }catch(e){/* silent */}
 }
@@ -1486,7 +1494,8 @@ function arSetInterval(ms){
 // ── LIVE SCORE POLLING ────────────────────────
 async function pollLive(){
   try{
-    const r=await fetch(`/api/live-scores?md=${MD}`);
+    const pollMd=liveMD||MD;
+    const r=await fetch(`/api/live-scores?md=${pollMd}`);
     const data=await r.json();
     if(!data.matches||!data.matches.length){
       if(liveData){liveData=null;render();}
@@ -1494,7 +1503,7 @@ async function pollLive(){
     }
     liveData=data;
     renderLiveTicker();
-    render();
+    if(MD===pollMd) render();
   }catch(e){/* silent */}
 }
 function startLivePoll(){
@@ -1507,11 +1516,11 @@ function stopLivePoll(){
 }
 // Helpers: get live player/manager points
 function getLivePlayerPts(pid){
-  if(!liveData||!liveData.players)return null;
+  if(!liveData||!liveData.players||MD!==liveMD)return null;
   return liveData.players[String(pid)]||null;
 }
 function getLiveManagerPts(manager){
-  if(!liveData)return null;
+  if(!liveData||MD!==liveMD)return null;
   let total=0,hasAny=false;
   for(const p of manager.players.filter(p=>p.isStarter)){
     const lp=getLivePlayerPts(p.id);
@@ -1640,7 +1649,7 @@ function renderClasament(){
   const byOv=[...mgrsWithLive].sort((a,b)=>b.ovPoints-a.ovPoints||(a.ovRank||999999)-(b.ovRank||999999));
   const el=document.getElementById('rankGrid');
   const activeCol=el.dataset.activeCol||'0';
-  const liveBadge=liveData?'<span class="live-badge">LIVE</span>':'';
+  const liveBadge=(liveData&&MD===liveMD)?'<span class="live-badge">LIVE</span>':'';
   el.innerHTML=`
     <div class="rank-col${activeCol==='0'?' rank-col-on':''}">
       <div class="rank-col-title fire-txt">Etapa ${MD}${liveBadge}</div>
@@ -1871,7 +1880,7 @@ function showMgrModal(guid){
         </div>
         <div class="fm-stats">
           <div class="fm-stat">
-            <span class="fm-stat-l">MD${MD} PTS${getLiveManagerPts(m)!==null?' <span class="live-badge">LIVE</span>':''}</span>
+            <span class="fm-stat-l">MD${MD} PTS${(MD===liveMD&&getLiveManagerPts(m)!==null)?' <span class="live-badge">LIVE</span>':''}</span>
             <span class="fm-stat-v orange${getLiveManagerPts(m)!==null?' live-pts-glow':''}">${getLiveManagerPts(m)!==null?getLiveManagerPts(m):m.gdPoints}</span>
           </div>
           <div class="fm-stat">
