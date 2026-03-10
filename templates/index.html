@@ -1074,6 +1074,24 @@ body::before{content:'';position:fixed;inset:0;opacity:.035;pointer-events:none;
 @keyframes wispSideR{0%{opacity:0;transform:translate(0,0) scaleY(1) scaleX(1);}10%{opacity:.6;}50%{opacity:.3;transform:translate(10px,-15px) scaleY(1.2) scaleX(.7);}100%{opacity:0;transform:translate(18px,-25px) scaleY(.4) scaleX(.3);}}
 @keyframes outerGlowPulse{0%{opacity:.5;transform:scale(.97);}100%{opacity:1;transform:scale(1.03);}}
 @keyframes borderPulse{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 18px rgba(255,87,34,.4),0 0 40px rgba(255,80,20,.2),0 0 60px rgba(255,60,10,.1),inset 0 -12px 28px rgba(255,87,34,.1);}50%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 25px rgba(255,87,34,.55),0 0 55px rgba(255,80,20,.3),0 0 75px rgba(255,60,10,.15),inset 0 -15px 32px rgba(255,87,34,.15);}}
+/* ── LIVE SCORE INDICATORS ── */
+.live-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(239,68,68,.12);color:#EF5350;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.5px;vertical-align:middle;margin-left:6px;}
+.live-badge::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#EF5350;animation:live-dot 1.5s ease-in-out infinite;}
+@keyframes live-dot{0%,100%{opacity:1}50%{opacity:.3}}
+.live-pulse{animation:live-num .6s ease-out;}
+@keyframes live-num{0%{transform:scale(1)}40%{transform:scale(1.18);color:#EF5350}100%{transform:scale(1)}}
+.live-pts-glow{text-shadow:0 0 8px rgba(239,68,68,.4);}
+
+/* Match scoreboard ticker */
+.live-ticker{display:flex;gap:8px;padding:6px 20px;overflow-x:auto;scrollbar-width:none;background:var(--surf);border-bottom:1px solid var(--border);justify-content:center;flex-wrap:wrap;}
+.live-ticker::-webkit-scrollbar{display:none}
+.live-match-pill{flex-shrink:0;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:border-color .3s,background .3s;}
+.live-match-pill.is-live{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.06);}
+.live-match-pill.is-ft{border-color:rgba(76,175,80,.25);background:rgba(76,175,80,.04);}
+.live-match-score{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;color:var(--text);letter-spacing:.5px;}
+.live-match-minute{font-size:10px;color:#EF5350;font-weight:800;}
+.live-match-minute.ft{color:#4CAF50;}
+.live-match-team{color:var(--muted);font-size:11px;max-width:60px;overflow:hidden;text-overflow:ellipsis;}
 </style>
 </head>
 <body>
@@ -1094,6 +1112,7 @@ body::before{content:'';position:fixed;inset:0;opacity:.035;pointer-events:none;
   </div>
 </div>
 <div class="upd-bar" id="updBar">Se încarcă...</div>
+<div class="live-ticker" id="liveTicker" style="display:none"></div>
 <div class="md-bar-wrap"><div class="page"><div class="md-bar" id="mdBar"></div></div></div>
 <div class="tabs-wrap"><div class="page"><div class="tabs">
   <div class="tab on"  onclick="goTab('clasament')">Clasament</div>
@@ -1317,6 +1336,10 @@ const AR_LIVE_MS=60000, AR_IDLE_MS=300000;
 // ── LIVE POINTS SNAPSHOT ───────────────────
 // Captured once per MD on first load; used to detect in-match point changes
 const initialMdPoints={}; // { md: { playerId: pts } }
+// ── LIVE SCORES ──────────────────────────────
+let liveData=null;          // response from /api/live-scores
+let liveInterval=null;
+const LIVE_POLL_MS=30000;   // 30s polling
 
 // ── TEAM LOGO helper ───────────────────────
 // Returns <img> with logo if file exists, falls back to text
@@ -1391,10 +1414,11 @@ async function load(md){
 function arUpdateBar(){
   if(!D)return;
   const d=new Date(D.lastUpdated);
+  const hasLive=liveData&&liveData.live;
   document.getElementById('updBar').innerHTML=
     (arActive?'<span class="ar-dot"></span>':'')+
     'Actualizat: '+d.toLocaleString('ro-RO',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' · MD'+MD+
-    (arActive?' · <span style="color:#4CAF50;font-weight:600">LIVE</span>':'');
+    (hasLive?' · <span class="live-badge">LIVE</span>':(arActive?' · <span style="color:#4CAF50;font-weight:600">LIVE WINDOW</span>':''));
 }
 
 async function arCheck(){
@@ -1405,6 +1429,9 @@ async function arCheck(){
     arActive=s.liveWindow;
     if(arActive!==wasActive) arSetInterval(arActive?AR_LIVE_MS:AR_IDLE_MS);
     if(s.lastUpdated && D && s.lastUpdated!==D.lastUpdated) await arReload();
+    // Live scores polling
+    if(s.liveWindow){startLivePoll();}
+    else{stopLivePoll();if(liveData){liveData=null;renderLiveTicker();render();}}
     arUpdateBar();
   }catch(e){/* silent */}
 }
@@ -1429,6 +1456,48 @@ async function arReload(){
 function arSetInterval(ms){
   if(arInterval)clearInterval(arInterval);
   arInterval=setInterval(arCheck,ms);
+}
+
+// ── LIVE SCORE POLLING ────────────────────────
+async function pollLive(){
+  try{
+    const r=await fetch(`/api/live-scores?md=${MD}`);
+    const data=await r.json();
+    if(!data.matches||!data.matches.length){
+      if(liveData){liveData=null;render();}
+      return;
+    }
+    liveData=data;
+    renderLiveTicker();
+    render();
+  }catch(e){/* silent */}
+}
+function startLivePoll(){
+  if(liveInterval)return;
+  pollLive();
+  liveInterval=setInterval(pollLive,LIVE_POLL_MS);
+}
+function stopLivePoll(){
+  if(liveInterval){clearInterval(liveInterval);liveInterval=null;}
+}
+// Helpers: get live player/manager points
+function getLivePlayerPts(pid){
+  if(!liveData||!liveData.players)return null;
+  return liveData.players[String(pid)]||null;
+}
+function getLiveManagerPts(manager){
+  if(!liveData)return null;
+  let total=0,hasAny=false;
+  for(const p of manager.players.filter(p=>p.isStarter)){
+    const lp=getLivePlayerPts(p.id);
+    if(lp){
+      let pts=lp.pts;
+      if(p.isCaptain)pts*=2;
+      total+=pts;
+      hasAny=true;
+    }
+  }
+  return hasAny?total:null;
 }
 
 function showSpinner(){
@@ -1510,21 +1579,46 @@ document.getElementById('rankSubtabs').addEventListener('click',e=>{
 
 function render(){
   if(!D)return;
+  renderLiveTicker();
   if(curTab==='clasament')renderClasament();
   else if(curTab==='echipe-md')renderStatsMD();
   else if(curTab==='scouting')renderScouting();
   else if(curTab==='totw')renderTOTW();
 }
+function renderLiveTicker(){
+  const el=document.getElementById('liveTicker');
+  if(!liveData||!liveData.matches||!liveData.matches.length){el.style.display='none';return;}
+  el.style.display='flex';
+  el.innerHTML=liveData.matches.map(m=>{
+    const isLive=m.status===3||m.status==='3'||m.status==='LIVE';
+    const isFT=m.status===1||m.status==='1'||m.status==='PLAYED'||m.status==='FINISHED';
+    const cls=isLive?' is-live':isFT?' is-ft':'';
+    const badge=isLive?`<span class="live-match-minute">${m.minute}'</span>`:isFT?`<span class="live-match-minute ft">FT</span>`:'';
+    return`<div class="live-match-pill${cls}">
+      <span class="live-match-team">${m.home}</span>
+      <span class="live-match-score">${m.homeScore} - ${m.awayScore}</span>
+      <span class="live-match-team">${m.away}</span>
+      ${badge}
+    </div>`;
+  }).join('');
+}
 
 // ── CLASAMENT ───────────────────────────────
 function renderClasament(){
-  const byMD=[...D.managers].sort((a,b)=>b.gdPoints-a.gdPoints||(a.gdRank||999999)-(b.gdRank||999999));
-  const byOv=[...D.managers].sort((a,b)=>b.ovPoints-a.ovPoints||(a.ovRank||999999)-(b.ovRank||999999));
+  // Attach live points for sorting
+  const mgrsWithLive=D.managers.map(m=>{const lp=getLiveManagerPts(m);return{...m,_livePts:lp};});
+  const byMD=[...mgrsWithLive].sort((a,b)=>{
+    const ap=a._livePts!==null?a._livePts:a.gdPoints;
+    const bp=b._livePts!==null?b._livePts:b.gdPoints;
+    return bp-ap||(a.gdRank||999999)-(b.gdRank||999999);
+  });
+  const byOv=[...mgrsWithLive].sort((a,b)=>b.ovPoints-a.ovPoints||(a.ovRank||999999)-(b.ovRank||999999));
   const el=document.getElementById('rankGrid');
   const activeCol=el.dataset.activeCol||'0';
+  const liveBadge=liveData?'<span class="live-badge">LIVE</span>':'';
   el.innerHTML=`
     <div class="rank-col${activeCol==='0'?' rank-col-on':''}">
-      <div class="rank-col-title fire-txt">Etapa ${MD}</div>
+      <div class="rank-col-title fire-txt">Etapa ${MD}${liveBadge}</div>
       <div class="rank-list" id="rl-md"></div>
     </div>
     <div class="rank-col${activeCol==='1'?' rank-col-on':''}">
@@ -1536,11 +1630,15 @@ function renderClasament(){
       <div class="rank-list" id="rl-ps5"></div>
     </div>`;
 
-  // For MD col — diff based on gdPoints
-  const myMD=D.managers.find(m=>m.guid===meGuid);
+  // For MD col — use live pts if available
+  const myMD=mgrsWithLive.find(m=>m.guid===meGuid);
+  const myMDPts=myMD?(myMD._livePts!==null?myMD._livePts:myMD.gdPoints):0;
   buildRankCol('rl-md',byMD,m=>{
-    const diff=myMD&&m.guid!==meGuid?m.gdPoints-myMD.gdPoints:null;
-    return{val:rankValWithDiff(m.gdPoints,'fire',diff),sub:'#'+(m.gdRank||0).toLocaleString()};
+    const pts=m._livePts!==null?m._livePts:m.gdPoints;
+    const diff=myMD&&m.guid!==meGuid?pts-myMDPts:null;
+    const isLive=m._livePts!==null&&m._livePts!==m.gdPoints;
+    const extraCls=isLive?' live-pts-glow':'';
+    return{val:rankValWithDiff(pts,'fire',diff,extraCls),sub:'#'+(m.gdRank||0).toLocaleString()};
   });
 
   // For Overall col — diff based on ovPoints
@@ -1551,7 +1649,7 @@ function renderClasament(){
   });
 
   // PS5
-  const ps5Sorted=[...D.managers].sort((a,b)=>{
+  const ps5Sorted=[...mgrsWithLive].sort((a,b)=>{
     const {bestRank:ar}=getBestRankEntry(a.username);
     const {bestRank:br}=getBestRankEntry(b.username);
     if(ar===null&&br===null)return 0;
@@ -1568,20 +1666,18 @@ function renderClasament(){
 }
 
 // Helper: renders the points value + diff badge
-function rankValWithDiff(pts, color, diff){
+function rankValWithDiff(pts, color, diff, extraCls=''){
   let diffHtml='';
   if(diff!==null){
     if(diff>0){
-      // they are ahead of me
       diffHtml=`<span class="rank-diff rank-diff-neg">-${diff}</span>`;
     } else if(diff<0){
-      // I am ahead of them
       diffHtml=`<span class="rank-diff rank-diff-pos">+${Math.abs(diff)}</span>`;
     } else {
       diffHtml=`<span class="rank-diff rank-diff-eq">=</span>`;
     }
   }
-  return`<div class="rank-val-wrap">${diffHtml}<span class="rank-v-${color}">${pts}</span></div>`;
+  return`<div class="rank-val-wrap">${diffHtml}<span class="rank-v-${color}${extraCls}">${pts}</span></div>`;
 }
 
 function buildRankCol(id,list,fn){
@@ -1601,12 +1697,12 @@ function buildRankCol(id,list,fn){
 }
 
 function fireTier(p){
-  const pts=p.mdPoints||0;
-  const s=getDisplayStats(p);
+  const lp=getLivePlayerPts(p.id);
+  const pts=lp?lp.pts:(p.mdPoints||0);
+  const s=lp?{mdGoals:lp.goals,mdAssists:lp.assists,mdCleanSheet:lp.cs}:getDisplayStats(p);
   if(pts>=15) return 3;
   if(pts>=10) return 2;
   if(s.mdGoals||s.mdAssists) return 1;
-  // live: points changed since first fetch of this MD → yellow border
   const snap=initialMdPoints[MD];
   if(snap&&snap[p.id]!==undefined&&pts!==snap[p.id]) return 'live';
   return 0;
@@ -1625,8 +1721,12 @@ function showMgrModal(guid){
   const m=D.managers.find(x=>x.guid===guid);
   if(!m)return;
 
-  // Helper: base pts (halve if captain bonus)
-  const bp=p=>p.isCaptain?Math.round((p.mdPoints||0)/2):(p.mdPoints||0);
+  // Helper: base pts — use live if available, else existing
+  const bp=p=>{
+    const lp=getLivePlayerPts(p.id);
+    const raw=lp?lp.pts:(p.mdPoints||0);
+    return p.isCaptain?Math.round(raw/2):raw;
+  };
 
   // Group starters by position — FWD on top, GK at bottom
   const byPos={GK:[],DEF:[],MID:[],FWD:[]};
@@ -1639,7 +1739,8 @@ function showMgrModal(guid){
   // Pitch rows HTML (FM style)
   const pitchRows=[byPos.FWD,byPos.MID,byPos.DEF,byPos.GK].filter(r=>r.length).map(row=>{
     const cards=row.map(p=>{
-      const pts=p.mdPoints||0;
+      const _lp=getLivePlayerPts(p.id);
+      const pts=_lp?(p.isCaptain?_lp.pts*2:_lp.pts):(p.mdPoints||0);
       const shortName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
       const tier=fireTier(p);
       return`<div class="fm-pc${p.isCaptain?' cap':''}${tier&&tier!=='live'?' fire-t'+tier:tier==='live'?' fire-live':''}" onclick="closeOv({target:{}});showP(${p.id})">
@@ -1659,7 +1760,8 @@ function showMgrModal(guid){
 
   // Bench list HTML — square cards, 2 per row
   const benchHtml=bench.map(p=>{
-    const bpts=p.mdPoints||0;
+    const _blp=getLivePlayerPts(p.id);
+    const bpts=_blp?_blp.pts:(p.mdPoints||0);
     const bName=p.name.includes(' ')?p.name.split(' ').pop():p.name;
     const btier=fireTier(p);
     return`<div class="fm-pc fm-pc-bench${p.isCaptain?' cap':''}${btier&&btier!=='live'?' fire-t'+btier:btier==='live'?' fire-live':''}" onclick="closeOv({target:{}});showP(${p.id})">
@@ -1744,8 +1846,8 @@ function showMgrModal(guid){
         </div>
         <div class="fm-stats">
           <div class="fm-stat">
-            <span class="fm-stat-l">MD${MD} PTS</span>
-            <span class="fm-stat-v orange">${m.gdPoints}</span>
+            <span class="fm-stat-l">MD${MD} PTS${getLiveManagerPts(m)!==null?' <span class="live-badge">LIVE</span>':''}</span>
+            <span class="fm-stat-v orange${getLiveManagerPts(m)!==null?' live-pts-glow':''}">${getLiveManagerPts(m)!==null?getLiveManagerPts(m):m.gdPoints}</span>
           </div>
           <div class="fm-stat">
             <span class="fm-stat-l">TOTAL PTS</span>
@@ -2343,7 +2445,9 @@ function renderScouting(){
       const o=(p.ownedBy||[]).includes(m.username);
       return`<span class="dot ${o?(m.guid===meGuid?'dot-me':'dot-ot'):'dot-em'}" title="${m.username}"></span>`;
     }).join('');
-    const mdVal=p.curGDPts||0;
+    const lp=getLivePlayerPts(p.id);
+    const mdVal=lp?lp.pts:(p.curGDPts||0);
+    const isLivePts=lp!==null;
     const ga=p.gaTotal||0;
     const cs=p.cleanSheets||0;
     const ycs=ycStatus(p.yellowCards||0);
@@ -2380,7 +2484,7 @@ function renderScouting(){
       <div class="sc-right">
         <div class="sc-tot${p.isMine?' mine':''}">${p.totPts}</div>
         <div class="sc-tot-lbl">Total</div>
-        <div class="sc-md${mdVal>0?' hot':''}">${mdVal}</div>
+        <div class="sc-md${mdVal>0?' hot':''}${isLivePts?' live-pts-glow':''}">${mdVal}</div>
         <div class="sc-md-lbl">MD</div>
       </div>
     </div>`;
@@ -2430,8 +2534,11 @@ function renderTOTW(){
   }));
   const localRes=pickBestXI(Object.values(pMap));
 
-  // 2) GLOBAL TOTW — all public players, curGDPts = already base
-  const globalRes=pickBestXI(D.allPlayers.map(p=>({...p,mdPoints:p.curGDPts||0,ownedBy:p.ownedBy||[]})));
+  // 2) GLOBAL TOTW — use live pts if available, else curGDPts
+  const globalRes=pickBestXI(D.allPlayers.map(p=>{
+    const lp=getLivePlayerPts(p.id);
+    return{...p,mdPoints:lp?lp.pts:(p.curGDPts||0),ownedBy:p.ownedBy||[]};
+  }));
 
   // 3) WORLD #1 — actual team of the globally ranked #1 player
   const wl=D.worldLeader;
@@ -2528,6 +2635,8 @@ const VISUAL_TEST=false;
 function getDisplayStats(p){
   if(VISUAL_TEST&&p.name&&/vini/i.test(p.name))
     return{mdGoals:1,mdAssists:1,mdCleanSheet:1};
+  const lp=getLivePlayerPts(p.id);
+  if(lp) return{mdGoals:lp.goals||0,mdAssists:lp.assists||0,mdCleanSheet:lp.cs||0};
   return{mdGoals:p.mdGoals||0,mdAssists:p.mdAssists||0,mdCleanSheet:p.mdCleanSheet||0};
 }
 function mdEventIcons(p,mini=false){
@@ -2556,8 +2665,9 @@ function mdEventIcons(p,mini=false){
 function showP(id){
   const p=D.allPlayers.find(x=>x.id===id);if(!p)return;
   const mine=myIds().has(id);
-  let mdPts=p.curGDPts||0;
-  D.managers.forEach(m=>{const mp=m.players.find(x=>x.id===id);if(mp)mdPts=Math.max(mdPts,mp.mdPoints);});
+  const _plp=getLivePlayerPts(id);
+  let mdPts=_plp?_plp.pts:(p.curGDPts||0);
+  D.managers.forEach(m=>{const mp=m.players.find(x=>x.id===id);if(mp)mdPts=Math.max(mdPts,_plp?_plp.pts:(mp.mdPoints||0));});
   const sm={A:'Disponibil',I:'Accidentat',D:'Suspendat',PQ:'Incert'};
   const chips=(p.ownedBy||[]).length?(p.ownedBy||[]).map(n=>`<span class="owned-chip">${n}</span>`).join(''):`<span style="color:var(--muted);font-size:12px">Nimeni din ligă</span>`;
   document.getElementById('modal').innerHTML=`

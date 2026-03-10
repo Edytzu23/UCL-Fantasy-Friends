@@ -54,6 +54,11 @@ SKILL_TO_POS = {1: "GK", 2: "DEF", 3: "MID", 4: "FWD"}
 cache = {}
 cache_lock = threading.Lock()
 
+# ── LIVE SCORES CACHE ─────────────────────────────────────────────────────
+live_scores_cache = {}       # md -> {"data": {...}, "ts": float}
+live_scores_lock = threading.Lock()
+LIVE_SCORES_TTL = 30         # seconds
+
 # ── LIVE SNAPSHOT SCHEDULE ─────────────────────────────────────────────────
 CHECKPOINT_LABELS = ["HTM1", "FTM1", "HTM2", "FTM2", "FINALMD"]
 live_schedule = {"matchday": 0, "checkpoints": []}
@@ -142,6 +147,189 @@ def fetch_public_players_cached(matchday):
     return data
 
 
+MATCH_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0",
+    "Accept": "application/json",
+}
+
+fixtures_cache = {}  # md -> list of match IDs
+
+def fetch_match_ids(matchday):
+    """Get match IDs for a matchday from the fixtures feed."""
+    if matchday in fixtures_cache:
+        return fixtures_cache[matchday]
+    try:
+        url = "https://gaming.uefa.com/en/uclfantasy/services/feeds/fixtures/fixtures_80_en.json"
+        r = requests.get(url, headers=PUBLIC_HEADERS, verify=False, timeout=15)
+        r.raise_for_status()
+        for fx in r.json()["data"]["value"]:
+            md = fx.get("mdId")
+            ids = [m["mId"] for m in fx.get("match", []) if m.get("mId")]
+            fixtures_cache[md] = ids
+        return fixtures_cache.get(matchday, [])
+    except Exception as e:
+        print(f"Error fetching fixtures: {e}")
+        return []
+
+
+def fetch_live_events(matchday):
+    """Fetch live goal/assist events from match.uefa.com for all matches in a matchday.
+    Returns dict: { player_id: { 'goals': int, 'assists': int } }
+    """
+    match_ids = fetch_match_ids(matchday)
+    if not match_ids:
+        return {}
+    events = {}  # pid -> {goals, assists}
+    live_teams = set()  # teams currently playing (for clean sheet calc)
+    conceded = set()  # teams that conceded a goal
+    team_players = {}  # team_id -> set of player_ids on pitch
+    for mid in match_ids:
+        try:
+            r = requests.get(
+                f"https://match.uefa.com/v5/matches/{mid}",
+                headers=MATCH_HEADERS, verify=False, timeout=8
+            )
+            if r.status_code != 200:
+                continue
+            m = r.json()
+            status = m.get("status", "")
+            if status not in ("LIVE", "FINISHED"):
+                continue
+            home_id = m.get("homeTeam", {}).get("id")
+            away_id = m.get("awayTeam", {}).get("id")
+            live_teams.add(home_id)
+            live_teams.add(away_id)
+            score = m.get("score", {}).get("total", {})
+            if (score.get("away") or 0) > 0:
+                conceded.add(home_id)
+            if (score.get("home") or 0) > 0:
+                conceded.add(away_id)
+            # Collect player events (goals + assists)
+            pe = m.get("playerEvents", {})
+            for scorer in pe.get("scorers", []):
+                goal_type = scorer.get("goalType", "")
+                if goal_type == "OWN_GOAL":
+                    continue
+                pid = int(scorer.get("player", {}).get("id", 0))
+                if pid:
+                    events.setdefault(pid, {"goals": 0, "assists": 0})
+                    events[pid]["goals"] += 1
+                # Check for assist player
+                assist_player = scorer.get("assistPlayer") or scorer.get("assist", {})
+                if isinstance(assist_player, dict) and assist_player.get("id"):
+                    apid = int(assist_player["id"])
+                    events.setdefault(apid, {"goals": 0, "assists": 0})
+                    events[apid]["assists"] += 1
+            # Collect lineup player IDs per team for clean sheet
+            try:
+                r2 = requests.get(
+                    f"https://match.uefa.com/v5/matches/{mid}/lineups",
+                    headers=MATCH_HEADERS, verify=False, timeout=8
+                )
+                if r2.status_code == 200:
+                    lineups = r2.json()
+                    for side, tid in [("homeTeam", home_id), ("awayTeam", away_id)]:
+                        pids = set()
+                        for p in lineups.get(side, {}).get("field", []):
+                            pids.add(int(p.get("player", {}).get("id", 0)))
+                        # include subs that came on
+                        for p in lineups.get(side, {}).get("substitutions", {}).get("playerIn", []) if isinstance(lineups.get(side, {}).get("substitutions"), dict) else []:
+                            pids.add(int(p.get("player", {}).get("id", 0)))
+                        team_players[tid] = pids
+            except Exception:
+                pass
+        except Exception as e:
+            print(f"Error fetching match {mid}: {e}")
+    # Build clean sheet set: players on teams that haven't conceded AND are live/finished
+    clean_sheet_pids = set()
+    for tid in live_teams - conceded:
+        for pid in team_players.get(tid, set()):
+            if pid:
+                clean_sheet_pids.add(pid)
+    return events, clean_sheet_pids
+
+
+def fetch_live_scores(matchday):
+    """Fetch live fantasy scores from UEFA scoring feed for all matches in a matchday.
+    Returns: {
+        "matches": [{"mId", "home", "away", "homeScore", "awayScore", "status", "minute"}],
+        "players": {pid_str: {"pts", "goals", "assists", "cs", "yc", "rc", "saves", "mins"}}
+    }
+    """
+    match_ids = fetch_match_ids(matchday)
+    if not match_ids:
+        return {"matches": [], "players": {}}
+
+    matches = []
+    players = {}
+
+    for mid in match_ids:
+        try:
+            url = f"https://gaming.uefa.com/en/uclfantasy/services/feeds/scoring/live-scores_80_{mid}.json"
+            r = requests.get(url, headers=PUBLIC_HEADERS, verify=False, timeout=10)
+            if r.status_code != 200:
+                continue
+            raw = r.json()
+            data = raw.get("data", raw)
+            if isinstance(data, dict) and "value" in data:
+                data = data["value"]
+
+            # Match info
+            match_info = {
+                "mId": mid,
+                "home": data.get("homeTeam", data.get("htName", "")),
+                "away": data.get("awayTeam", data.get("atName", "")),
+                "homeScore": data.get("homeScore", data.get("htScore", 0)) or 0,
+                "awayScore": data.get("awayScore", data.get("atScore", 0)) or 0,
+                "status": data.get("matchStatus", data.get("status", 0)),
+                "minute": data.get("minute", data.get("min", 0)) or 0,
+            }
+            # Normalize scores to int
+            try:
+                match_info["homeScore"] = int(match_info["homeScore"])
+            except (ValueError, TypeError):
+                match_info["homeScore"] = 0
+            try:
+                match_info["awayScore"] = int(match_info["awayScore"])
+            except (ValueError, TypeError):
+                match_info["awayScore"] = 0
+
+            matches.append(match_info)
+
+            # Player points & stats
+            p_points = data.get("pPoints", {})
+            p_stats = data.get("pStats", [])
+
+            if isinstance(p_points, list):
+                # Sometimes pPoints is a list of {pId, pts} objects
+                pp_dict = {}
+                for pp in p_points:
+                    if isinstance(pp, dict):
+                        pp_dict[str(pp.get("pId", ""))] = pp.get("pts", 0)
+                p_points = pp_dict
+
+            for ps in p_stats:
+                if not isinstance(ps, dict):
+                    continue
+                pid = str(ps.get("pId", ps.get("id", "")))
+                if not pid:
+                    continue
+                players[pid] = {
+                    "pts": p_points.get(pid, 0) or 0,
+                    "goals": ps.get("gS", 0) or 0,
+                    "assists": ps.get("gA", 0) or 0,
+                    "cs": 1 if ps.get("cS", 0) else 0,
+                    "yc": ps.get("yC", 0) or 0,
+                    "rc": ps.get("rC", 0) or 0,
+                    "saves": ps.get("sV", ps.get("sv", 0)) or 0,
+                    "mins": ps.get("mP", ps.get("oF", 0)) or 0,
+                }
+        except Exception as e:
+            print(f"Error fetching live-scores for match {mid}: {e}")
+
+    return {"matches": matches, "players": players}
+
+
 def fetch_world_leader_team(matchday, phase_id=2):
     """Fetch the #1 global player's team from the World Leaderboard."""
     try:
@@ -215,6 +403,20 @@ def build_data(matchday=10):
         prv = previous_players.get(pid, {}).get(field, 0) or 0
         return max(0, cur - prv)
 
+    # Fetch live match events (goals/assists/clean sheets) from match.uefa.com
+    live_events = {}
+    live_clean_sheet_pids = set()
+    try:
+        result = fetch_live_events(matchday)
+        if result:
+            live_events, live_clean_sheet_pids = result
+            if live_events or live_clean_sheet_pids:
+                print(f"  Live events: {sum(e['goals'] for e in live_events.values())} goals, "
+                      f"{sum(e['assists'] for e in live_events.values())} assists, "
+                      f"{len(live_clean_sheet_pids)} CS players")
+    except Exception as e:
+        print(f"Live events fetch failed (non-fatal): {e}")
+
     managers_raw = fetch_team_data(matchday)
 
     player_ownership = {}  # pid -> list of usernames
@@ -263,10 +465,10 @@ def build_data(matchday=10):
                 "goals": pub.get("goals", 0),
                 "assists": pub.get("assists", 0),
                 "cleanSheets": pub.get("cleanSheets", 0),
-                # Per-MD stats (diff vs previous MD)
-                "mdGoals": md_stat(pid, "goals", public_players, prev_players),
-                "mdAssists": md_stat(pid, "assists", public_players, prev_players),
-                "mdCleanSheet": md_stat(pid, "cleanSheets", public_players, prev_players),
+                # Per-MD stats: prefer live events, fallback to diff
+                "mdGoals": live_events.get(pid, {}).get("goals") or md_stat(pid, "goals", public_players, prev_players),
+                "mdAssists": live_events.get(pid, {}).get("assists") or md_stat(pid, "assists", public_players, prev_players),
+                "mdCleanSheet": (1 if pid in live_clean_sheet_pids else 0) or md_stat(pid, "cleanSheets", public_players, prev_players),
                 "selPer": pub.get("selPer", 0),
                 "rating": pub.get("rating", 0),
                 "status": pub.get("status", "A"),
@@ -769,6 +971,26 @@ def get_status():
         "lastUpdated": last_updated,
         "liveWindow": is_match_window(),
     })
+
+
+@app.get("/api/live-scores")
+def get_live_scores(md: int = 10):
+    """Return live fantasy scores. Cached for 30s."""
+    now = time.time()
+    with live_scores_lock:
+        cached = live_scores_cache.get(md)
+        if cached and (now - cached["ts"]) < LIVE_SCORES_TTL:
+            return JSONResponse(cached["data"])
+
+    data = fetch_live_scores(md)
+    has_live = any(m["status"] in (3, "3", "LIVE") for m in data.get("matches", []))
+    data["live"] = has_live
+    data["fetchedAt"] = datetime.now().isoformat()
+
+    with live_scores_lock:
+        live_scores_cache[md] = {"data": data, "ts": now}
+
+    return JSONResponse(data)
 
 
 @app.post("/api/refresh")
