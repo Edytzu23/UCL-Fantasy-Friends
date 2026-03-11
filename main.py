@@ -955,6 +955,30 @@ def fire_live_snapshot(md: int, label: str = "Manual"):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+@app.get("/api/ucl-fixtures")
+def ucl_fixtures():
+    """Proxy UEFA fixtures feed (avoids CORS)."""
+    try:
+        r = requests.get(
+            "https://gaming.uefa.com/en/uclfantasy/services/feeds/fixtures/fixtures_80_en.json",
+            headers=PUBLIC_HEADERS, verify=False, timeout=20)
+        return JSONResponse(content=r.json())
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=502)
+
+
+@app.get("/api/ucl-match/{match_id}")
+def ucl_match(match_id: int):
+    """Proxy individual UEFA match detail (avoids CORS)."""
+    try:
+        r = requests.get(
+            f"https://match.uefa.com/v5/matches/{match_id}",
+            headers={"User-Agent": PUBLIC_HEADERS["User-Agent"]}, verify=False, timeout=20)
+        return JSONResponse(content=r.json())
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=502)
+
+
 @app.get("/api/data")
 def get_data(md: int = 10):
     with cache_lock:

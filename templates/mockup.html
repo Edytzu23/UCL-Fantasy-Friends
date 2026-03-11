@@ -217,7 +217,7 @@ body::before {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 20px;
-  overflow: hidden;
+  position: relative;
 }
 .md-current {
   padding: 6px 14px;
@@ -1222,6 +1222,39 @@ body::before {
   color: #fff;
   box-shadow: 0 2px 14px rgba(255,87,34,.35), 0 0 4px rgba(255,87,34,.2);
 }
+.totw-duo {
+  display: flex; flex-wrap: wrap; gap: 18px;
+  padding: 0 16px 20px;
+}
+.totw-half {
+  flex: 1 1 380px; min-width: 0;
+  display: flex; flex-direction: column;
+}
+.totw-half .totw-half-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--text);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.totw-half .totw-half-title .totw-ht-accent {
+  color: var(--fire);
+}
+.totw-half .fm-pitch {
+  min-height: 360px;
+  padding: 22px 8px 18px;
+}
+.totw-half .fm-pc { transform: scale(.88); }
+.totw-half .fm-row { gap: 4px; }
+.totw-half .totw-form-tag {
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px; font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .05em;
+  margin-bottom: 4px;
+}
 
 /* TOTW stats strip */
 .totw-stats {
@@ -1487,15 +1520,17 @@ body::before {
       <div class="md-istoric" onclick="toggleDropdown()">
         Istoric MD
         <div class="md-dropdown" id="mdDropdown">
-          <div class="md-drop-item">MD 9</div>
-          <div class="md-drop-item">MD 8</div>
-          <div class="md-drop-item">MD 7</div>
-          <div class="md-drop-item">MD 6</div>
-          <div class="md-drop-item">MD 5</div>
-          <div class="md-drop-item">MD 4</div>
-          <div class="md-drop-item">MD 3</div>
-          <div class="md-drop-item">MD 2</div>
-          <div class="md-drop-item">MD 1</div>
+          <div class="md-drop-item" onclick="switchMD(11)">MD 11</div>
+          <div class="md-drop-item" onclick="switchMD(10)">MD 10</div>
+          <div class="md-drop-item" onclick="switchMD(9)">MD 9</div>
+          <div class="md-drop-item" onclick="switchMD(8)">MD 8</div>
+          <div class="md-drop-item" onclick="switchMD(7)">MD 7</div>
+          <div class="md-drop-item" onclick="switchMD(6)">MD 6</div>
+          <div class="md-drop-item" onclick="switchMD(5)">MD 5</div>
+          <div class="md-drop-item" onclick="switchMD(4)">MD 4</div>
+          <div class="md-drop-item" onclick="switchMD(3)">MD 3</div>
+          <div class="md-drop-item" onclick="switchMD(2)">MD 2</div>
+          <div class="md-drop-item" onclick="switchMD(1)">MD 1</div>
         </div>
       </div>
     </div>
@@ -1577,19 +1612,18 @@ body::before {
       </div>
       <div class="cls-list" id="totwClsList"></div>
     </div>
-    <!-- Center: TOTW pitch -->
+    <!-- Center: TOTW — both pitches side by side -->
     <div class="totw-center">
       <div class="totw-hdr">
         <div class="totw-hdr-row">
           <div class="totw-hdr-title"><span>TEAM</span> OF THE WEEK</div>
           <div class="totw-stats" id="totwStats"></div>
         </div>
-        <div class="totw-tabs">
-          <div class="totw-tab active" data-totw="liga" onclick="switchTotwTab(this,'liga')">Liga Noastră</div>
-          <div class="totw-tab" data-totw="best" onclick="switchTotwTab(this,'best')">Cea Mai Bună XI</div>
-        </div>
       </div>
-      <div class="totw-pitch-wrap" id="totwPitchWrap"></div>
+      <div class="totw-duo" id="totwPitchWrap">
+        <div class="totw-half" id="totwLiga"></div>
+        <div class="totw-half" id="totwBest"></div>
+      </div>
     </div>
   </div>
 
@@ -1597,286 +1631,129 @@ body::before {
 </div><!-- /app-frame -->
 
 <script>
-// ─── DATA (real MD10) ───
-const MD = 11;
-const MANAGERS = [
-  { guid:'pep', username:'Pep Voicuiola', teamName:'Dinamo(if no jail Borcea)', gdPoints:85, gdRank:1056, ovPoints:773, ovRank:35118, color:'#E64A19' },
-  { guid:'eduard', username:'Eduard', teamName:'Ispitele Masculine U17', gdPoints:77, gdRank:4008, ovPoints:727, ovRank:92318, color:'#FF5722' },
-  { guid:'mircea', username:'Mircea', teamName:'milsugers', gdPoints:70, gdRank:13822, ovPoints:760, ovRank:48086, color:'#43A047' },
-  { guid:'dan', username:'Dan', teamName:'The D', gdPoints:65, gdRank:34724, ovPoints:833, ovRank:5145, color:'#1565C0' },
-  { guid:'mihai', username:'Mihai', teamName:'Red Puppies', gdPoints:62, gdRank:57301, ovPoints:739, ovRank:74340, color:'#C62828' },
-  { guid:'andrei', username:'Andrei', teamName:'galATI PIERDUT plm', gdPoints:60, gdRank:77179, ovPoints:734, ovRank:81610, color:'#6A1B9A' },
-  { guid:'chirila', username:'Chirila', teamName:'C.S. Concordia Chiajna', gdPoints:57, gdRank:114013, ovPoints:775, ovRank:33360, color:'#00838F' },
-  { guid:'tiberiu', username:'Tiberiu', teamName:'FC CLINCENI', gdPoints:56, gdRank:127932, ovPoints:754, ovRank:54877, color:'#4527A0' },
-  { guid:'dudu', username:'Dudu', teamName:'FC Dudu', gdPoints:52, gdRank:187396, ovPoints:735, ovRank:80153, color:'#AD1457' },
-  { guid:'meme', username:'Memedine Zidane', teamName:'Insula Fotbalului 2026', gdPoints:45, gdRank:294634, ovPoints:703, ovRank:132841, color:'#EF6C00' }
-];
+// ─── DATA ───
+let MD = 11;
+let MANAGERS = [];
+let ROSTERS = {};
+let CURRENT_USER = null;
+let allPlayers = [];
+let worldLeader = null;
+let MD_FIXTURES = [];
 
-const CURRENT_USER = 'eduard';
+const MGR_COLORS = ['#E64A19','#FF5722','#43A047','#1565C0','#C62828','#6A1B9A','#00838F','#4527A0','#AD1457','#EF6C00'];
 
-let MD_FIXTURES = []; // populated dynamically from UEFA API
+async function loadApiData(md) {
+  try {
+    const r = await fetch(`/api/data?md=${md}`);
+    const data = await r.json();
+    if (data.error) { console.error('API error:', data.error); return; }
 
-// Simulated rosters
-const ROSTERS = {
-  'eduard': {
-    formation: '4-3-3',
-    starters: [
-      { name:'Mbapp\u00e9', posCode:'FWD', teamCode:'RMA', pts:12, captain:true, goals:1, assists:1, cs:false },
-      { name:'Osimhen', posCode:'FWD', teamCode:'GAL', pts:8, captain:false, goals:1, assists:0, cs:false },
-      { name:'S\u00f8rloth', posCode:'FWD', teamCode:'ATM', pts:17, captain:false, goals:2, assists:1, cs:false },
-      { name:'Vin\u00edcius Jr', posCode:'MID', teamCode:'RMA', pts:7, captain:false, goals:0, assists:1, cs:false },
-      { name:'Vitinha', posCode:'MID', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Kvara', posCode:'MID', teamCode:'PSG', pts:8, captain:false, goals:1, assists:0, cs:false },
-      { name:'Grimaldo', posCode:'DEF', teamCode:'LEV', pts:12, captain:false, goals:1, assists:0, cs:true },
-      { name:'Hakimi', posCode:'DEF', teamCode:'PSG', pts:5, captain:false, goals:0, assists:1, cs:false },
-      { name:'Pacho', posCode:'DEF', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Quansah', posCode:'DEF', teamCode:'LEV', pts:7, captain:false, goals:0, assists:0, cs:true },
-      { name:'Courtois', posCode:'GK', teamCode:'RMA', pts:3, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Gordon', posCode:'MID', teamCode:'NEW', pts:1 },
-      { name:'Hancko', posCode:'DEF', teamCode:'ATM', pts:4 },
-      { name:'Simeone', posCode:'MID', teamCode:'ATM', pts:2 },
-      { name:'Kobel', posCode:'GK', teamCode:'BVB', pts:1 }
-    ],
-    transfersOut: [
-      { name:'Lookman', posCode:'MID', teamCode:'ATM', pts:4 },
-      { name:'Dimarco', posCode:'DEF', teamCode:'INT', pts:2 }
-    ],
-    transfersIn: [
-      { name:'S\u00f8rloth', posCode:'FWD', teamCode:'ATM', pts:17 },
-      { name:'Quansah', posCode:'DEF', teamCode:'LEV', pts:7 }
-    ]
-  },
-  'pep': {
-    formation: '3-4-3',
-    starters: [
-      { name:'Mbapp\u00e9', posCode:'FWD', teamCode:'RMA', pts:12, captain:true, goals:1, assists:1, cs:false },
-      { name:'S\u00f8rloth', posCode:'FWD', teamCode:'ATM', pts:17, captain:false, goals:2, assists:1, cs:false },
-      { name:'Thuram', posCode:'FWD', teamCode:'INT', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Tonali', posCode:'MID', teamCode:'NEW', pts:11, captain:false, goals:0, assists:0, cs:true },
-      { name:'McKennie', posCode:'MID', teamCode:'JUV', pts:10, captain:false, goals:1, assists:0, cs:false },
-      { name:'Dou\u00e9', posCode:'MID', teamCode:'PSG', pts:8, captain:false, goals:1, assists:0, cs:false },
-      { name:'Adeyemi', posCode:'MID', teamCode:'BVB', pts:6, captain:false, goals:0, assists:1, cs:false },
-      { name:'Grimaldo', posCode:'DEF', teamCode:'LEV', pts:12, captain:false, goals:1, assists:0, cs:true },
-      { name:'Nuno Mendes', posCode:'DEF', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Trippier', posCode:'DEF', teamCode:'NEW', pts:6, captain:false, goals:0, assists:1, cs:true },
-      { name:'Pope', posCode:'GK', teamCode:'NEW', pts:0, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Schick', posCode:'FWD', teamCode:'LEV', pts:2 },
-      { name:'A. Garc\u00eda', posCode:'MID', teamCode:'LEV', pts:3 },
-      { name:'Kelly', posCode:'DEF', teamCode:'JUV', pts:-1 },
-      { name:'Sommer', posCode:'GK', teamCode:'INT', pts:2 }
-    ],
-    transfersOut: [
-      { name:'Barnes', posCode:'MID', teamCode:'NEW', pts:5 }
-    ],
-    transfersIn: [
-      { name:'Adeyemi', posCode:'MID', teamCode:'BVB', pts:6 }
-    ]
-  },
-  'mircea': {
-    formation: '4-4-2',
-    starters: [
-      { name:'Osimhen', posCode:'FWD', teamCode:'GAL', pts:8, captain:true, goals:1, assists:0, cs:false },
-      { name:'Alvarez', posCode:'FWD', teamCode:'ATM', pts:1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Gordon', posCode:'MID', teamCode:'NEW', pts:1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Vin\u00edcius Jr', posCode:'MID', teamCode:'RMA', pts:7, captain:false, goals:0, assists:1, cs:false },
-      { name:'Tonali', posCode:'MID', teamCode:'NEW', pts:11, captain:false, goals:0, assists:0, cs:true },
-      { name:'Vanaken', posCode:'MID', teamCode:'BRU', pts:4, captain:false, goals:0, assists:0, cs:false },
-      { name:'Burn', posCode:'DEF', teamCode:'NEW', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Grimaldo', posCode:'DEF', teamCode:'LEV', pts:12, captain:false, goals:1, assists:0, cs:true },
-      { name:'Hakimi', posCode:'DEF', teamCode:'PSG', pts:5, captain:false, goals:0, assists:1, cs:false },
-      { name:'Nuno Mendes', posCode:'DEF', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Courtois', posCode:'GK', teamCode:'RMA', pts:3, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Guirassy', posCode:'FWD', teamCode:'BVB', pts:2 },
-      { name:'Stankovi\u0107', posCode:'MID', teamCode:'BRU', pts:4 },
-      { name:'Otamendi', posCode:'DEF', teamCode:'BEN', pts:0 },
-      { name:'\u00c7ak\u0131r', posCode:'GK', teamCode:'GAL', pts:2 }
-    ],
-    transfersOut: [],
-    transfersIn: []
-  },
-  'dan': {
-    formation: '4-3-3',
-    starters: [
-      { name:'Mbapp\u00e9', posCode:'FWD', teamCode:'RMA', pts:0, captain:false, goals:0, assists:0, cs:false },
-      { name:'Guirassy', posCode:'FWD', teamCode:'BVB', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Schick', posCode:'FWD', teamCode:'LEV', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Kvara', posCode:'MID', teamCode:'PSG', pts:8, captain:true, goals:1, assists:0, cs:false },
-      { name:'Dou\u00e9', posCode:'MID', teamCode:'PSG', pts:8, captain:false, goals:1, assists:0, cs:false },
-      { name:'Y\u0131ld\u0131z', posCode:'MID', teamCode:'JUV', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Pacho', posCode:'DEF', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Dimarco', posCode:'DEF', teamCode:'INT', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Alexander-Arnold', posCode:'DEF', teamCode:'RMA', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Burn', posCode:'DEF', teamCode:'NEW', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Sommer', posCode:'GK', teamCode:'INT', pts:2, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Esposito', posCode:'FWD', teamCode:'INT', pts:2 },
-      { name:'Lookman', posCode:'MID', teamCode:'ATM', pts:4 },
-      { name:'Bensebaini', posCode:'DEF', teamCode:'BVB', pts:-2 },
-      { name:'Safonov', posCode:'GK', teamCode:'PSG', pts:0 }
-    ],
-    transfersOut: [
-      { name:'Akanji', posCode:'DEF', teamCode:'INT', pts:2 }
-    ],
-    transfersIn: [
-      { name:'Alexander-Arnold', posCode:'DEF', teamCode:'RMA', pts:3 }
-    ]
-  },
-  'mihai': {
-    formation: '4-3-3',
-    starters: [
-      { name:'S\u00f8rloth', posCode:'FWD', teamCode:'ATM', pts:17, captain:true, goals:2, assists:1, cs:false },
-      { name:'Alvarez', posCode:'FWD', teamCode:'ATM', pts:1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Thuram', posCode:'FWD', teamCode:'INT', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Vitinha', posCode:'MID', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Barnes', posCode:'MID', teamCode:'NEW', pts:5, captain:false, goals:0, assists:1, cs:false },
-      { name:'Simeone', posCode:'MID', teamCode:'ATM', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Nuno Mendes', posCode:'DEF', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Quansah', posCode:'DEF', teamCode:'LEV', pts:7, captain:false, goals:0, assists:0, cs:true },
-      { name:'Kelly', posCode:'DEF', teamCode:'JUV', pts:-1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Hall', posCode:'DEF', teamCode:'NEW', pts:1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Pope', posCode:'GK', teamCode:'NEW', pts:0, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Osimhen', posCode:'FWD', teamCode:'GAL', pts:8 },
-      { name:'Vanaken', posCode:'MID', teamCode:'BRU', pts:4 },
-      { name:'Hancko', posCode:'DEF', teamCode:'ATM', pts:4 },
-      { name:'\u00c7ak\u0131r', posCode:'GK', teamCode:'GAL', pts:2 }
-    ],
-    transfersOut: [],
-    transfersIn: []
-  },
-  'andrei': {
-    formation: '4-3-3',
-    starters: [
-      { name:'Mbapp\u00e9', posCode:'FWD', teamCode:'RMA', pts:0, captain:true, goals:0, assists:0, cs:false },
-      { name:'Osimhen', posCode:'FWD', teamCode:'GAL', pts:8, captain:false, goals:1, assists:0, cs:false },
-      { name:'Esposito', posCode:'FWD', teamCode:'INT', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Vin\u00edcius Jr', posCode:'MID', teamCode:'RMA', pts:7, captain:false, goals:0, assists:1, cs:false },
-      { name:'McKennie', posCode:'MID', teamCode:'JUV', pts:10, captain:false, goals:1, assists:0, cs:false },
-      { name:'Stankovi\u0107', posCode:'MID', teamCode:'BRU', pts:4, captain:false, goals:0, assists:0, cs:false },
-      { name:'Hakimi', posCode:'DEF', teamCode:'PSG', pts:5, captain:false, goals:0, assists:1, cs:false },
-      { name:'Dimarco', posCode:'DEF', teamCode:'INT', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Anton', posCode:'DEF', teamCode:'BVB', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Akanji', posCode:'DEF', teamCode:'INT', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Courtois', posCode:'GK', teamCode:'RMA', pts:3, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Schick', posCode:'FWD', teamCode:'LEV', pts:2 },
-      { name:'A. Garc\u00eda', posCode:'MID', teamCode:'LEV', pts:3 },
-      { name:'Otamendi', posCode:'DEF', teamCode:'BEN', pts:0 },
-      { name:'Kobel', posCode:'GK', teamCode:'BVB', pts:1 }
-    ],
-    transfersOut: [],
-    transfersIn: []
-  },
-  'chirila': {
-    formation: '4-3-3',
-    starters: [
-      { name:'Alvarez', posCode:'FWD', teamCode:'ATM', pts:1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Guirassy', posCode:'FWD', teamCode:'BVB', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Thuram', posCode:'FWD', teamCode:'INT', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Kvara', posCode:'MID', teamCode:'PSG', pts:8, captain:true, goals:1, assists:0, cs:false },
-      { name:'Dou\u00e9', posCode:'MID', teamCode:'PSG', pts:8, captain:false, goals:1, assists:0, cs:false },
-      { name:'Gordon', posCode:'MID', teamCode:'NEW', pts:1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Grimaldo', posCode:'DEF', teamCode:'LEV', pts:12, captain:false, goals:1, assists:0, cs:true },
-      { name:'Pacho', posCode:'DEF', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Trippier', posCode:'DEF', teamCode:'NEW', pts:6, captain:false, goals:0, assists:1, cs:true },
-      { name:'Hancko', posCode:'DEF', teamCode:'ATM', pts:4, captain:false, goals:0, assists:0, cs:false },
-      { name:'Pope', posCode:'GK', teamCode:'NEW', pts:0, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Lookman', posCode:'MID', teamCode:'ATM', pts:4 },
-      { name:'Simeone', posCode:'MID', teamCode:'ATM', pts:2 },
-      { name:'Burn', posCode:'DEF', teamCode:'NEW', pts:3 },
-      { name:'Sommer', posCode:'GK', teamCode:'INT', pts:2 }
-    ],
-    transfersOut: [],
-    transfersIn: []
-  },
-  'tiberiu': {
-    formation: '4-3-3',
-    starters: [
-      { name:'Mbapp\u00e9', posCode:'FWD', teamCode:'RMA', pts:0, captain:true, goals:0, assists:0, cs:false },
-      { name:'Osimhen', posCode:'FWD', teamCode:'GAL', pts:8, captain:false, goals:1, assists:0, cs:false },
-      { name:'S\u00f8rloth', posCode:'FWD', teamCode:'ATM', pts:17, captain:false, goals:2, assists:1, cs:false },
-      { name:'Tonali', posCode:'MID', teamCode:'NEW', pts:11, captain:false, goals:0, assists:0, cs:true },
-      { name:'Adeyemi', posCode:'MID', teamCode:'BVB', pts:6, captain:false, goals:0, assists:1, cs:false },
-      { name:'Y\u0131ld\u0131z', posCode:'MID', teamCode:'JUV', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Nuno Mendes', posCode:'DEF', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Burn', posCode:'DEF', teamCode:'NEW', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Bensebaini', posCode:'DEF', teamCode:'BVB', pts:-2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Kelly', posCode:'DEF', teamCode:'JUV', pts:-1, captain:false, goals:0, assists:0, cs:false },
-      { name:'\u00c7ak\u0131r', posCode:'GK', teamCode:'GAL', pts:2, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Esposito', posCode:'FWD', teamCode:'INT', pts:2 },
-      { name:'Vitinha', posCode:'MID', teamCode:'PSG', pts:3 },
-      { name:'Hall', posCode:'DEF', teamCode:'NEW', pts:1 },
-      { name:'Safonov', posCode:'GK', teamCode:'PSG', pts:0 }
-    ],
-    transfersOut: [],
-    transfersIn: []
-  },
-  'dudu': {
-    formation: '4-3-3',
-    starters: [
-      { name:'Alvarez', posCode:'FWD', teamCode:'ATM', pts:1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Schick', posCode:'FWD', teamCode:'LEV', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Esposito', posCode:'FWD', teamCode:'INT', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Vin\u00edcius Jr', posCode:'MID', teamCode:'RMA', pts:7, captain:true, goals:0, assists:1, cs:false },
-      { name:'Barnes', posCode:'MID', teamCode:'NEW', pts:5, captain:false, goals:0, assists:1, cs:false },
-      { name:'Vanaken', posCode:'MID', teamCode:'BRU', pts:4, captain:false, goals:0, assists:0, cs:false },
-      { name:'Grimaldo', posCode:'DEF', teamCode:'LEV', pts:12, captain:false, goals:1, assists:0, cs:true },
-      { name:'Dimarco', posCode:'DEF', teamCode:'INT', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Anton', posCode:'DEF', teamCode:'BVB', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Otamendi', posCode:'DEF', teamCode:'BEN', pts:0, captain:false, goals:0, assists:0, cs:false },
-      { name:'Sommer', posCode:'GK', teamCode:'INT', pts:2, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Guirassy', posCode:'FWD', teamCode:'BVB', pts:2 },
-      { name:'Stankovi\u0107', posCode:'MID', teamCode:'BRU', pts:4 },
-      { name:'Akanji', posCode:'DEF', teamCode:'INT', pts:2 },
-      { name:'Kobel', posCode:'GK', teamCode:'BVB', pts:1 }
-    ],
-    transfersOut: [],
-    transfersIn: []
-  },
-  'meme': {
-    formation: '4-3-3',
-    starters: [
-      { name:'Mbapp\u00e9', posCode:'FWD', teamCode:'RMA', pts:0, captain:true, goals:0, assists:0, cs:false },
-      { name:'Thuram', posCode:'FWD', teamCode:'INT', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Alvarez', posCode:'FWD', teamCode:'ATM', pts:1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Vitinha', posCode:'MID', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Y\u0131ld\u0131z', posCode:'MID', teamCode:'JUV', pts:2, captain:false, goals:0, assists:0, cs:false },
-      { name:'Lookman', posCode:'MID', teamCode:'ATM', pts:4, captain:false, goals:0, assists:0, cs:false },
-      { name:'Hakimi', posCode:'DEF', teamCode:'PSG', pts:5, captain:false, goals:0, assists:1, cs:false },
-      { name:'Nuno Mendes', posCode:'DEF', teamCode:'PSG', pts:3, captain:false, goals:0, assists:0, cs:false },
-      { name:'Hancko', posCode:'DEF', teamCode:'ATM', pts:4, captain:false, goals:0, assists:0, cs:false },
-      { name:'Hall', posCode:'DEF', teamCode:'NEW', pts:1, captain:false, goals:0, assists:0, cs:false },
-      { name:'Courtois', posCode:'GK', teamCode:'RMA', pts:3, captain:false, goals:0, assists:0, cs:false }
-    ],
-    bench: [
-      { name:'Osimhen', posCode:'FWD', teamCode:'GAL', pts:8 },
-      { name:'Gordon', posCode:'MID', teamCode:'NEW', pts:1 },
-      { name:'Bensebaini', posCode:'DEF', teamCode:'BVB', pts:-2 },
-      { name:'\u00c7ak\u0131r', posCode:'GK', teamCode:'GAL', pts:2 }
-    ],
-    transfersOut: [],
-    transfersIn: []
+    // Map managers
+    MANAGERS = (data.managers || []).map((m, i) => ({
+      guid: m.guid,
+      username: m.username,
+      teamName: m.teamName,
+      gdPoints: m.gdPoints || 0,
+      gdRank: m.gdRank || 0,
+      ovPoints: m.ovPoints || 0,
+      ovRank: m.ovRank || 0,
+      color: MGR_COLORS[i % MGR_COLORS.length]
+    }));
+
+    // Detect current user (look for 'Eduard')
+    const me = MANAGERS.find(m => /eduard/i.test(m.username));
+    CURRENT_USER = me ? me.guid : (MANAGERS[0] ? MANAGERS[0].guid : null);
+    selectedMgr = CURRENT_USER;
+
+    // Build rosters from manager players
+    ROSTERS = {};
+    (data.managers || []).forEach(m => {
+      const starters = [];
+      const bench = [];
+      const transfersOut = (m.transfersOut || []).map(p => ({
+        id: p.id, name: p.name || '', posCode: p.posCode || '',
+        teamCode: p.teamCode || '', pts: p.mdPoints || 0
+      }));
+      const transfersIn = [];
+      (m.players || []).forEach(p => {
+        const mapped = {
+          id: p.id,
+          name: p.name || p.fullName || '',
+          posCode: p.posCode || '',
+          teamCode: p.teamCode || '',
+          pts: p.mdPoints || 0,
+          captain: p.isCaptain || false,
+          goals: p.mdGoals || 0,
+          assists: p.mdAssists || 0,
+          cs: p.mdCleanSheet ? true : false,
+          isTransfer: p.isTransfer || false
+        };
+        // isTransfer marks players transferred IN this MD — they're still part of the squad
+        if (p.isTransfer) transfersIn.push(mapped);
+        if (p.isStarter) {
+          starters.push(mapped);
+        } else {
+          bench.push(mapped);
+        }
+      });
+      // Detect formation from starters
+      const dc = { DEF:0, MID:0, FWD:0 };
+      starters.forEach(p => { if (dc[p.posCode] !== undefined) dc[p.posCode]++; });
+      const formation = `${dc.DEF}-${dc.MID}-${dc.FWD}`;
+      ROSTERS[m.guid] = { formation, starters, bench, transfersOut, transfersIn };
+    });
+
+    // All players for global TOTW
+    allPlayers = (data.allPlayers || []).map(p => ({
+      id: p.id,
+      name: p.name || p.fullName || '',
+      posCode: p.posCode || '',
+      teamCode: p.teamCode || '',
+      team: p.team || '',
+      pts: p.curGDPts || 0,
+      goals: p.goals || 0,
+      assists: p.assists || 0,
+      cs: (p.cleanSheets || 0) > 0,
+      totPts: p.totPts || 0,
+      selPer: p.selPer || 0,
+      value: p.value || 0,
+      localOwnership: p.localOwnership || 0,
+      ownedBy: p.ownedBy || []
+    }));
+
+    worldLeader = data.worldLeader || null;
+
+    // Render everything
+    renderClasament();
+    renderHeader();
+    renderPitch();
+    renderNavFixtures();
+    if (currentTab === 'totw') renderTOTW();
+    if (currentTab === 'scouting') {
+      scoutDataCache = null;
+      const chipsEl = document.getElementById('mgrChips');
+      if (chipsEl) chipsEl.dataset.init = '';
+      renderScouting();
+    }
+  } catch(e) {
+    console.error('loadApiData error:', e);
   }
-};
+}
+
+function switchMD(newMd) {
+  MD = newMd;
+  document.getElementById('mdLabel').textContent = `MD ${newMd}`;
+  document.getElementById('mdDropdown').classList.remove('open');
+  statsDrawerLoaded = false;
+  loadApiData(newMd);
+  loadFixturesFromAPI();
+}
+
+// (ROSTERS populated by loadApiData)
 
 // ─── STATE ───
 let currentSort = 'etapa';
-let selectedMgr = CURRENT_USER;
+let selectedMgr = null;
 let currentTab = 'clasament';
 let scoutPosFilter = 'ALL';
 let scoutMgrFilter = new Set();
@@ -2031,7 +1908,7 @@ function renderPitch() {
         ${p.captain ? '<div class="fm-cap-badge">\u00A9</div>' : ''}
         <div class="fm-pc-body">
           ${fireInnerHtml(tier)}
-          <div class="fm-pc-bg"><img src="UCL-Fantasy-Friends-main/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
+          <div class="fm-pc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
           <div class="fm-pc-n">${shortName}</div>
           <div class="fm-pc-p ${ptsCls(pts)}">${pts}</div>
         </div>
@@ -2063,7 +1940,7 @@ function renderPitch() {
     return `<div class="fm-pc fm-pc-bench">
       <div class="fm-pc-body">
         <span class="fm-br-pos ${p.posCode}" style="position:absolute;top:7px;left:7px;z-index:2;">${p.posCode}</span>
-        <div class="fm-pc-bg"><img src="UCL-Fantasy-Friends-main/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
+        <div class="fm-pc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
         <div class="fm-pc-n">${bName}</div>
         <div class="fm-pc-p ${ptsCls(bpts)}">${bpts}</div>
       </div>
@@ -2085,7 +1962,7 @@ function renderPitch() {
       return `<div class="fm-pc fm-tc-pc fm-tc-${type}">
         <div class="fm-pc-body">
           <span class="fm-br-pos ${p.posCode}" style="position:absolute;top:7px;left:7px;z-index:2;">${p.posCode}</span>
-          <div class="fm-pc-bg"><img src="UCL-Fantasy-Friends-main/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
+          <div class="fm-pc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
           <div class="fm-pc-n">${tName}</div>
           <div class="fm-pc-p ${ptsCls(tpts)}">${tpts}</div>
         </div>
@@ -2323,11 +2200,20 @@ function pickBestXI(players) {
 }
 
 function buildTotwData(mode) {
+  if (mode === 'best' && allPlayers.length) {
+    // Global best XI from all available players
+    return allPlayers.map(p => ({
+      ...p,
+      ownerGuid: null,
+      ownerName: p.ownedBy && p.ownedBy.length ? p.ownedBy[0] : ''
+    }));
+  }
+  // Liga noastra — from our league rosters
   const playerMap = {};
   MANAGERS.forEach(mgr => {
     const roster = ROSTERS[mgr.guid];
     if (!roster) return;
-    const source = mode === 'liga' ? roster.starters : [...roster.starters, ...(roster.bench || [])];
+    const source = [...roster.starters, ...(roster.bench || [])];
     source.forEach(p => {
       const key = p.name + '|' + p.teamCode;
       if (!playerMap[key] || (p.pts || 0) > (playerMap[key].pts || 0)) {
@@ -2339,80 +2225,80 @@ function buildTotwData(mode) {
 }
 
 function renderTOTW() {
-  // Render read-only clasament in TOTW left
   renderClasament('totwClsList', false);
 
-  const players = buildTotwData(totwMode);
-  const result = pickBestXI(players);
-  const { squad, d, m, f, total } = result;
-  const formation = `${d}-${m}-${f}`;
-
-  // Count my players in TOTW
   const myRoster = ROSTERS[CURRENT_USER];
   const myNames = myRoster ? [...myRoster.starters, ...(myRoster.bench || [])].map(p => p.name) : [];
-  const myCount = squad.filter(p => myNames.includes(p.name)).length;
-
-  // Stats
-  document.getElementById('totwStats').innerHTML = `
-    <div class="totw-stat-block">
-      <div class="totw-stat-v fire">${total}</div>
-      <div class="totw-stat-l">Total Pts</div>
-    </div>
-    <div class="totw-stat-block">
-      <div class="totw-stat-v neon">${myCount}/11</div>
-      <div class="totw-stat-l">Ai mei</div>
-    </div>`;
-
-  // Group by position for pitch rows
-  const byPos = { GK: [], DEF: [], MID: [], FWD: [] };
-  squad.forEach(p => { if (byPos[p.posCode]) byPos[p.posCode].push(p); });
-
   const ptsCls = pts => pts >= 10 ? 'blaze' : pts >= 5 ? 'hi' : pts === 0 ? 'zero' : '';
 
-  const pitchRows = [byPos.FWD, byPos.MID, byPos.DEF, byPos.GK].filter(r => r.length).map(row => {
-    const cards = row.map(p => {
-      const pts = p.pts || 0;
-      const shortName = p.name.includes(' ') ? p.name.split(' ').pop() : p.name;
-      const tier = fireTier(p);
-      const isMine = myNames.includes(p.name);
-      const ownerMgr = MANAGERS.find(mg => mg.guid === p.ownerGuid);
-      const ownerColor = ownerMgr ? ownerMgr.color : '#666';
-      return `<div class="fm-pc totw-pc${p.captain ? ' cap' : ''}${tier ? ' fire-t'+tier : ''}${isMine ? ' is-mine' : ''}">
-        ${fireOuterHtml(tier)}
-        ${p.captain ? '<div class="fm-cap-badge">\u00A9</div>' : ''}
-        <div class="totw-mgr-badge" style="background:${ownerColor}">${ownerMgr ? initials(ownerMgr.username) : ''}</div>
-        <div class="fm-pc-body">
-          ${fireInnerHtml(tier)}
-          <div class="fm-pc-bg"><img src="UCL-Fantasy-Friends-main/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
-          <div class="fm-pc-n">${shortName}</div>
-          <div class="fm-pc-p ${ptsCls(pts)}">${pts}</div>
-        </div>
-        ${mdEventIcons(p)}
-      </div>`;
+  function buildPitchHtml(squad, d, m, f, label) {
+    const formation = `${d}-${m}-${f}`;
+    const total = squad.reduce((s,p) => s + (p.pts||0), 0);
+    const myCount = squad.filter(p => myNames.includes(p.name)).length;
+    const byPos = { GK:[], DEF:[], MID:[], FWD:[] };
+    squad.forEach(p => { if(byPos[p.posCode]) byPos[p.posCode].push(p); });
+
+    const pitchRows = [byPos.FWD, byPos.MID, byPos.DEF, byPos.GK].filter(r=>r.length).map(row => {
+      const cards = row.map(p => {
+        const pts = p.pts||0;
+        const shortName = p.name.includes(' ') ? p.name.split(' ').pop() : p.name;
+        const tier = fireTier(p);
+        const isMine = myNames.includes(p.name);
+        const ownerMgr = p.ownerGuid ? MANAGERS.find(mg=>mg.guid===p.ownerGuid) : null;
+        const ownerColor = ownerMgr ? ownerMgr.color : '#666';
+        const ownerBadge = ownerMgr ? `<div class="totw-mgr-badge" style="background:${ownerColor}">${initials(ownerMgr.username)}</div>` : '';
+        return `<div class="fm-pc totw-pc${p.captain?' cap':''}${tier?' fire-t'+tier:''}${isMine?' is-mine':''}">
+          ${fireOuterHtml(tier)}
+          ${p.captain?'<div class="fm-cap-badge">\u00A9</div>':''}
+          ${ownerBadge}
+          <div class="fm-pc-body">
+            ${fireInnerHtml(tier)}
+            <div class="fm-pc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
+            <div class="fm-pc-n">${shortName}</div>
+            <div class="fm-pc-p ${ptsCls(pts)}">${pts}</div>
+          </div>
+          ${mdEventIcons(p)}
+        </div>`;
+      }).join('');
+      return `<div class="fm-row">${cards}</div>`;
     }).join('');
-    return `<div class="fm-row">${cards}</div>`;
-  }).join('');
 
-  document.getElementById('totwPitchWrap').innerHTML = `
-    <div class="fm-sec-hdr">
-      <span class="fm-sec-lbl">${totwMode === 'liga' ? 'Liga Noastr\u0103' : 'Cea Mai Bun\u0103 XI'}</span>
-      <span class="fm-sec-line"></span>
+    return `
+      <div class="totw-half-title"><span class="totw-ht-accent">${label}</span> <span style="color:var(--muted);font-size:11px;font-weight:600;margin-left:auto;">${total} pts · ${myCount}/11 ai mei</span></div>
+      <div class="totw-form-tag">${formation}</div>
+      <div class="fm-pitch">
+        <div class="fm-pitch-cl"></div>
+        <div class="fm-pitch-cc"></div>
+        <div class="fm-pitch-gb top"></div>
+        <div class="fm-pitch-gb bot"></div>
+        ${pitchRows}
+      </div>`;
+  }
+
+  // Liga Noastra
+  const ligaPlayers = buildTotwData('liga');
+  const ligaXI = pickBestXI(ligaPlayers);
+  const ligaHtml = ligaXI.squad.length ? buildPitchHtml(ligaXI.squad, ligaXI.d, ligaXI.m, ligaXI.f, 'Liga Noastr\u0103') : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Se \u00eencarc\u0103...</div>';
+
+  // Cea Mai Buna XI (global)
+  const bestPlayers = buildTotwData('best');
+  const bestXI = pickBestXI(bestPlayers);
+  const bestHtml = bestXI.squad.length ? buildPitchHtml(bestXI.squad, bestXI.d, bestXI.m, bestXI.f, 'Cea Mai Bun\u0103 XI') : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Se \u00eencarc\u0103...</div>';
+
+  // Stats header
+  const totalPts = ligaXI.total + bestXI.total;
+  document.getElementById('totwStats').innerHTML = `
+    <div class="totw-stat-block">
+      <div class="totw-stat-v fire">${ligaXI.total}</div>
+      <div class="totw-stat-l">Liga Pts</div>
     </div>
-    <div class="totw-form-tag">${formation}</div>
-    <div class="fm-pitch">
-      <div class="fm-pitch-cl"></div>
-      <div class="fm-pitch-cc"></div>
-      <div class="fm-pitch-gb top"></div>
-      <div class="fm-pitch-gb bot"></div>
-      ${pitchRows}
+    <div class="totw-stat-block">
+      <div class="totw-stat-v neon">${bestXI.total}</div>
+      <div class="totw-stat-l">Global Pts</div>
     </div>`;
-}
 
-function switchTotwTab(el, mode) {
-  totwMode = mode;
-  document.querySelectorAll('.totw-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderTOTW();
+  document.getElementById('totwLiga').innerHTML = ligaHtml;
+  document.getElementById('totwBest').innerHTML = bestHtml;
 }
 
 // ═══════════════════════════════════════════
@@ -2420,7 +2306,7 @@ function switchTotwTab(el, mode) {
 // ═══════════════════════════════════════════
 function badgeHtml(code) {
   return `<div class="nav-fix-badge">
-    <img src="UCL-Fantasy-Friends-main/static/logos/${code}.png"
+    <img src="/static/logos/${code}.png"
          alt="${code}"
          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
     <span class="nav-fix-fallback">${code}</span>
@@ -2534,12 +2420,10 @@ document.addEventListener('click', e => {
 });
 
 // ─── INIT ───
-document.getElementById('mdLabel').textContent = `MD ${MD} (MD Curent)`;
-renderClasament();
-renderHeader();
-renderPitch();
-renderNavFixtures(); // shows loader
-loadFixturesFromAPI(); // async, replaces with real data
+document.getElementById('mdLabel').textContent = `MD ${MD}`;
+renderNavFixtures(); // shows "Se încarcă..." placeholder
+loadApiData(MD);     // fetch real data from Flask backend
+loadFixturesFromAPI(); // fetch UEFA fixtures
 
 
 // ── STATS MD DRAWER ─────────────────────────
