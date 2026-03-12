@@ -516,6 +516,9 @@ def build_data(matchday=10):
                 "localOwnership": len(owners),
                 "localPer": round(len(owners) / len(FRIENDS_IDS) * 100),
                 "ownedBy": owners,
+                "mdGoals": live_events.get(pid, {}).get("goals") or md_stat(pid, "goals", public_players, prev_players),
+                "mdAssists": live_events.get(pid, {}).get("assists") or md_stat(pid, "assists", public_players, prev_players),
+                "mdCleanSheet": (1 if pid in live_clean_sheet_pids else 0) or md_stat(pid, "cleanSheets", public_players, prev_players),
             }
         )
     all_players.sort(key=lambda x: x["totPts"], reverse=True)
@@ -979,6 +982,84 @@ def ucl_match(match_id: int):
         return JSONResponse({"error": str(e)}, status_code=502)
 
 
+@app.get("/api/match-detail/{match_id}")
+def match_detail(match_id: int):
+    """Returns combined match data: events, lineups, and fantasy scoring for a single match."""
+    import concurrent.futures
+
+    def fetch_match():
+        try:
+            r = requests.get(
+                f"https://match.uefa.com/v5/matches/{match_id}",
+                headers=MATCH_HEADERS, verify=False, timeout=10
+            )
+            return r.json() if r.status_code == 200 else {}
+        except Exception:
+            return {}
+
+    def fetch_lineups():
+        try:
+            r = requests.get(
+                f"https://match.uefa.com/v5/matches/{match_id}/lineups",
+                headers=MATCH_HEADERS, verify=False, timeout=10
+            )
+            return r.json() if r.status_code == 200 else {}
+        except Exception:
+            return {}
+
+    def fetch_fantasy():
+        try:
+            url = f"https://gaming.uefa.com/en/uclfantasy/services/feeds/scoring/live-scores_80_{match_id}.json"
+            r = requests.get(url, headers=PUBLIC_HEADERS, verify=False, timeout=10)
+            if r.status_code != 200:
+                return {}
+            raw = r.json()
+            data = raw.get("data", raw)
+            if isinstance(data, dict) and "value" in data:
+                data = data["value"]
+            # Build player scoring dict
+            p_points = data.get("pPoints", [])
+            pp_dict = {}
+            if isinstance(p_points, list):
+                for pp in p_points:
+                    if isinstance(pp, dict):
+                        pid = str(pp.get("pId", ""))
+                        if pid:
+                            pp_dict[pid] = pp.get("tPoints", 0) or 0
+            players = {}
+            for ps in data.get("pStats", []):
+                if not isinstance(ps, dict): continue
+                pid = str(ps.get("pId", ps.get("id", "")))
+                if not pid: continue
+                players[pid] = {
+                    "pts": pp_dict.get(pid, 0),
+                    "goals": ps.get("gS", 0) or 0,
+                    "assists": ps.get("gA", 0) or 0,
+                    "cs": 1 if ps.get("cS", 0) else 0,
+                    "yc": ps.get("yC", 0) or 0,
+                    "rc": ps.get("rC", 0) or 0,
+                    "saves": ps.get("saves", ps.get("sV", ps.get("sv", 0))) or 0,
+                    "mins": ps.get("oF", ps.get("mP", 0)) or 0,
+                }
+            return players
+        except Exception:
+            return {}
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as ex:
+        fut_match = ex.submit(fetch_match)
+        fut_lineups = ex.submit(fetch_lineups)
+        fut_fantasy = ex.submit(fetch_fantasy)
+        match_data = fut_match.result()
+        lineups_data = fut_lineups.result()
+        fantasy_data = fut_fantasy.result()
+
+    return JSONResponse(content={
+        "match": match_data,
+        "lineups": lineups_data,
+        "fantasy": fantasy_data
+    })
+
+
 @app.get("/api/data")
 def get_data(md: int = 10):
     with cache_lock:
@@ -1048,6 +1129,16 @@ def manual_refresh(md: int = 10):
 @app.get("/")
 def index():
     base = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base, "templates", "mockup.html")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return HTMLResponse(f.read())
+    return HTMLResponse("<h1>Eroare: templates/mockup.html lipseste din repo!</h1>", status_code=500)
+
+
+@app.get("/old")
+def index_old():
+    base = os.path.dirname(os.path.abspath(__file__))
     for path in [
         os.path.join(base, "templates", "index.html"),
         os.path.join(base, "index.html"),
@@ -1056,16 +1147,6 @@ def index():
             with open(path, encoding="utf-8") as f:
                 return HTMLResponse(f.read())
     return HTMLResponse("<h1>Eroare: templates/index.html lipseste din repo!</h1>", status_code=500)
-
-
-@app.get("/new")
-def mockup():
-    base = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(base, "templates", "mockup.html")
-    if os.path.exists(path):
-        with open(path, encoding="utf-8") as f:
-            return HTMLResponse(f.read())
-    return HTMLResponse("<h1>Eroare: templates/mockup.html lipseste din repo!</h1>", status_code=500)
 
 
 if __name__ == "__main__":

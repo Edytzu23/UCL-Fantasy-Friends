@@ -253,7 +253,7 @@ body::before {
   transition: color .2s;
 }
 .md-istoric:hover { color: var(--text); }
-.md-istoric::after { content: ' \u25BE'; font-size: 9px; }
+.md-istoric::after { content: ''; }
 
 .md-dropdown {
   display: none;
@@ -294,20 +294,14 @@ body::before {
 }
 .nav-icon-btn:hover { color: var(--text); background: var(--card2); border-color: rgba(255,255,255,.12); }
 
-.nav-avatar {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(0,240,255,.15), rgba(255,45,120,.1));
-  border: 1px solid rgba(0,240,255,.3);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--neon);
-  cursor: pointer;
-  box-shadow: 0 2px 12px rgba(0,240,255,.15);
-  text-shadow: 0 0 8px rgba(0,240,255,.5);
-}
+.nav-user-sel { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 700; color: var(--text); cursor: pointer; white-space: nowrap; user-select: none; transition: border-color .15s; }
+.nav-user-sel:hover { border-color: rgba(255,255,255,.2); }
+#navUserName { pointer-events: none; }
+.nav-user-dropdown { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: var(--surf); border: 1px solid var(--border); border-radius: 12px; min-width: 160px; z-index: 300; box-shadow: 0 8px 24px rgba(0,0,0,.4); overflow: hidden; }
+.nav-user-dropdown.open { display: block; }
+.nav-user-drop-item { padding: 9px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .1s; color: var(--text); }
+.nav-user-drop-item:hover { background: var(--card); }
+.nav-user-drop-item.active { color: var(--fire); }
 
 /* ─── MAIN LAYOUT ─── */
 .layout {
@@ -420,29 +414,25 @@ body::before {
 
 .cls-rank {
   width: 32px;
-  font-family: 'Clash Display', 'Barlow Condensed', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 20px;
-  font-weight: 700;
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--muted);
+  font-weight: 900;
+  color: var(--muted);
   text-align: center;
   flex-shrink: 0;
   line-height: 1;
 }
 .cls-rank.rank-gold {
   font-size: 22px;
-  -webkit-text-stroke: 2px #FFD700;
-  filter: drop-shadow(0 0 6px rgba(255,215,0,.4));
+  color: #FFD700;
 }
 .cls-rank.rank-silver {
   font-size: 22px;
-  -webkit-text-stroke: 2px #C0C0C0;
-  filter: drop-shadow(0 0 5px rgba(192,192,192,.35));
+  color: #C0C0C0;
 }
 .cls-rank.rank-bronze {
   font-size: 22px;
-  -webkit-text-stroke: 2px #CD7F32;
-  filter: drop-shadow(0 0 5px rgba(205,127,50,.35));
+  color: #CD7F32;
 }
 
 .cls-info { flex: 1; min-width: 0; }
@@ -463,15 +453,16 @@ body::before {
 }
 
 .cls-pts {
-  font-family: 'Clash Display', 'Barlow Condensed', sans-serif;
-  font-size: 22px;
-  font-weight: 700;
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--neon);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--text);
   flex-shrink: 0;
-  filter: drop-shadow(0 0 4px rgba(0,240,255,.25));
   line-height: 1;
 }
+.cls-pts.pts-etapa { color: var(--fire); }
+.cls-pts.pts-overall { color: #4CAF50; }
+.cls-pts.pts-ps5 { color: var(--text); }
 
 /* ─── CENTER PANEL ─── */
 .center-panel {
@@ -1223,8 +1214,8 @@ body::before {
   box-shadow: 0 2px 14px rgba(255,87,34,.35), 0 0 4px rgba(255,87,34,.2);
 }
 .totw-duo {
-  display: flex; flex-wrap: wrap; gap: 18px;
-  padding: 0 16px 20px;
+  display: flex; flex-wrap: wrap; gap: 28px;
+  padding: 0 24px 24px;
 }
 .totw-half {
   flex: 1 1 380px; min-width: 0;
@@ -1232,12 +1223,12 @@ body::before {
 }
 .totw-half .totw-half-title {
   font-family: 'Oswald', sans-serif;
-  font-size: 13px; font-weight: 700;
-  letter-spacing: .04em;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: .06em;
   color: var(--text);
   text-transform: uppercase;
-  margin-bottom: 8px;
-  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px;
 }
 .totw-half .totw-half-title .totw-ht-accent {
   color: var(--fire);
@@ -1273,6 +1264,7 @@ body::before {
   font-size: 9px; color: var(--muted);
   letter-spacing: 1px; text-transform: uppercase;
   font-weight: 600;
+  margin-top: 2px;
 }
 
 /* TOTW pitch container */
@@ -1336,6 +1328,91 @@ body::before {
   white-space: nowrap;
   z-index: 5;
   text-transform: uppercase;
+}
+
+/* ─── TOTW Wide-screen enhancements ─── */
+@media (min-width: 1200px) {
+  .totw-left {
+    width: 280px; min-width: 280px;
+    padding: 16px 14px;
+  }
+  .totw-duo {
+    gap: 36px;
+    padding: 0 32px 28px;
+  }
+  .totw-half .totw-half-title {
+    font-size: 17px;
+    letter-spacing: .07em;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+  .totw-half .fm-pitch {
+    min-height: 400px;
+    padding: 26px 12px 22px;
+  }
+  .totw-half .fm-pc { transform: scale(.94); }
+  .totw-half .fm-row { gap: 8px; }
+  .totw-half .totw-form-tag {
+    font-size: 12px;
+    letter-spacing: .06em;
+    margin-bottom: 6px;
+  }
+  .totw-pc {
+    width: 115px;
+  }
+  .totw-pc .fm-pc-body {
+    width: 108px;
+  }
+  .totw-pc .fm-pc-n { font-size: 14px; }
+  .totw-pc .fm-pc-p { font-size: 40px; }
+  .totw-stat-v {
+    font-size: 26px;
+  }
+  .totw-stat-l {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+  }
+  .totw-mgr-badge {
+    font-size: 9px;
+    padding: 2px 9px;
+  }
+  .totw-pitch-wrap {
+    padding: 26px 32px;
+  }
+  .totw-hdr {
+    padding: 18px 32px;
+  }
+  .totw-hdr-title {
+    font-size: 22px;
+    letter-spacing: 1.2px;
+  }
+  .totw-stats {
+    gap: 26px;
+  }
+}
+@media (min-width: 1500px) {
+  .totw-left {
+    width: 300px; min-width: 300px;
+  }
+  .totw-duo {
+    gap: 44px;
+    padding: 0 40px 32px;
+  }
+  .totw-half .fm-pc { transform: scale(1); }
+  .totw-half .fm-pitch {
+    min-height: 440px;
+    padding: 30px 16px 24px;
+  }
+  .totw-half .fm-row { gap: 12px; }
+  .totw-pc {
+    width: 120px;
+  }
+  .totw-pc .fm-pc-body {
+    width: 114px;
+  }
+  .totw-pitch-wrap {
+    padding: 30px 40px;
+  }
 }
 
 /* ── STATS MD DRAWER ── */
@@ -1488,6 +1565,10 @@ body::before {
 .diff-pos { color: #4CAF50; font-weight: 800; }
 .diff-neg { color: #EF5350; font-weight: 800; }
 .diff-zero { color: var(--muted); }
+.rank-diff { font-size: 9px; font-weight: 800; border-radius: 5px; padding: 1px 5px; line-height: 1.3; white-space: nowrap; margin-left: 6px; display: inline-block; vertical-align: middle; }
+.rank-diff-neg { background: rgba(239,68,68,.12); color: #EF5350; }
+.rank-diff-pos { background: rgba(76,175,80,.12); color: #4CAF50; }
+.rank-diff-eq { background: rgba(255,255,255,.07); color: var(--muted); }
 
 /* Settings icon active state */
 .nav-icon-btn.active-drawer {
@@ -1495,6 +1576,40 @@ body::before {
   background: rgba(255,87,34,.1);
   border-color: rgba(255,87,34,.25);
 }
+/* ── MATCH DETAIL MODAL ── */
+.match-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px}
+.match-modal{background:var(--surf);border:1px solid var(--border);border-radius:16px;max-width:860px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.match-modal-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.match-modal-score{display:flex;align-items:center;gap:16px;flex:1;justify-content:center}
+.match-modal-team{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:80px}
+.match-modal-team img{width:40px;height:40px;object-fit:contain}
+.match-modal-team-name{font-size:12px;font-weight:700;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.05em}
+.match-modal-scoreline{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px;text-align:center}
+.match-modal-status{font-size:10px;font-weight:800;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.match-modal-status.live{color:#EF5350}
+.match-modal-status.ft{color:#4CAF50}
+.match-modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:color .15s;flex-shrink:0}
+.match-modal-close:hover{color:var(--text)}
+.match-modal-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.match-modal-col{padding:16px 20px}
+.match-modal-col:first-child{border-right:1px solid var(--border)}
+.match-modal-col-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.match-player-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.match-player-row:last-child{border-bottom:none}
+.match-player-pos{font-size:9px;font-weight:800;padding:2px 5px;border-radius:4px;flex-shrink:0}
+.match-player-pos.GK{background:rgba(255,179,0,.15);color:#FFB300}
+.match-player-pos.DEF{background:rgba(76,175,80,.15);color:#4CAF50}
+.match-player-pos.MID{background:rgba(66,165,245,.15);color:#42A5F5}
+.match-player-pos.FWD{background:rgba(239,83,80,.15);color:#EF5350}
+.match-player-name{flex:1;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.match-player-name.sub{color:var(--muted);font-style:italic}
+.match-player-events{display:flex;gap:3px;align-items:center;flex-shrink:0}
+.match-player-pts{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;color:var(--muted);min-width:24px;text-align:right;flex-shrink:0}
+.match-player-pts.has-pts{color:var(--text)}
+.match-player-pts.fire-pts{color:var(--fire)}
+.match-ev-icon{font-size:11px;line-height:1}
+.match-sub-divider{font-size:10px;color:var(--muted);font-style:italic;padding:6px 0 2px}
+@media(max-width:600px){.match-modal-body{grid-template-columns:1fr}.match-modal-col:first-child{border-right:none;border-bottom:1px solid var(--border)}.match-modal-scoreline{font-size:32px}}
 </style>
 </head>
 <body>
@@ -1537,7 +1652,10 @@ body::before {
     <div class="nav-icon-btn" id="settingsBtn" title="Settings (Stats MD)" onclick="toggleStatsDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </div>
-    <div class="nav-avatar">E</div>
+    <div class="nav-user-sel" id="navUserSel" onclick="toggleUserDropdown()">
+      <span id="navUserName">—</span>
+      <div class="nav-user-dropdown" id="navUserDropdown"></div>
+    </div>
   </div>
 </nav>
 
@@ -1644,9 +1762,15 @@ const MGR_COLORS = ['#E64A19','#FF5722','#43A047','#1565C0','#C62828','#6A1B9A',
 
 async function loadApiData(md) {
   try {
-    const r = await fetch(`/api/data?md=${md}`);
-    const data = await r.json();
-    if (data.error) { console.error('API error:', data.error); return; }
+    let data;
+    if (mdCache[md]) {
+      data = mdCache[md];
+    } else {
+      const r = await fetch(`/api/data?md=${md}`);
+      data = await r.json();
+      if (data.error) { console.error('API error:', data.error); return; }
+      mdCache[md] = data;
+    }
 
     // Map managers
     MANAGERS = (data.managers || []).map((m, i) => ({
@@ -1664,6 +1788,8 @@ async function loadApiData(md) {
     const me = MANAGERS.find(m => /eduard/i.test(m.username));
     CURRENT_USER = me ? me.guid : (MANAGERS[0] ? MANAGERS[0].guid : null);
     selectedMgr = CURRENT_USER;
+    populateUserDropdown();
+    updateNavUserName();
 
     // Build rosters from manager players
     ROSTERS = {};
@@ -1711,9 +1837,9 @@ async function loadApiData(md) {
       teamCode: p.teamCode || '',
       team: p.team || '',
       pts: p.curGDPts || 0,
-      goals: p.goals || 0,
-      assists: p.assists || 0,
-      cs: (p.cleanSheets || 0) > 0,
+      goals: p.mdGoals || 0,
+      assists: p.mdAssists || 0,
+      cs: p.mdCleanSheet ? true : false,
       totPts: p.totPts || 0,
       selPer: p.selPer || 0,
       value: p.value || 0,
@@ -1749,6 +1875,24 @@ function switchMD(newMd) {
   loadFixturesFromAPI();
 }
 
+async function silentLoad(md) {
+  if (mdCache[md]) return;
+  try {
+    const r = await fetch(`/api/data?md=${md}`);
+    const data = await r.json();
+    mdCache[md] = data;
+  } catch(e) { /* silent fail */ }
+}
+
+async function loadAllMDs() {
+  await loadApiData(MD);
+  for (let i = 1; i <= TOTAL_MDS; i++) {
+    if (i === MD) continue;
+    await silentLoad(i);
+    await new Promise(r => setTimeout(r, 300));
+  }
+}
+
 // (ROSTERS populated by loadApiData)
 
 // ─── STATE ───
@@ -1762,6 +1906,8 @@ let scoutSortDir = 1; // 1=desc, -1=asc
 let scoutQuery = '';
 let totwMode = 'liga';
 let scoutDataCache = null;
+const TOTAL_MDS = 17;
+let mdCache = {};
 
 function getSorted() {
   const m = [...MANAGERS];
@@ -1787,12 +1933,25 @@ function renderClasament(targetId, clickable) {
   const list = document.getElementById(targetId);
   if (!list) return;
   const sorted = getSorted();
+  // Find current user's points for diff
+  const myMgr = MANAGERS.find(m => m.guid === CURRENT_USER);
+  const myMdPts = myMgr ? myMgr.gdPoints : 0;
+  const myOvPts = myMgr ? myMgr.ovPoints : 0;
   list.innerHTML = sorted.map((m, i) => {
     const rank = i + 1;
     const pts = currentSort === 'etapa' ? m.gdPoints : currentSort === 'overall' ? m.ovPoints : m.gdRank;
     const isMe = m.guid === CURRENT_USER;
     const isActive = m.guid === selectedMgr;
     const rankClass = rank === 1 ? 'cls-rank rank-gold' : rank === 2 ? 'cls-rank rank-silver' : rank === 3 ? 'cls-rank rank-bronze' : 'cls-rank';
+    // Compute diff badge
+    let diffHtml = '';
+    if (!isMe && currentSort !== 'ps5') {
+      const myPts = currentSort === 'etapa' ? myMdPts : myOvPts;
+      const diff = pts - myPts;
+      if (diff > 0) diffHtml = `<span class="rank-diff rank-diff-neg">-${diff}</span>`;
+      else if (diff < 0) diffHtml = `<span class="rank-diff rank-diff-pos">+${Math.abs(diff)}</span>`;
+      else diffHtml = `<span class="rank-diff rank-diff-eq">=</span>`;
+    }
     return `<div class="cls-row${isActive ? ' active' : ''}${isMe ? ' me' : ''}"${clickable ? ` onclick="selectMgr('${m.guid}')"` : ''}>
       <div class="${rankClass}">${rank}</div>
       <div class="cls-info">
@@ -1800,7 +1959,7 @@ function renderClasament(targetId, clickable) {
         <div class="cls-team">${m.teamName}</div>
       </div>
       <div style="text-align:right">
-        <div class="cls-pts">${currentSort === 'ps5' ? '#' + pts.toLocaleString() : pts}</div>
+        <div class="cls-pts pts-${currentSort}">${currentSort === 'ps5' ? '#' + pts.toLocaleString() : pts}${diffHtml}</div>
       </div>
     </div>`;
   }).join('');
@@ -1838,7 +1997,7 @@ function mdEventIcons(p) {
   let h = '<div class="fm-pc-events">';
   for (let i = 0; i < Math.min(goals, 3); i++) h += `<span class="fm-ev goal" title="Gol MD">${ball}</span>`;
   for (let i = 0; i < Math.min(assists, 3); i++) h += `<span class="fm-ev assist" title="Assist MD">${boot}</span>`;
-  if (cs) h += `<span class="fm-ev cs" title="Clean Sheet MD">${shield}</span>`;
+  if (cs && p.posCode !== 'FWD') h += `<span class="fm-ev cs" title="Clean Sheet MD">${shield}</span>`;
   return h + '</div>';
 }
 
@@ -2006,6 +2165,34 @@ function selectMgr(guid) {
   renderPitch();
 }
 
+function populateUserDropdown() {
+  const dd = document.getElementById('navUserDropdown');
+  if (!dd) return;
+  dd.innerHTML = MANAGERS.map(m =>
+    `<div class="nav-user-drop-item${m.guid === CURRENT_USER ? ' active' : ''}" onclick="switchGlobalUser('${m.guid}');event.stopPropagation()">${m.username}</div>`
+  ).join('');
+}
+
+function updateNavUserName() {
+  const el = document.getElementById('navUserName');
+  if (!el) return;
+  const m = MANAGERS.find(x => x.guid === CURRENT_USER);
+  if (m) el.textContent = m.username;
+}
+
+function toggleUserDropdown() {
+  document.getElementById('navUserDropdown').classList.toggle('open');
+}
+
+function switchGlobalUser(guid) {
+  CURRENT_USER = guid;
+  document.getElementById('navUserDropdown').classList.remove('open');
+  populateUserDropdown();
+  updateNavUserName();
+  renderClasament();
+  if (currentTab === 'totw') renderTOTW();
+}
+
 function switchClsTab(el, sort) {
   document.querySelectorAll('.cls-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
@@ -2021,6 +2208,9 @@ function toggleDropdown() {
 document.addEventListener('click', e => {
   if (!e.target.closest('.md-istoric')) {
     document.getElementById('mdDropdown').classList.remove('open');
+  }
+  if (!e.target.closest('.nav-user-sel')) {
+    document.getElementById('navUserDropdown').classList.remove('open');
   }
 });
 
@@ -2283,7 +2473,7 @@ function renderTOTW() {
   // Cea Mai Buna XI (global)
   const bestPlayers = buildTotwData('best');
   const bestXI = pickBestXI(bestPlayers);
-  const bestHtml = bestXI.squad.length ? buildPitchHtml(bestXI.squad, bestXI.d, bestXI.m, bestXI.f, 'Cea Mai Bun\u0103 XI') : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Se \u00eencarc\u0103...</div>';
+  const bestHtml = bestXI.squad.length ? buildPitchHtml(bestXI.squad, bestXI.d, bestXI.m, bestXI.f, 'Cel Mai Bun XI') : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Se \u00eencarc\u0103...</div>';
 
   // Stats header
   const totalPts = ligaXI.total + bestXI.total;
@@ -2324,12 +2514,12 @@ function renderNavFixtures() {
       `<span style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);padding:0 8px;">Se încarcă meciurile...</span>`;
     return;
   }
-  const chips = MD_FIXTURES.map(fix => {
+  const chips = MD_FIXTURES.map((fix, idx) => {
     const hasUser = myTeams.has(fix.home) || myTeams.has(fix.away);
     const scoreHtml = fix.scoreHome !== null
       ? `<span class="nav-fix-score">${fix.scoreHome}–${fix.scoreAway}</span>`
       : `<span class="nav-fix-vs">vs</span>`;
-    return `<div class="nav-fix-chip${hasUser ? ' has-user' : ''}" title="${fix.homeName} vs ${fix.awayName}">
+    return `<div class="nav-fix-chip${hasUser ? ' has-user' : ''}" title="${fix.homeName} vs ${fix.awayName}" onclick="showMatchModal(${idx})" style="cursor:pointer">
       ${badgeHtml(fix.home)}
       ${scoreHtml}
       ${badgeHtml(fix.away)}
@@ -2355,6 +2545,7 @@ async function loadFixturesFromAPI() {
       matchIds.map(mid =>
         fetch(`/api/ucl-match/${mid}`)
           .then(r => r.json())
+          .then(d => ({ ...d, _mId: mid }))
           .catch(() => null)
       )
     );
@@ -2367,6 +2558,7 @@ async function loadFixturesFromAPI() {
         const score = (d.score || {}).total || {};
         const live = d.status === 'FINISHED' || d.status === 'LIVE';
         return {
+          mId:       d._mId || d.id || null,
           home:      ht.teamCode || '',
           homeName:  ht.internationalName || ht.teamCode || '',
           away:      at.teamCode || '',
@@ -2419,10 +2611,106 @@ document.addEventListener('click', e => {
   }
 });
 
+// ─── MATCH DETAIL MODAL ───
+async function showMatchModal(idx) {
+  const fix = MD_FIXTURES[idx];
+  if (!fix || !fix.mId) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'match-modal-overlay';
+  overlay.id = 'matchModalOverlay';
+  overlay.innerHTML = `<div class="match-modal" style="display:flex;align-items:center;justify-content:center;min-height:200px"><div class="spinner"></div></div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeMatchModal(); });
+  document.body.appendChild(overlay);
+  try {
+    const r = await fetch(`/api/match-detail/${fix.mId}`);
+    const { match, lineups, fantasy } = await r.json();
+    const score = (match.score || {}).total || {};
+    const homeScore = score.home != null ? score.home : '?';
+    const awayScore = score.away != null ? score.away : '?';
+    const status = match.status || '';
+    const isLive = status === 'LIVE';
+    const isFT = status === 'FINISHED';
+    const minute = match.minute || match.liveMinute || '';
+    const homeName = (match.homeTeam || {}).internationalName || fix.homeName || '';
+    const awayName = (match.awayTeam || {}).internationalName || fix.awayName || '';
+    const scorers = ((match.playerEvents || {}).scorers || []).filter(s => s.goalType !== 'OWN_GOAL');
+    const scorerMap = {}, assistMap = {};
+    for (const s of scorers) {
+      const pid = String((s.player || {}).id || ''); if (pid) { scorerMap[pid] = (scorerMap[pid]||0)+1; }
+      const apid = String((s.assistPlayer || s.assist || {}).id || ''); if (apid) { assistMap[apid] = (assistMap[apid]||0)+1; }
+    }
+    const posMap = {G:'GK',D:'DEF',M:'MID',F:'FWD',GK:'GK',DEF:'DEF',MID:'MID',FWD:'FWD'};
+    function buildRow(p, isSub) {
+      const pid = String((p.player||{}).id||p.id||'');
+      const name = (p.player||{}).shortName||(p.player||{}).name||p.shortName||p.name||'?';
+      const pos = posMap[(p.player||{}).fieldPosition||p.fieldPosition||p.posCode||'']||'MID';
+      const fs = (fantasy||{})[pid]||{};
+      const pts = fs.pts||0, goals = fs.goals||scorerMap[pid]||0, assists = fs.assists||assistMap[pid]||0;
+      const cs = fs.cs||0, yc = fs.yc||0, rc = fs.rc||0;
+      let ev = '';
+      for(let g=0;g<Math.min(goals,4);g++) ev+='<span class="match-ev-icon">⚽</span>';
+      for(let a=0;a<Math.min(assists,4);a++) ev+='<span class="match-ev-icon">👟</span>';
+      if(cs && pos!=='FWD') ev+='<span class="match-ev-icon">🛡️</span>';
+      if(yc) ev+='<span class="match-ev-icon">🟨</span>';
+      if(rc) ev+='<span class="match-ev-icon">🟥</span>';
+      const ptsCls = pts>=10?'fire-pts':pts>0?'has-pts':'';
+      return `<div class="match-player-row"><span class="match-player-pos ${pos}">${pos}</span><span class="match-player-name${isSub?' sub':''}">${name}</span><span class="match-player-events">${ev}</span><span class="match-player-pts ${ptsCls}">${pts||'—'}</span></div>`;
+    }
+    function getSubs(team) {
+      const s = (team||{}).substitutions;
+      if(!s) return [];
+      if(Array.isArray(s)) return s.map(x=>x.playerIn||x).filter(Boolean);
+      if(s.playerIn) return Array.isArray(s.playerIn)?s.playerIn:[s.playerIn];
+      return [];
+    }
+    const hf = ((lineups||{}).homeTeam||{}).field||[];
+    const af = ((lineups||{}).awayTeam||{}).field||[];
+    const hs = getSubs((lineups||{}).homeTeam), as_ = getSubs((lineups||{}).awayTeam);
+    const statusLabel = isLive?`LIVE ${minute}'`:isFT?'Final':'Programat';
+    const statusCls = isLive?'live':isFT?'ft':'';
+    overlay.innerHTML = `<div class="match-modal">
+      <div class="match-modal-hdr">
+        <div class="match-modal-score">
+          <div class="match-modal-team">
+            <img src="/static/logos/${fix.home}.png" onerror="this.style.display='none'"/>
+            <div class="match-modal-team-name">${homeName}</div>
+          </div>
+          <div><div class="match-modal-scoreline">${homeScore} — ${awayScore}</div><div class="match-modal-status ${statusCls}">${statusLabel}</div></div>
+          <div class="match-modal-team">
+            <img src="/static/logos/${fix.away}.png" onerror="this.style.display='none'"/>
+            <div class="match-modal-team-name">${awayName}</div>
+          </div>
+        </div>
+        <button class="match-modal-close" onclick="closeMatchModal()">✕</button>
+      </div>
+      <div class="match-modal-body">
+        <div class="match-modal-col">
+          <div class="match-modal-col-title">${homeName}</div>
+          ${hf.map(p=>buildRow(p,false)).join('')}
+          ${hs.length?'<div class="match-sub-divider">Substituiți</div>'+hs.map(p=>buildRow(p,true)).join(''):''}
+        </div>
+        <div class="match-modal-col">
+          <div class="match-modal-col-title">${awayName}</div>
+          ${af.map(p=>buildRow(p,false)).join('')}
+          ${as_.length?'<div class="match-sub-divider">Substituiți</div>'+as_.map(p=>buildRow(p,true)).join(''):''}
+        </div>
+      </div>
+    </div>`;
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeMatchModal(); });
+  } catch(e) {
+    overlay.innerHTML = `<div class="match-modal" style="padding:40px;text-align:center;color:var(--muted)">Eroare la încărcare.</div>`;
+    overlay.addEventListener('click', ev => { if (ev.target === overlay) closeMatchModal(); });
+  }
+}
+function closeMatchModal() {
+  const el = document.getElementById('matchModalOverlay');
+  if (el) el.remove();
+}
+
 // ─── INIT ───
 document.getElementById('mdLabel').textContent = `MD ${MD}`;
 renderNavFixtures(); // shows "Se încarcă..." placeholder
-loadApiData(MD);     // fetch real data from Flask backend
+loadAllMDs();        // load current MD first, then preload all others into cache
 loadFixturesFromAPI(); // fetch UEFA fixtures
 
 
