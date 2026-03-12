@@ -14,7 +14,7 @@
     {
       "time": "22:45",
       "label": "HTM2",
-      "fired": false
+      "fired": true
     },
     {
       "time": "23:45",
