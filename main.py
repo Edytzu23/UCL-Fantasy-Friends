@@ -15,9 +15,13 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 @asynccontextmanager
 async def lifespan(app):
-    threading.Thread(target=lambda: refresh_cache(11), daemon=True).start()
+    # Load schedule first so get_current_matchday() knows which MD is live
+    load_live_schedule()
+    # Load old matchdays from GitHub cache (no UEFA API calls)
+    load_all_cached_mds()
+    # Only fetch current matchday live from UEFA
+    threading.Thread(target=lambda: refresh_cache(get_current_matchday()), daemon=True).start()
     threading.Thread(target=scheduler_loop, daemon=True).start()
-    threading.Thread(target=lambda: load_live_schedule(), daemon=True).start()
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -54,6 +58,70 @@ SKILL_TO_POS = {1: "GK", 2: "DEF", 3: "MID", 4: "FWD"}
 
 cache = {}
 cache_lock = threading.Lock()
+
+# ── GITHUB-BACKED MATCHDAY CACHE ─────────────────────────────────────────
+# Old matchdays are saved to GitHub as cache/md{XX}.json so Render can
+# load them on startup without hitting UEFA APIs.
+GH_CACHE_DIR = "cache"
+
+
+def save_md_cache(md, data):
+    """Persist full matchday build_data result to GitHub."""
+    if not GITHUB_TOKEN:
+        return
+    try:
+        path = f"{GH_CACHE_DIR}/md{md:02d}.json"
+        content_str = json.dumps(data, ensure_ascii=False)
+        _, sha = github_get_file(path)
+        ok = github_put_file(path, content_str, sha=sha,
+                             message=f"cache MD{md} — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+        if ok:
+            print(f"[GHCache] Saved MD{md} to GitHub")
+    except Exception as e:
+        print(f"[GHCache] Error saving MD{md}: {e}")
+
+
+def load_md_cache(md):
+    """Load a single matchday from GitHub cache. Returns dict or None."""
+    if not GITHUB_TOKEN:
+        return None
+    try:
+        path = f"{GH_CACHE_DIR}/md{md:02d}.json"
+        content, _ = github_get_file(path)
+        if content:
+            return json.loads(content)
+    except Exception as e:
+        print(f"[GHCache] Error loading MD{md}: {e}")
+    return None
+
+
+def load_all_cached_mds():
+    """Load all cached matchdays from GitHub into memory on startup."""
+    if not GITHUB_TOKEN:
+        print("[GHCache] No GITHUB_TOKEN — skipping cache load")
+        return
+    try:
+        url = f"{GH_API}/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{GH_CACHE_DIR}"
+        r = requests.get(url, headers=_gh_headers(), params={"ref": GITHUB_BRANCH})
+        if r.status_code != 200:
+            print(f"[GHCache] No cache dir on GitHub (status {r.status_code})")
+            return
+        files = [f["name"] for f in r.json() if f["name"].startswith("md") and f["name"].endswith(".json")]
+        loaded = 0
+        for fname in files:
+            try:
+                md = int(fname.replace("md", "").replace(".json", ""))
+                data = load_md_cache(md)
+                if data:
+                    with cache_lock:
+                        cache[md] = data
+                    loaded += 1
+            except (ValueError, Exception):
+                pass
+        if loaded:
+            print(f"[GHCache] Loaded {loaded} matchdays from GitHub")
+    except Exception as e:
+        print(f"[GHCache] Error listing cache: {e}")
 
 # ── LIVE SCORES CACHE ─────────────────────────────────────────────────────
 live_scores_cache = {}       # md -> {"data": {...}, "ts": float}
@@ -587,12 +655,24 @@ def build_data(matchday=11):
     }
 
 
+def get_current_matchday():
+    """Return the current live matchday from schedule, or fallback to max cached."""
+    with live_schedule_lock:
+        sched_md = live_schedule.get("matchday", 0)
+    if sched_md > 0:
+        return sched_md
+    return max(cache.keys()) if cache else 11
+
+
 def refresh_cache(matchday=11):
     try:
         public_players_cache.pop(matchday, None)  # clear stale player data
         data = build_data(matchday)
         with cache_lock:
             cache[matchday] = data
+        # Persist to GitHub so Render loads old MDs instantly next deploy
+        _md, _d = matchday, data
+        threading.Thread(target=lambda: save_md_cache(_md, _d), daemon=True).start()
         print(f"[{datetime.now().strftime('%H:%M:%S')}] Cache updated for MD{matchday}")
         return data
     except Exception as e:
@@ -633,7 +713,7 @@ def scheduler_loop():
         now = datetime.now()
         hm = (now.hour, now.minute)
         if hm in [(21, 45), (23, 15), (9, 0)]:
-            md = max(cache.keys()) if cache else 10
+            md = get_current_matchday()
             refresh_cache(md)
             last_periodic = time.time()
             time.sleep(90)  # don't double-trigger within same minute
@@ -1080,9 +1160,19 @@ def match_detail(match_id: int):
 
 @app.get("/api/data")
 def get_data(md: int = 11):
+    # Check in-memory cache first
     with cache_lock:
         if md in cache:
             return JSONResponse(cache[md])
+    # For old matchdays, try GitHub cache (no UEFA API calls needed)
+    current_md = get_current_matchday()
+    if md < current_md:
+        cached = load_md_cache(md)
+        if cached:
+            with cache_lock:
+                cache[md] = cached
+            return JSONResponse(cached)
+    # Current/unknown matchday — fetch live from UEFA
     data = refresh_cache(md)
     if data:
         return JSONResponse(data)
@@ -1091,7 +1181,7 @@ def get_data(md: int = 11):
 
 @app.get("/api/status")
 def get_status():
-    md = max(cache.keys()) if cache else 10
+    md = get_current_matchday()
     with cache_lock:
         data = cache.get(md)
     last_updated = data["lastUpdated"] if data else None
