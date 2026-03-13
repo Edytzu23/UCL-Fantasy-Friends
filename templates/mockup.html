@@ -1816,9 +1816,15 @@ async function loadApiData(md) {
       color: MGR_COLORS[i % MGR_COLORS.length]
     }));
 
-    // Detect current user (look for 'Eduard')
-    const me = MANAGERS.find(m => /eduard/i.test(m.username));
-    CURRENT_USER = me ? me.guid : (MANAGERS[0] ? MANAGERS[0].guid : null);
+    // Detect current user from URL param or fallback to 'Eduard'
+    const urlUser = new URLSearchParams(window.location.search).get('user');
+    if (urlUser) {
+      const match = MANAGERS.find(m => m.username.toLowerCase() === urlUser.toLowerCase());
+      CURRENT_USER = match ? match.guid : (MANAGERS[0]?.guid || null);
+    } else {
+      const me = MANAGERS.find(m => /eduard/i.test(m.username));
+      CURRENT_USER = me ? me.guid : (MANAGERS[0]?.guid || null);
+    }
     selectedMgr = CURRENT_USER;
     populateUserDropdown();
     updateNavUserName();

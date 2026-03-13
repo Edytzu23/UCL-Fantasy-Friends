@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PitchPulse — Cine ești?</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Barlow+Condensed:wght@400;600;700;800&family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --bg: #0a0c14;
+  --bg-outer: #060810;
+  --surf: #0f1120;
+  --card: #141828;
+  --border: rgba(0,240,255,.08);
+  --fire: #FF5722;
+  --green: #2E7D32;
+  --green-lt: #4CAF50;
+  --pitch-bg: #0D1F0E;
+  --neon: #00f0ff;
+  --neon-dim: rgba(0,240,255,.15);
+  --neon-pink: #ff2d78;
+  --text: #e0eaff;
+  --muted: #4a5580;
+  --sub: #7a88b0;
+  --gk: #FFB300;
+  --def: #4CAF50;
+  --mid: #42A5F5;
+  --fwd: #EF5350;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg-outer);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Noise overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  opacity: .03;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+
+.landing-frame {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 50% 30% at 20% 0%, rgba(0,240,255,.03), transparent),
+    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(255,45,120,.02), transparent);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px 48px;
+}
+
+/* Logo */
+.landing-logo {
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeSlideIn .5s ease forwards;
+}
+
+/* Title */
+.landing-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: clamp(40px, 8vw, 64px);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 32px;
+  background: linear-gradient(135deg, var(--text) 0%, var(--neon) 50%, var(--text) 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleIn .6s cubic-bezier(.34,1.56,.64,1) forwards, shimmer 4s ease-in-out infinite;
+  opacity: 0;
+  transform: scale(.95);
+}
+
+@keyframes titleIn {
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Pitch */
+.landing-pitch {
+  width: 100%;
+  max-width: 680px;
+  background: var(--pitch-bg);
+  background-image:
+    linear-gradient(rgba(46,125,50,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(46,125,50,.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(46,125,50,.3);
+  position: relative;
+  overflow: hidden;
+  padding: 40px 20px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 520px;
+  box-shadow:
+    0 4px 32px rgba(13,31,14,.6),
+    0 0 60px rgba(46,125,50,.08),
+    0 0 0 1px rgba(46,125,50,.15);
+  opacity: 0;
+  animation: fadeSlideIn .5s ease .15s forwards;
+}
+
+/* Top glow bar on pitch */
+.landing-pitch::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+}
+
+/* Pitch markings */
+.pitch-cl {
+  position: absolute;
+  top: 50%; left: 5%; right: 5%;
+  height: 2px;
+  background: rgba(255,255,255,.12);
+}
+.pitch-cc {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 1px solid rgba(46,125,50,.15);
+}
+.pitch-gb {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px; height: 26px;
+  border: 1px solid rgba(46,125,50,.15);
+}
+.pitch-gb.top { top: 0; border-top: none; border-radius: 0 0 5px 5px; }
+.pitch-gb.bot { bottom: 0; border-bottom: none; border-radius: 5px 5px 0 0; }
+
+/* Penalty arcs */
+.pitch-pa {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(46,125,50,.1);
+}
+.pitch-pa.top { top: 22px; border-top: none; }
+.pitch-pa.bot { bottom: 22px; border-bottom: none; }
+
+/* Formation rows */
+.pitch-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+/* User card */
+.user-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text);
+  cursor: pointer;
+  position: relative;
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1);
+  width: 108px;
+  opacity: 0;
+  animation: cardIn .4s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+.user-card:hover {
+  transform: translateY(-5px);
+}
+.user-card:focus-visible {
+  outline: 2px solid var(--neon);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+.user-card:active {
+  transform: scale(.95);
+}
+
+.user-card-body {
+  width: 100px;
+  background: #1A1F2A;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  padding: 12px 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+/* Position accent bar on the right */
+.user-card-body::after {
+  content: '';
+  position: absolute;
+  top: 8px; bottom: 8px; right: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+  background: var(--pos-color);
+  opacity: .6;
+  transition: opacity .15s ease;
+}
+
+.user-card:hover .user-card-body {
+  border-color: rgba(255,255,255,.2);
+}
+.user-card:hover .user-card-body::after {
+  opacity: 1;
+}
+
+/* Position-specific hover shadows */
+.user-card[data-pos="GK"]:hover .user-card-body {
+  box-shadow: 0 8px 24px rgba(255,179,0,.2), 0 0 0 1px rgba(255,179,0,.1);
+}
+.user-card[data-pos="DEF"]:hover .user-card-body {
+  box-shadow: 0 8px 24px rgba(76,175,80,.2), 0 0 0 1px rgba(76,175,80,.1);
+}
+.user-card[data-pos="MID"]:hover .user-card-body {
+  box-shadow: 0 8px 24px rgba(66,165,245,.2), 0 0 0 1px rgba(66,165,245,.1);
+}
+.user-card[data-pos="FWD"]:hover .user-card-body {
+  box-shadow: 0 8px 24px rgba(239,83,80,.2), 0 0 0 1px rgba(239,83,80,.1);
+}
+
+/* Avatar circle */
+.user-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--pos-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #0a0c14;
+  letter-spacing: .5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+/* Name */
+.user-name {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.2;
+  color: #fff;
+}
+
+/* Nickname */
+.user-nickname {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 9px;
+  font-style: italic;
+  color: var(--sub);
+  text-align: center;
+  line-height: 1.2;
+  max-width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Position badge */
+.user-pos {
+  font-family: 'Oswald', sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--pos-color);
+  background: rgba(0,0,0,.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+/* Disabled card (Coco) */
+.user-card.disabled {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+.user-card.disabled .user-card-body {
+  opacity: .25;
+  filter: grayscale(1);
+}
+
+/* Stagger animation delays per row */
+.row-fwd .user-card { animation-delay: .3s; }
+.row-mid .user-card { animation-delay: .45s; }
+.row-def .user-card { animation-delay: .6s; }
+.row-gk  .user-card { animation-delay: .75s; }
+
+/* Individual card stagger within row */
+.row-fwd .user-card:nth-child(1) { animation-delay: .3s; }
+.row-fwd .user-card:nth-child(2) { animation-delay: .36s; }
+.row-fwd .user-card:nth-child(3) { animation-delay: .42s; }
+
+.row-mid .user-card:nth-child(1) { animation-delay: .45s; }
+.row-mid .user-card:nth-child(2) { animation-delay: .51s; }
+.row-mid .user-card:nth-child(3) { animation-delay: .57s; }
+
+.row-def .user-card:nth-child(1) { animation-delay: .6s; }
+.row-def .user-card:nth-child(2) { animation-delay: .66s; }
+.row-def .user-card:nth-child(3) { animation-delay: .72s; }
+.row-def .user-card:nth-child(4) { animation-delay: .78s; }
+
+.row-gk .user-card:nth-child(1) { animation-delay: .85s; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(16px) scale(.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Subtitle hint */
+.landing-hint {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 20px;
+  text-align: center;
+  opacity: 0;
+  animation: fadeSlideIn .4s ease .9s forwards;
+  letter-spacing: .3px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .landing-pitch {
+    padding: 28px 10px 24px;
+    gap: 14px;
+    min-height: 440px;
+  }
+  .pitch-row { gap: 6px; }
+  .user-card { width: 78px; }
+  .user-card-body {
+    width: 72px;
+    padding: 8px 4px 7px;
+    gap: 4px;
+  }
+  .user-avatar { width: 32px; height: 32px; font-size: 12px; }
+  .user-name { font-size: 10px; }
+  .user-nickname { display: none; }
+  .user-pos { font-size: 7px; padding: 1px 5px; }
+  .pitch-cc { width: 50px; height: 50px; }
+  .pitch-gb { width: 80px; height: 20px; }
+}
+
+@media (max-width: 380px) {
+  .user-card { width: 68px; }
+  .user-card-body { width: 64px; padding: 6px 3px 5px; }
+  .user-avatar { width: 28px; height: 28px; font-size: 11px; }
+  .user-name { font-size: 9px; }
+}
+</style>
+</head>
+<body>
+
+<div class="landing-frame">
+  <img src="/static/brand-logo.png" alt="PitchPulse" class="landing-logo"/>
+
+  <h1 class="landing-title">Cine ești?</h1>
+
+  <div class="landing-pitch">
+    <!-- Pitch markings -->
+    <div class="pitch-cl"></div>
+    <div class="pitch-cc"></div>
+    <div class="pitch-gb top"></div>
+    <div class="pitch-gb bot"></div>
+    <div class="pitch-pa top"></div>
+    <div class="pitch-pa bot"></div>
+
+    <!-- FWD row -->
+    <div class="pitch-row row-fwd">
+      <a href="/dashboard?user=Memedine%20Zidane" class="user-card" data-pos="FWD" style="--pos-color: var(--fwd);">
+        <div class="user-card-body">
+          <div class="user-avatar">RA</div>
+          <div class="user-name">Radu</div>
+          <div class="user-nickname">Memedine Zidane</div>
+          <div class="user-pos">LW</div>
+        </div>
+      </a>
+      <a href="/dashboard?user=Eduard" class="user-card" data-pos="FWD" style="--pos-color: var(--fwd);">
+        <div class="user-card-body">
+          <div class="user-avatar">ED</div>
+          <div class="user-name">Eduard</div>
+          <div class="user-pos">ST</div>
+        </div>
+      </a>
+      <a href="/dashboard?user=Chirila" class="user-card" data-pos="FWD" style="--pos-color: var(--fwd);">
+        <div class="user-card-body">
+          <div class="user-avatar">PU</div>
+          <div class="user-name">Pui</div>
+          <div class="user-nickname">Chirila</div>
+          <div class="user-pos">RW</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- MID row -->
+    <div class="pitch-row row-mid">
+      <a href="/dashboard?user=Mircea" class="user-card" data-pos="MID" style="--pos-color: var(--mid);">
+        <div class="user-card-body">
+          <div class="user-avatar">MI</div>
+          <div class="user-name">Mircea</div>
+          <div class="user-pos">LM</div>
+        </div>
+      </a>
+      <a href="/dashboard?user=Pep%20Voicuiola" class="user-card" data-pos="MID" style="--pos-color: var(--mid);">
+        <div class="user-card-body">
+          <div class="user-avatar">VO</div>
+          <div class="user-name">Voiq</div>
+          <div class="user-nickname">Pep Voicuiola</div>
+          <div class="user-pos">CM</div>
+        </div>
+      </a>
+      <a href="/dashboard?user=Mihai" class="user-card" data-pos="MID" style="--pos-color: var(--mid);">
+        <div class="user-card-body">
+          <div class="user-avatar">MK</div>
+          <div class="user-name">Mike</div>
+          <div class="user-pos">RM</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- DEF row -->
+    <div class="pitch-row row-def">
+      <div class="user-card disabled" data-pos="DEF" style="--pos-color: var(--def);">
+        <div class="user-card-body">
+          <div class="user-avatar">CO</div>
+          <div class="user-name">Coco</div>
+          <div class="user-pos">LB</div>
+        </div>
+      </div>
+      <a href="/dashboard?user=Tiberiu" class="user-card" data-pos="DEF" style="--pos-color: var(--def);">
+        <div class="user-card-body">
+          <div class="user-avatar">TI</div>
+          <div class="user-name">Tibi</div>
+          <div class="user-pos">CB</div>
+        </div>
+      </a>
+      <a href="/dashboard?user=Andrei" class="user-card" data-pos="DEF" style="--pos-color: var(--def);">
+        <div class="user-card-body">
+          <div class="user-avatar">VO</div>
+          <div class="user-name">Voinea</div>
+          <div class="user-pos">CB</div>
+        </div>
+      </a>
+      <a href="/dashboard?user=Dudu" class="user-card" data-pos="DEF" style="--pos-color: var(--def);">
+        <div class="user-card-body">
+          <div class="user-avatar">DU</div>
+          <div class="user-name">Dudu</div>
+          <div class="user-pos">RB</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- GK row -->
+    <div class="pitch-row row-gk">
+      <a href="/dashboard?user=Dan" class="user-card" data-pos="GK" style="--pos-color: var(--gk);">
+        <div class="user-card-body">
+          <div class="user-avatar">DA</div>
+          <div class="user-name">Dan</div>
+          <div class="user-pos">GK</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <p class="landing-hint">Alege-ți identitatea pentru a vedea clasamentul</p>
+</div>
+
+</body>
+</html>

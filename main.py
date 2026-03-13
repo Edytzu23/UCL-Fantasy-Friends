@@ -1145,7 +1145,17 @@ def manual_refresh(md: int = 11):
 
 
 @app.get("/")
-def index():
+def landing():
+    base = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base, "templates", "landing.html")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return HTMLResponse(f.read())
+    return HTMLResponse("<h1>Eroare: templates/landing.html lipseste din repo!</h1>", status_code=500)
+
+
+@app.get("/dashboard")
+def dashboard():
     base = os.path.dirname(os.path.abspath(__file__))
     path = os.path.join(base, "templates", "mockup.html")
     if os.path.exists(path):
