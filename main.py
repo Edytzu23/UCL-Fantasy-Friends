@@ -9,12 +9,13 @@ from datetime import datetime, timedelta
 import threading
 import time
 import os
+import concurrent.futures
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 @asynccontextmanager
 async def lifespan(app):
-    threading.Thread(target=lambda: refresh_cache(10), daemon=True).start()
+    threading.Thread(target=lambda: refresh_cache(11), daemon=True).start()
     threading.Thread(target=scheduler_loop, daemon=True).start()
     threading.Thread(target=lambda: load_live_schedule(), daemon=True).start()
     yield
@@ -107,34 +108,33 @@ def fetch_public_players(matchday):
 
 
 def fetch_team_data(matchday, phase_id=2):
-    managers = []
-    for uid in FRIENDS_IDS:
+    def _fetch_one(uid):
         url = f"https://gaming.uefa.com/en/uclfantasy/services/api/Gameplay/user/{uid}/opponent-team"
         params = {"matchdayId": matchday, "phaseId": phase_id, "opponentguid": uid}
         try:
-            r = requests.get(
-                url, params=params, headers=HEADERS, verify=False, timeout=10
-            )
+            r = requests.get(url, params=params, headers=HEADERS, verify=False, timeout=10)
             if r.status_code == 200:
                 data = r.json()["data"]["value"]
-                managers.append(
-                    {
-                        "guid": uid,
-                        "username": data.get("username", "?"),
-                        "teamName": data.get("teamName", "?"),
-                        "gdPoints": data.get("gdPoints", 0) or 0,
-                        "gdRank": data.get("gdRank", 0) or 0,
-                        "ovPoints": data.get("ovPoints", 0) or 0,
-                        "ovRank": data.get("ovRank", 0) or 0,
-                        "captainId": data.get("captplayerid"),
-                        "rawPlayers": data.get("playerid", []),
-                    }
-                )
+                return {
+                    "guid": uid,
+                    "username": data.get("username", "?"),
+                    "teamName": data.get("teamName", "?"),
+                    "gdPoints": data.get("gdPoints", 0) or 0,
+                    "gdRank": data.get("gdRank", 0) or 0,
+                    "ovPoints": data.get("ovPoints", 0) or 0,
+                    "ovRank": data.get("ovRank", 0) or 0,
+                    "captainId": data.get("captplayerid"),
+                    "rawPlayers": data.get("playerid", []),
+                }
             else:
                 print(f"HTTP {r.status_code} for {uid[:8]}")
         except Exception as e:
             print(f"Error {uid[:8]}: {e}")
-    return managers
+        return None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as ex:
+        results = list(ex.map(_fetch_one, FRIENDS_IDS))
+    return [m for m in results if m is not None]
 
 
 public_players_cache = {}  # md -> players dict, cached in memory
@@ -179,32 +179,33 @@ def fetch_live_events(matchday):
     match_ids = fetch_match_ids(matchday)
     if not match_ids:
         return {}
-    events = {}  # pid -> {goals, assists}
-    live_teams = set()  # teams currently playing (for clean sheet calc)
-    conceded = set()  # teams that conceded a goal
-    team_players = {}  # team_id -> set of player_ids on pitch
-    for mid in match_ids:
+
+    def _process_match(mid):
+        """Process a single match: fetch events + lineups."""
+        local_events = {}
+        local_live_teams = set()
+        local_conceded = set()
+        local_team_players = {}
         try:
             r = requests.get(
                 f"https://match.uefa.com/v5/matches/{mid}",
                 headers=MATCH_HEADERS, verify=False, timeout=8
             )
             if r.status_code != 200:
-                continue
+                return local_events, local_live_teams, local_conceded, local_team_players
             m = r.json()
             status = m.get("status", "")
             if status not in ("LIVE", "FINISHED"):
-                continue
+                return local_events, local_live_teams, local_conceded, local_team_players
             home_id = m.get("homeTeam", {}).get("id")
             away_id = m.get("awayTeam", {}).get("id")
-            live_teams.add(home_id)
-            live_teams.add(away_id)
+            local_live_teams.add(home_id)
+            local_live_teams.add(away_id)
             score = m.get("score", {}).get("total", {})
             if (score.get("away") or 0) > 0:
-                conceded.add(home_id)
+                local_conceded.add(home_id)
             if (score.get("home") or 0) > 0:
-                conceded.add(away_id)
-            # Collect player events (goals + assists)
+                local_conceded.add(away_id)
             pe = m.get("playerEvents", {})
             for scorer in pe.get("scorers", []):
                 goal_type = scorer.get("goalType", "")
@@ -212,15 +213,13 @@ def fetch_live_events(matchday):
                     continue
                 pid = int(scorer.get("player", {}).get("id", 0))
                 if pid:
-                    events.setdefault(pid, {"goals": 0, "assists": 0})
-                    events[pid]["goals"] += 1
-                # Check for assist player
+                    local_events.setdefault(pid, {"goals": 0, "assists": 0})
+                    local_events[pid]["goals"] += 1
                 assist_player = scorer.get("assistPlayer") or scorer.get("assist", {})
                 if isinstance(assist_player, dict) and assist_player.get("id"):
                     apid = int(assist_player["id"])
-                    events.setdefault(apid, {"goals": 0, "assists": 0})
-                    events[apid]["assists"] += 1
-            # Collect lineup player IDs per team for clean sheet
+                    local_events.setdefault(apid, {"goals": 0, "assists": 0})
+                    local_events[apid]["assists"] += 1
             try:
                 r2 = requests.get(
                     f"https://match.uefa.com/v5/matches/{mid}/lineups",
@@ -232,14 +231,33 @@ def fetch_live_events(matchday):
                         pids = set()
                         for p in lineups.get(side, {}).get("field", []):
                             pids.add(int(p.get("player", {}).get("id", 0)))
-                        # include subs that came on
                         for p in lineups.get(side, {}).get("substitutions", {}).get("playerIn", []) if isinstance(lineups.get(side, {}).get("substitutions"), dict) else []:
                             pids.add(int(p.get("player", {}).get("id", 0)))
-                        team_players[tid] = pids
+                        local_team_players[tid] = pids
             except Exception:
                 pass
         except Exception as e:
             print(f"Error fetching match {mid}: {e}")
+        return local_events, local_live_teams, local_conceded, local_team_players
+
+    # Fetch all matches in parallel
+    events = {}
+    live_teams = set()
+    conceded = set()
+    team_players = {}
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(match_ids)) as ex:
+        results = list(ex.map(_process_match, match_ids))
+
+    for local_events, local_live_teams, local_conceded, local_team_players in results:
+        for pid, ev in local_events.items():
+            events.setdefault(pid, {"goals": 0, "assists": 0})
+            events[pid]["goals"] += ev["goals"]
+            events[pid]["assists"] += ev["assists"]
+        live_teams |= local_live_teams
+        conceded |= local_conceded
+        team_players.update(local_team_players)
+
     # Build clean sheet set: players on teams that haven't conceded AND are live/finished
     clean_sheet_pids = set()
     for tid in live_teams - conceded:
@@ -380,7 +398,7 @@ def fetch_world_leader_team(matchday, phase_id=2):
         return None
 
 
-def build_data(matchday=10):
+def build_data(matchday=11):
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Fetching MD{matchday}...")
 
     public_players = fetch_public_players_cached(matchday)
@@ -569,7 +587,7 @@ def build_data(matchday=10):
     }
 
 
-def refresh_cache(matchday=10):
+def refresh_cache(matchday=11):
     try:
         public_players_cache.pop(matchday, None)  # clear stale player data
         data = build_data(matchday)
@@ -831,7 +849,7 @@ def build_snapshot(md, data):
 
 
 @app.post("/api/snapshot/save")
-def save_snapshot(md: int = 10):
+def save_snapshot(md: int = 11):
     """Save a snapshot for the given MD to GitHub."""
     if not GITHUB_TOKEN:
         return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
@@ -872,7 +890,7 @@ def save_snapshot(md: int = 10):
 
 
 @app.get("/api/snapshot/load")
-def load_snapshot(md: int = 10):
+def load_snapshot(md: int = 11):
     """Load a snapshot for the given MD from GitHub."""
     if not GITHUB_TOKEN:
         return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
@@ -1061,7 +1079,7 @@ def match_detail(match_id: int):
 
 
 @app.get("/api/data")
-def get_data(md: int = 10):
+def get_data(md: int = 11):
     with cache_lock:
         if md in cache:
             return JSONResponse(cache[md])
@@ -1099,7 +1117,7 @@ def get_status():
 
 
 @app.get("/api/live-scores")
-def get_live_scores(md: int = 10):
+def get_live_scores(md: int = 11):
     """Return live fantasy scores. Cached for 30s."""
     now = time.time()
     with live_scores_lock:
@@ -1119,7 +1137,7 @@ def get_live_scores(md: int = 10):
 
 
 @app.post("/api/refresh")
-def manual_refresh(md: int = 10):
+def manual_refresh(md: int = 11):
     data = refresh_cache(md)
     if data:
         return JSONResponse({"status": "ok", "lastUpdated": data["lastUpdated"]})

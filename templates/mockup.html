@@ -1610,6 +1610,22 @@ body::before {
 .match-ev-icon{font-size:11px;line-height:1}
 .match-sub-divider{font-size:10px;color:var(--muted);font-style:italic;padding:6px 0 2px}
 @media(max-width:600px){.match-modal-body{grid-template-columns:1fr}.match-modal-col:first-child{border-right:none;border-bottom:1px solid var(--border)}.match-modal-scoreline{font-size:32px}}
+
+/* ── LOADING SKELETONS ── */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--card) 25%, rgba(255,255,255,.06) 50%, var(--card) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+.skeleton-row { height: 48px; margin-bottom: 8px; border-radius: 10px; }
+.skeleton-header { height: 80px; margin-bottom: 12px; border-radius: 12px; }
+.skeleton-pitch { height: 400px; border-radius: 16px; }
+.skeleton-chip { height: 32px; width: 100px; border-radius: 16px; display: inline-block; margin-right: 8px; }
 </style>
 </head>
 <body>
@@ -1627,7 +1643,12 @@ body::before {
     <div class="nav-tab" data-tab="totw">TOTW</div>
   </div>
 
-  <div class="nav-fixtures" id="navFixtures"></div>
+  <div class="nav-fixtures" id="navFixtures">
+    <div class="skeleton skeleton-chip"></div>
+    <div class="skeleton skeleton-chip"></div>
+    <div class="skeleton skeleton-chip"></div>
+    <div class="skeleton skeleton-chip"></div>
+  </div>
 
   <div class="nav-right">
     <div class="md-toggle">
@@ -1673,12 +1694,23 @@ body::before {
           <div class="cls-tab" onclick="switchClsTab(this,'ps5')">PS5</div>
         </div>
       </div>
-      <div class="cls-list" id="clsList"></div>
+      <div class="cls-list" id="clsList">
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+      </div>
     </div>
     <div class="center-panel">
-      <div id="fmHeader"></div>
+      <div id="fmHeader"><div class="skeleton skeleton-header"></div></div>
       <div class="fm-content">
-        <div class="fm-left" id="fmLeft"></div>
+        <div class="fm-left" id="fmLeft"><div class="skeleton skeleton-pitch"></div></div>
         <div class="fm-right" id="fmRight"></div>
       </div>
     </div>
