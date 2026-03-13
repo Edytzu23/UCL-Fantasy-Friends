@@ -4,7 +4,7 @@
     {
       "time": "20:30",
       "label": "HTM1",
-      "fired": false
+      "fired": true
     },
     {
       "time": "21:30",
