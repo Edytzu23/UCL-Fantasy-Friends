@@ -2677,11 +2677,20 @@ async function showMatchModal(idx) {
       const pid = String((s.player || {}).id || ''); if (pid) { scorerMap[pid] = (scorerMap[pid]||0)+1; }
       const apid = String((s.assistPlayer || s.assist || {}).id || ''); if (apid) { assistMap[apid] = (assistMap[apid]||0)+1; }
     }
-    const posMap = {G:'GK',D:'DEF',M:'MID',F:'FWD',GK:'GK',DEF:'DEF',MID:'MID',FWD:'FWD'};
+    const posMap = {G:'GK',D:'DEF',M:'MID',F:'FWD',GK:'GK',DEF:'DEF',MID:'MID',FWD:'FWD',GOALKEEPER:'GK',DEFENDER:'DEF',MIDFIELDER:'MID',FORWARD:'FWD'};
+    function getPlayerName(p) {
+      const pl = p.player || {};
+      if (pl.internationalName) return pl.internationalName;
+      const tr = pl.translations || {};
+      if (tr.shortName) return tr.shortName.EN || Object.values(tr.shortName)[0] || '?';
+      if (tr.name) return tr.name.EN || Object.values(tr.name)[0] || '?';
+      return pl.shortName || pl.name || p.shortName || p.name || '?';
+    }
     function buildRow(p, isSub) {
       const pid = String((p.player||{}).id||p.id||'');
-      const name = (p.player||{}).shortName||(p.player||{}).name||p.shortName||p.name||'?';
-      const pos = posMap[(p.player||{}).fieldPosition||p.fieldPosition||p.posCode||'']||'MID';
+      const name = getPlayerName(p);
+      const fantasyPlayer = allPlayers.find(x => String(x.id) === pid);
+      const pos = (fantasyPlayer && fantasyPlayer.posCode) || posMap[(p.player||{}).fieldPosition||p.fieldPosition||p.type||''] || 'MID';
       const fs = (fantasy||{})[pid]||{};
       const pts = fs.pts||0, goals = fs.goals||scorerMap[pid]||0, assists = fs.assists||assistMap[pid]||0;
       const cs = fs.cs||0, yc = fs.yc||0, rc = fs.rc||0;

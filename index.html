@@ -41,36 +41,79 @@ body {
   overflow-y: auto;
 }
 
-/* Noise overlay */
+/* 3D dark grass background */
 body::before {
   content: '';
   position: fixed; inset: 0;
-  opacity: .03;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 0;
+  background:
+    /* diagonal grass blade texture — dark and moody */
+    repeating-linear-gradient(
+      78deg,
+      transparent,
+      transparent 2px,
+      rgba(30,70,25,.06) 2px,
+      rgba(30,70,25,.06) 3px
+    ),
+    repeating-linear-gradient(
+      -65deg,
+      transparent,
+      transparent 3px,
+      rgba(20,55,18,.05) 3px,
+      rgba(20,55,18,.05) 4px
+    ),
+    /* mowing stripe pattern */
+    repeating-linear-gradient(
+      180deg,
+      rgba(25,65,22,.04),
+      rgba(25,65,22,.04) 40px,
+      rgba(15,45,12,.02) 40px,
+      rgba(15,45,12,.02) 80px
+    );
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  /* noise grain overlay for texture depth */
+  opacity: .04;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 180px;
 }
 
 .landing-frame {
-  background: var(--bg);
-  background-image:
-    radial-gradient(ellipse 50% 30% at 20% 0%, rgba(0,240,255,.03), transparent),
-    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(255,45,120,.02), transparent);
+  background:
+    /* stadium light cones from top corners */
+    radial-gradient(ellipse 60% 50% at 15% -10%, rgba(30,80,25,.15), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% -10%, rgba(30,80,25,.12), transparent 60%),
+    /* subtle center spotlight */
+    radial-gradient(ellipse 40% 35% at 50% 30%, rgba(40,100,35,.08), transparent),
+    /* vignette darkening at edges */
+    radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0,0,0,.4)),
+    /* base dark grass green */
+    linear-gradient(180deg, #060d05 0%, #0a1508 30%, #0c1a0a 60%, #071008 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 32px 16px 48px;
+  position: relative;
+  z-index: 2;
 }
 
-/* Logo */
+/* Logo — pinned top-left */
 .landing-logo {
-  height: 48px;
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  height: 190px;
   object-fit: contain;
-  margin-bottom: 20px;
   opacity: 0;
   animation: fadeSlideIn .5s ease forwards;
+  z-index: 100;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,.5));
 }
 
 /* Title */
@@ -416,7 +459,6 @@ body::before {
         <div class="user-card-body">
           <div class="user-avatar">RA</div>
           <div class="user-name">Radu</div>
-          <div class="user-nickname">Memedine Zidane</div>
           <div class="user-pos">LW</div>
         </div>
       </a>
@@ -431,7 +473,6 @@ body::before {
         <div class="user-card-body">
           <div class="user-avatar">PU</div>
           <div class="user-name">Pui</div>
-          <div class="user-nickname">Chirila</div>
           <div class="user-pos">RW</div>
         </div>
       </a>
@@ -450,7 +491,6 @@ body::before {
         <div class="user-card-body">
           <div class="user-avatar">VO</div>
           <div class="user-name">Voiq</div>
-          <div class="user-nickname">Pep Voicuiola</div>
           <div class="user-pos">CM</div>
         </div>
       </a>
