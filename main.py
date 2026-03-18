@@ -535,7 +535,7 @@ def build_data(matchday=11):
         for rp in mgr["rawPlayers"]:
             pid = int(rp["id"])
             pub = public_players.get(pid, {})
-            mdpts = rp.get("overallpoints") or 0
+            mdpts = rp.get("overallpoints") or pub.get("curGDPts", 0)
             is_captain = rp.get("iscaptain", 0) == 1
             is_starter = rp.get("benchposition", 0) == 0
 
@@ -618,7 +618,7 @@ def build_data(matchday=11):
             for rp in wl_raw["rawPlayers"]:
                 pid = int(rp["id"])
                 pub = public_players.get(pid, {})
-                mdpts = rp.get("overallpoints") or 0
+                mdpts = rp.get("overallpoints") or pub.get("curGDPts", 0)
                 is_captain = rp.get("iscaptain", 0) == 1
                 is_starter = rp.get("benchposition", 0) == 0
                 wl_players.append({
@@ -1159,7 +1159,9 @@ def match_detail(match_id: int):
 
 
 @app.get("/api/data")
-def get_data(md: int = 11):
+def get_data(md: int = None):
+    if md is None:
+        md = get_current_matchday()
     # Check in-memory cache first
     with cache_lock:
         if md in cache:
@@ -1207,7 +1209,9 @@ def get_status():
 
 
 @app.get("/api/live-scores")
-def get_live_scores(md: int = 11):
+def get_live_scores(md: int = None):
+    if md is None:
+        md = get_current_matchday()
     """Return live fantasy scores. Cached for 30s."""
     now = time.time()
     with live_scores_lock:

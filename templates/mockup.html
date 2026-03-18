@@ -1527,6 +1527,13 @@ body::before {
 .stats-status { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
 .stats-status.ok { background: rgba(76,175,80,.15); color: #4CAF50; }
 .stats-status.err { background: rgba(239,68,68,.15); color: #EF5350; }
+@keyframes livePulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.4;transform:scale(.7);} }
+#liveIndicator { align-items:center; gap:5px; padding:4px 10px; background:rgba(239,83,80,.12); border:1px solid rgba(239,83,80,.3); border-radius:6px; font-size:11px; font-weight:700; color:#EF5350; letter-spacing:.05em; cursor:default; }
+#liveIndicator .live-dot { width:6px; height:6px; background:#EF5350; border-radius:50%; display:block; animation:livePulse 1.2s ease-in-out infinite; }
+.snap-cp-btn { padding:6px 13px; border:1px solid rgba(255,255,255,.14); border-radius:6px; background:rgba(255,255,255,.05); color:var(--text); font-size:11px; font-weight:700; cursor:pointer; letter-spacing:.04em; transition:background .15s,border-color .15s; }
+.snap-cp-btn:hover { background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.25); }
+.snap-cp-btn.final { background:rgba(239,83,80,.12); color:#EF5350; border-color:rgba(239,83,80,.3); }
+.snap-cp-btn.final:hover { background:rgba(239,83,80,.22); }
 .stats-sel {
   background: var(--card2);
   border: 1px solid var(--border);
@@ -1610,6 +1617,24 @@ body::before {
 .match-ev-icon{font-size:11px;line-height:1}
 .match-sub-divider{font-size:10px;color:var(--muted);font-style:italic;padding:6px 0 2px}
 @media(max-width:600px){.match-modal-body{grid-template-columns:1fr}.match-modal-col:first-child{border-right:none;border-bottom:1px solid var(--border)}.match-modal-scoreline{font-size:32px}}
+/* match modal tabs */
+.match-modal-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 20px}
+.match-modal-tab{padding:10px 20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.match-modal-tab:hover{color:var(--sub)}
+.match-modal-tab.active{color:var(--fire);border-bottom-color:var(--fire)}
+.match-modal-tab-content{display:none}
+.match-modal-tab-content.active{display:block}
+/* timeline */
+.match-timeline{padding:16px 24px;max-height:55vh;overflow-y:auto}
+.tl-half-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);text-align:center;padding:10px 0 6px;border-bottom:1px solid var(--border-lt);margin-bottom:4px}
+.tl-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.tl-row:last-child{border-bottom:none}
+.tl-min{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--muted);min-width:32px;text-align:right;flex-shrink:0}
+.tl-icon{font-size:14px;flex-shrink:0;width:20px;text-align:center;display:inline-flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 2px rgba(255,68,68,.5)) drop-shadow(0 0 5px rgba(255,68,68,.25))}
+.tl-detail{flex:1;font-size:12px;font-weight:600;color:var(--text)}
+.tl-detail .tl-assist{color:var(--sub);font-weight:400;font-size:11px}
+.tl-team-crest{width:18px;height:18px;object-fit:contain;flex-shrink:0}
+.tl-empty{text-align:center;color:var(--muted);font-size:12px;padding:24px 0}
 
 /* ── LOADING SKELETONS ── */
 @keyframes shimmer {
@@ -1634,7 +1659,7 @@ body::before {
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="nav-logo">
-    <img src="Brand Design/Logo PLM Fantasy_faraBG.png" alt="PLM Fantasy League" style="height:40px;width:auto;object-fit:contain;"/>
+    <img src="/static/brand-logo.png" alt="PLM Fantasy League" style="height:40px;width:auto;object-fit:contain;"/>
   </div>
 
   <div class="nav-tabs">
@@ -1671,6 +1696,7 @@ body::before {
         </div>
       </div>
     </div>
+    <div id="liveIndicator" style="display:none;"><span class="live-dot"></span>LIVE</div>
     <div class="nav-icon-btn" id="settingsBtn" title="Settings (Stats MD)" onclick="toggleStatsDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </div>
@@ -1790,8 +1816,27 @@ let CURRENT_USER = null;
 let allPlayers = [];
 let worldLeader = null;
 let MD_FIXTURES = [];
+let livePollingInterval = null;
+let isPolling = false;
+let noLiveCount = 0;
+const LIVE_POLL_MS = 60000;
 
 const MGR_COLORS = ['#E64A19','#FF5722','#43A047','#1565C0','#C62828','#6A1B9A','#00838F','#4527A0','#AD1457','#EF6C00'];
+
+const NICKNAMES = {
+  'memedine zidane': 'Radu',
+  'eduard': 'Eduard',
+  'chirila': 'Pui',
+  'mircea': 'Mircea',
+  'pep voicuiola': 'Voiq',
+  'mihai': 'Mike',
+  'coco': 'Coco',
+  'tiberiu': 'Tibi',
+  'andrei': 'Voinea',
+  'dudu': 'Dudu',
+  'dan': 'Dan',
+};
+function nick(username) { return NICKNAMES[(username||'').toLowerCase()] || username; }
 
 async function loadApiData(md) {
   try {
@@ -1994,7 +2039,7 @@ function renderClasament(targetId, clickable) {
     return `<div class="cls-row${isActive ? ' active' : ''}${isMe ? ' me' : ''}"${clickable ? ` onclick="selectMgr('${m.guid}')"` : ''}>
       <div class="${rankClass}">${rank}</div>
       <div class="cls-info">
-        <div class="cls-name">${m.username}</div>
+        <div class="cls-name">${nick(m.username)}</div>
         <div class="cls-team">${m.teamName}</div>
       </div>
       <div style="text-align:right">
@@ -2052,9 +2097,9 @@ function renderHeader() {
   document.getElementById('fmHeader').innerHTML = `
     <div class="fm-hdr">
       <div class="fm-hdr-identity">
-        <div class="fm-avatar-lg">${initials(m.username)}</div>
+        <div class="fm-avatar-lg">${initials(nick(m.username))}</div>
         <div class="fm-hdr-info">
-          <div class="fm-mgr-name">${m.username}</div>
+          <div class="fm-mgr-name">${nick(m.username)}</div>
           <div class="fm-mgr-sub">${m.teamName}</div>
         </div>
       </div>
@@ -2208,7 +2253,7 @@ function populateUserDropdown() {
   const dd = document.getElementById('navUserDropdown');
   if (!dd) return;
   dd.innerHTML = MANAGERS.map(m =>
-    `<div class="nav-user-drop-item${m.guid === CURRENT_USER ? ' active' : ''}" onclick="switchGlobalUser('${m.guid}');event.stopPropagation()">${m.username}</div>`
+    `<div class="nav-user-drop-item${m.guid === CURRENT_USER ? ' active' : ''}" onclick="switchGlobalUser('${m.guid}');event.stopPropagation()">${nick(m.username)}</div>`
   ).join('');
 }
 
@@ -2216,7 +2261,7 @@ function updateNavUserName() {
   const el = document.getElementById('navUserName');
   if (!el) return;
   const m = MANAGERS.find(x => x.guid === CURRENT_USER);
-  if (m) el.textContent = m.username;
+  if (m) el.textContent = nick(m.username);
 }
 
 function toggleUserDropdown() {
@@ -2306,7 +2351,7 @@ function renderScouting() {
   if (chipsEl && !chipsEl.dataset.init) {
     chipsEl.dataset.init = '1';
     chipsEl.innerHTML = MANAGERS.map(m =>
-      `<div class="mgr-chip" data-guid="${m.guid}" style="--chip-color:${m.color}" onclick="toggleMgrChip('${m.guid}',this)">${initials(m.username)}</div>`
+      `<div class="mgr-chip" data-guid="${m.guid}" style="--chip-color:${m.color}" onclick="toggleMgrChip('${m.guid}',this)">${initials(nick(m.username))}</div>`
     ).join('');
   }
 
@@ -2475,7 +2520,7 @@ function renderTOTW() {
         const isMine = myNames.includes(p.name);
         const ownerMgr = p.ownerGuid ? MANAGERS.find(mg=>mg.guid===p.ownerGuid) : null;
         const ownerColor = ownerMgr ? ownerMgr.color : '#666';
-        const ownerBadge = ownerMgr ? `<div class="totw-mgr-badge" style="background:${ownerColor}">${initials(ownerMgr.username)}</div>` : '';
+        const ownerBadge = ownerMgr ? `<div class="totw-mgr-badge" style="background:${ownerColor}">${initials(nick(ownerMgr.username))}</div>` : '';
         return `<div class="fm-pc totw-pc${p.captain?' cap':''}${tier?' fire-t'+tier:''}${isMine?' is-mine':''}">
           ${fireOuterHtml(tier)}
           ${p.captain?'<div class="fm-cap-badge">\u00A9</div>':''}
@@ -2679,6 +2724,19 @@ async function showMatchModal(idx) {
       const apid = String((s.assistPlayer || s.assist || {}).id || ''); if (apid) { assistMap[apid] = (assistMap[apid]||0)+1; }
     }
     const posMap = {G:'GK',D:'DEF',M:'MID',F:'FWD',GK:'GK',DEF:'DEF',MID:'MID',FWD:'FWD',GOALKEEPER:'GK',DEFENDER:'DEF',MIDFIELDER:'MID',FORWARD:'FWD'};
+    const posOrder = {GK:0,DEF:1,MID:2,FWD:3};
+    function sortByPos(arr) { return [...arr].sort((a,b) => { const pa=posOrder[posMap[(a.player||{}).fieldPosition||a.fieldPosition||'']||'MID']; const pb=posOrder[posMap[(b.player||{}).fieldPosition||b.fieldPosition||'']||'MID']; return (pa!=null?pa:2)-(pb!=null?pb:2); }); }
+    const goalSvg = `<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#FF4444" stroke-width="1.3"/><path d="M10 4.5L13 7.5L11.8 11.5H8.2L7 7.5Z" stroke="#FF4444" stroke-width="1" stroke-linejoin="round" fill="none"/><line x1="10" y1="4.5" x2="10" y2="1.5" stroke="#FF4444" stroke-width=".8"/><line x1="13" y1="7.5" x2="17.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="11.8" y1="11.5" x2="15.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="8.2" y1="11.5" x2="4.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="7" y1="7.5" x2="2.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/></svg>`;
+    const ogSvg = `<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#FF4444" stroke-width="1.3"/><path d="M10 4.5L13 7.5L11.8 11.5H8.2L7 7.5Z" stroke="#FF4444" stroke-width="1" stroke-linejoin="round" fill="none"/><line x1="10" y1="4.5" x2="10" y2="1.5" stroke="#FF4444" stroke-width=".8"/><line x1="13" y1="7.5" x2="17.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="11.8" y1="11.5" x2="15.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="8.2" y1="11.5" x2="4.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="7" y1="7.5" x2="2.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="4" y1="4" x2="16" y2="16" stroke="#FF4444" stroke-width="1.5"/><line x1="16" y1="4" x2="4" y2="16" stroke="#FF4444" stroke-width="1.5"/></svg>`;
+    const ycSvg = `<svg width="12" height="15" viewBox="0 0 12 16" fill="none"><rect x="1" y="1" width="10" height="14" rx="1.5" fill="#FFD600" stroke="#BFA200" stroke-width=".8"/></svg>`;
+    const rcSvg = `<svg width="12" height="15" viewBox="0 0 12 16" fill="none"><rect x="1" y="1" width="10" height="14" rx="1.5" fill="#FF1744" stroke="#B71C1C" stroke-width=".8"/></svg>`;
+    function shortName(pl, p) {
+      const shirt = pl.clubShirtName || p.clubShirtName || '';
+      if (shirt) { const s = shirt.charAt(0).toUpperCase() + shirt.slice(1).toLowerCase(); return s; }
+      const full = pl.internationalName||pl.shortName||pl.name||p.internationalName||p.shortName||p.name||'?';
+      const parts = full.trim().split(/\s+/);
+      return parts.length > 1 ? parts[parts.length-1] : parts[0];
+    }
     function getPlayerName(p) {
       const pl = p.player || {};
       if (pl.internationalName) return pl.internationalName;
@@ -2716,6 +2774,48 @@ async function showMatchModal(idx) {
     const hs = getSubs((lineups||{}).homeTeam), as_ = getSubs((lineups||{}).awayTeam);
     const statusLabel = isLive?`LIVE ${minute}'`:isFT?'Final':'Programat';
     const statusCls = isLive?'live':isFT?'ft':'';
+    // Build timeline events
+    const homeTeamId = String((match.homeTeam||{}).id||'');
+    const allScorers = ((match.playerEvents||{}).scorers||[]);
+    const tlEvents = [];
+    for (const s of allScorers) {
+      const min = ((s.time||{}).minute)||0;
+      const pName = shortName(s.player||{}, s);
+      const isHome = String(s.teamId||'') === homeTeamId;
+      const isOG = s.goalType === 'OWN_GOAL';
+      const assist = s.assistPlayer || s.assist;
+      const aName = assist && typeof assist === 'object' ? shortName(assist, {}) : '';
+      tlEvents.push({ min, icon: isOG?ogSvg:goalSvg, label: pName + (isOG?' (autogol)':''), assist: aName, side: isHome?'home':'away', type: 'goal' });
+    }
+    // Cards from fantasy data — no minute info, so we add them grouped at the end
+    const allFieldPlayers = [...hf,...af,...hs,...as_];
+    for (const fp of allFieldPlayers) {
+      const pid = String((fp.player||{}).id||fp.id||'');
+      const fs = (fantasy||{})[pid]||{};
+      const pName = shortName(fp.player||{}, fp);
+      const fpPos = (fp.player||{}).fieldPosition||fp.fieldPosition||'';
+      const isHome = hf.includes(fp)||hs.includes(fp);
+      if (fs.yc) tlEvents.push({ min: 999, icon: ycSvg, label: pName, assist:'', side: isHome?'home':'away', type: 'card' });
+      if (fs.rc) tlEvents.push({ min: 999, icon: rcSvg, label: pName, assist:'', side: isHome?'home':'away', type: 'card' });
+    }
+    tlEvents.sort((a,b) => a.min - b.min);
+    const firstHalf = tlEvents.filter(e => e.min > 0 && e.min <= 45);
+    const secondHalf = tlEvents.filter(e => e.min > 45 && e.min < 999);
+    const noMinute = tlEvents.filter(e => e.min === 999);
+    function tlRow(e) {
+      const minStr = e.min < 999 ? `${e.min}'` : '';
+      const assistStr = e.assist ? ` <span class="tl-assist">(${e.assist})</span>` : '';
+      const teamLogo = e.side === 'home' ? fix.home : fix.away;
+      return `<div class="tl-row"><span class="tl-min">${minStr}</span><img class="tl-team-crest" src="/static/logos/${teamLogo}.png" onerror="this.style.display='none'"/><span class="tl-icon">${e.icon}</span><span class="tl-detail">${e.label}${assistStr}</span></div>`;
+    }
+    let tlHtml = '';
+    if (tlEvents.length === 0) {
+      tlHtml = '<div class="tl-empty">Nu sunt evenimente disponibile</div>';
+    } else {
+      if (firstHalf.length) { tlHtml += '<div class="tl-half-label">Prima Repriză</div>' + firstHalf.map(tlRow).join(''); }
+      if (secondHalf.length) { tlHtml += '<div class="tl-half-label">A Doua Repriză</div>' + secondHalf.map(tlRow).join(''); }
+      if (noMinute.length) { tlHtml += '<div class="tl-half-label">Cartonașe</div>' + noMinute.map(tlRow).join(''); }
+    }
     overlay.innerHTML = `<div class="match-modal">
       <div class="match-modal-hdr">
         <div class="match-modal-score">
@@ -2731,17 +2831,26 @@ async function showMatchModal(idx) {
         </div>
         <button class="match-modal-close" onclick="closeMatchModal()">✕</button>
       </div>
-      <div class="match-modal-body">
-        <div class="match-modal-col">
-          <div class="match-modal-col-title">${homeName}</div>
-          ${hf.map(p=>buildRow(p,false)).join('')}
-          ${hs.length?'<div class="match-sub-divider">Substituiți</div>'+hs.map(p=>buildRow(p,true)).join(''):''}
+      <div class="match-modal-tabs">
+        <div class="match-modal-tab active" onclick="switchMatchTab(this,'lineup')">Echipe</div>
+        <div class="match-modal-tab" onclick="switchMatchTab(this,'events')">Evenimente</div>
+      </div>
+      <div class="match-modal-tab-content active" data-tab="lineup">
+        <div class="match-modal-body">
+          <div class="match-modal-col">
+            <div class="match-modal-col-title">${homeName}</div>
+            ${sortByPos(hf).map(p=>buildRow(p,false)).join('')}
+            ${hs.length?'<div class="match-sub-divider">Substituiți</div>'+hs.map(p=>buildRow(p,true)).join(''):''}
+          </div>
+          <div class="match-modal-col">
+            <div class="match-modal-col-title">${awayName}</div>
+            ${sortByPos(af).map(p=>buildRow(p,false)).join('')}
+            ${as_.length?'<div class="match-sub-divider">Substituiți</div>'+as_.map(p=>buildRow(p,true)).join(''):''}
+          </div>
         </div>
-        <div class="match-modal-col">
-          <div class="match-modal-col-title">${awayName}</div>
-          ${af.map(p=>buildRow(p,false)).join('')}
-          ${as_.length?'<div class="match-sub-divider">Substituiți</div>'+as_.map(p=>buildRow(p,true)).join(''):''}
-        </div>
+      </div>
+      <div class="match-modal-tab-content" data-tab="events">
+        <div class="match-timeline">${tlHtml}</div>
       </div>
     </div>`;
     overlay.addEventListener('click', e => { if (e.target === overlay) closeMatchModal(); });
@@ -2754,12 +2863,21 @@ function closeMatchModal() {
   const el = document.getElementById('matchModalOverlay');
   if (el) el.remove();
 }
+function switchMatchTab(tabEl, tabName) {
+  const modal = tabEl.closest('.match-modal');
+  modal.querySelectorAll('.match-modal-tab').forEach(t => t.classList.remove('active'));
+  modal.querySelectorAll('.match-modal-tab-content').forEach(c => c.classList.remove('active'));
+  tabEl.classList.add('active');
+  const target = modal.querySelector(`.match-modal-tab-content[data-tab="${tabName}"]`);
+  if (target) target.classList.add('active');
+}
 
 // ─── INIT ───
 document.getElementById('mdLabel').textContent = `MD ${MD}`;
 renderNavFixtures(); // shows "Se încarcă..." placeholder
 loadAllMDs();        // load current MD first, then preload all others into cache
 loadFixturesFromAPI(); // fetch UEFA fixtures
+startLivePolling();  // check for live matches and auto-refresh
 
 
 // ── STATS MD DRAWER ─────────────────────────
@@ -2825,7 +2943,7 @@ async function showSnapDetail(md){
       h+=`<div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:4px;">Manageri</div>`;
       h+=`<table class="cmp-table"><thead><tr><th>Username</th><th class="r">GD Pts</th><th class="r">GD Rank</th><th class="r">OV Pts</th><th class="r">OV Rank</th></tr></thead><tbody>`;
       mgrs.forEach(m=>{
-        h+=`<tr><td style="font-weight:700">${m.username||m.teamName||'—'}</td><td class="r">${m.gdPoints??'—'}</td><td class="r">${m.gdRank??'—'}</td><td class="r">${m.ovPoints??'—'}</td><td class="r">${m.ovRank??'—'}</td></tr>`;
+        h+=`<tr><td style="font-weight:700">${nick(m.username)||m.teamName||'—'}</td><td class="r">${m.gdPoints??'—'}</td><td class="r">${m.gdRank??'—'}</td><td class="r">${m.ovPoints??'—'}</td><td class="r">${m.ovRank??'—'}</td></tr>`;
       });
       h+=`</tbody></table>`;
     }
@@ -3040,6 +3158,57 @@ async function fireManualSnap(){
   }
 }
 
+// ── Live Polling ──
+async function checkLiveStatus() {
+  try {
+    const r = await fetch(`/api/live-scores?md=${MD}`);
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data.live) {
+      noLiveCount = 0;
+      showLiveIndicator(true);
+      delete mdCache[MD];
+      await loadApiData(MD);
+    } else {
+      noLiveCount++;
+      if (noLiveCount >= 2) stopLivePolling();
+    }
+  } catch(e) { console.error('Live poll error:', e); }
+}
+
+function startLivePolling() {
+  if (isPolling) return;
+  isPolling = true; noLiveCount = 0;
+  checkLiveStatus();
+  livePollingInterval = setInterval(checkLiveStatus, LIVE_POLL_MS);
+}
+
+function stopLivePolling() {
+  isPolling = false;
+  if (livePollingInterval) { clearInterval(livePollingInterval); livePollingInterval = null; }
+  showLiveIndicator(false);
+}
+
+function showLiveIndicator(visible) {
+  const el = document.getElementById('liveIndicator');
+  if (el) el.style.display = visible ? 'flex' : 'none';
+}
+
+async function fireSnapLabel(label) {
+  const status = document.getElementById('liveSnapBtnStatus');
+  status.textContent = `Se salvează ${label}...`; status.className = 'stats-status';
+  try {
+    const r = await fetch(`/api/live-snapshot/fire?md=${MD}&label=${label}`, {method:'POST'});
+    const data = await r.json();
+    if (data.status === 'saved') {
+      status.textContent = `✓ ${label} salvat pentru MD${MD}`; status.className = 'stats-status ok';
+      await loadLiveSnapView();
+    } else {
+      status.textContent = 'Eroare: '+(data.error||'necunoscută'); status.className = 'stats-status err';
+    }
+  } catch(e) { status.textContent = 'Eroare de rețea'; status.className = 'stats-status err'; }
+}
+
 // ── Live Checkpoints ──
 async function loadLiveSnapView(){
   const pillsEl=document.getElementById('liveCpPills');
@@ -3151,7 +3320,7 @@ async function renderLiveCpDetail(idx){
       <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px;">Manageri</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;">${mgrRows.map(m=>
         `<span style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:11px;">
-          <span style="font-weight:700">${m.username}</span> ${diffH(m.gdDiff)}
+          <span style="font-weight:700">${nick(m.username)}</span> ${diffH(m.gdDiff)}
         </span>`
       ).join('')}</div>
     </div>`:''}
@@ -3197,6 +3366,20 @@ function renderRawCpTable(cp){
     </div>
   </div>
   <div class="stats-drawer-body">
+
+    <!-- LIVE SNAPSHOT MANUAL -->
+    <div class="stats-section">
+      <div class="stats-sec-title">Snapshot Live Manual</div>
+      <div class="stats-sec-desc">Salvează un checkpoint live pe GitHub pentru MD-ul curent. Apasă la pauză (HTM) sau la final (FTM / FINALMD).</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
+        <button class="snap-cp-btn" onclick="fireSnapLabel('HTM1')">HTM1</button>
+        <button class="snap-cp-btn" onclick="fireSnapLabel('FTM1')">FTM1</button>
+        <button class="snap-cp-btn" onclick="fireSnapLabel('HTM2')">HTM2</button>
+        <button class="snap-cp-btn" onclick="fireSnapLabel('FTM2')">FTM2</button>
+        <button class="snap-cp-btn final" onclick="fireSnapLabel('FINALMD')">FINALMD</button>
+      </div>
+      <div id="liveSnapBtnStatus" class="stats-status" style="margin-top:8px;"></div>
+    </div>
 
     <!-- SNAPSHOT SAVE -->
     <div class="stats-section">
