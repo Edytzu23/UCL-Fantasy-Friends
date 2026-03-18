@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>PitchPulse Mobile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=DM+Sans:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0c14;
+  --surf: #0f1120;
+  --card: #141828;
+  --card2: #1a2035;
+  --border: rgba(0,240,255,.08);
+  --border2: rgba(0,240,255,.15);
+  --fire: #FF5722;
+  --fire2: #FF8A65;
+  --neon: #00f0ff;
+  --neon-pink: #ff3cac;
+  --text: #e0eaff;
+  --muted: rgba(224,234,255,.4);
+  --sub: rgba(224,234,255,.6);
+  --pitch-bg: #0D1F0E;
+  --pitch-line: rgba(255,255,255,.12);
+  --gk: #FFB300; --def: #4CAF50; --mid: #42A5F5; --fwd: #EF5350;
+  --r: 14px; --rsm: 10px;
+  --nav-h: 64px;
+  --top-h: 52px;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow: hidden; }
+
+/* ── TOP BAR ── */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--top-h);
+  background: rgba(10,12,20,.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border2);
+  display: flex; align-items: center; padding: 0 12px; gap: 10px;
+}
+.top-logo { height: 28px; width: auto; }
+.top-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 700; letter-spacing: .04em;
+  color: var(--text); flex: 1;
+}
+.top-title span { color: var(--fire); }
+
+/* MD Dropdown */
+.md-btn {
+  background: var(--card2); border: 1px solid var(--border2);
+  color: var(--text); font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .06em;
+  padding: 5px 10px; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s;
+}
+.md-btn:active { background: var(--card); }
+.md-btn svg { opacity: .6; }
+
+.md-dropdown-wrap { position: relative; }
+.md-dropdown {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: var(--rsm); min-width: 120px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  display: none; z-index: 200; max-height: 260px; overflow-y: auto;
+}
+.md-dropdown.open { display: block; }
+.md-opt {
+  padding: 9px 14px; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 600; letter-spacing: .04em;
+  cursor: pointer; transition: background .1s;
+}
+.md-opt:hover, .md-opt.active { background: var(--card2); color: var(--neon); }
+
+/* User selector */
+.user-btn {
+  background: var(--card2); border: 1px solid var(--border2);
+  color: var(--text); font-size: 12px; font-weight: 600;
+  padding: 5px 9px; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  -webkit-tap-highlight-color: transparent;
+  max-width: 80px; overflow: hidden;
+}
+.user-btn-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.user-avatar-sm {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif;
+}
+.user-dropdown {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: var(--rsm); min-width: 130px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  display: none; z-index: 200; max-height: 300px; overflow-y: auto;
+}
+.user-dropdown.open { display: block; }
+.user-drop-item {
+  padding: 9px 14px; font-size: 13px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
+  transition: background .1s;
+}
+.user-drop-item:hover, .user-drop-item.active { background: var(--card2); }
+.user-drop-item.active .user-drop-name { color: var(--neon); }
+.user-drop-avatar { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; }
+
+/* ── TAB BODY ── */
+.tab-body {
+  position: fixed;
+  top: var(--top-h); bottom: var(--nav-h); left: 0; right: 0;
+  overflow: hidden;
+}
+.view {
+  display: none; position: absolute; inset: 0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+.view.active { display: block; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  height: var(--nav-h);
+  background: rgba(10,12,20,.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border2);
+  display: flex; align-items: stretch;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.bnav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 4px; background: none; border: none;
+  color: var(--muted); cursor: pointer; transition: color .2s;
+  -webkit-tap-highlight-color: transparent; padding: 8px 0;
+  font-family: 'DM Sans', sans-serif;
+}
+.bnav-btn.active { color: var(--neon); }
+.bnav-btn .bnav-icon { display: flex; transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
+.bnav-btn.active .bnav-icon { transform: translateY(-2px); }
+.bnav-label { font-size: 10px; font-weight: 600; letter-spacing: .04em; }
+.bnav-btn.active .bnav-label { color: var(--neon); }
+
+/* ── CLASAMENT VIEW ── */
+.cls-view-body { padding: 10px 12px 16px; }
+.cls-sort-tabs {
+  display: flex; gap: 6px; margin-bottom: 12px;
+  padding: 3px; background: var(--surf); border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.cls-sort-tab {
+  flex: 1; padding: 7px 0; background: none; border: none;
+  color: var(--muted); font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .06em;
+  border-radius: 8px; cursor: pointer; transition: background .15s, color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.cls-sort-tab.active {
+  background: var(--card2); color: var(--text);
+}
+
+/* Manager cards */
+.mgr-card {
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: var(--r); margin-bottom: 8px; overflow: hidden;
+  transition: border-color .2s;
+}
+.mgr-card.me { border-color: rgba(255,87,34,.3); }
+.mgr-card.expanded { border-color: var(--border2); }
+
+.mgr-card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mgr-rank {
+  font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700;
+  min-width: 28px; text-align: center;
+}
+.mgr-rank.gold { color: #FFD700; }
+.mgr-rank.silver { color: #C0C0C0; }
+.mgr-rank.bronze { color: #CD7F32; }
+.mgr-rank.normal { color: var(--muted); }
+
+.mgr-avatar {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700;
+}
+.mgr-info { flex: 1; min-width: 0; }
+.mgr-nick { font-weight: 600; font-size: 14px; line-height: 1.2; }
+.mgr-team { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.mgr-pts-col { text-align: right; flex-shrink: 0; }
+.mgr-pts { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; line-height: 1; }
+.mgr-pts.fire-col { color: var(--fire); }
+.mgr-pts-label { font-size: 10px; color: var(--muted); letter-spacing: .06em; }
+
+.mgr-diff { font-size: 11px; font-weight: 700; padding: 2px 5px; border-radius: 5px; margin-left: 4px; }
+.diff-pos { background: rgba(76,175,80,.15); color: #4CAF50; }
+.diff-neg { background: rgba(239,83,80,.15); color: #ef5350; }
+.diff-eq { background: rgba(224,234,255,.08); color: var(--muted); }
+
+.mgr-expand-arrow { color: var(--muted); transition: transform .2s cubic-bezier(.34,1.56,.64,1); flex-shrink: 0; }
+.mgr-card.expanded .mgr-expand-arrow { transform: rotate(180deg); }
+
+/* Squad expansion */
+.mgr-squad { display: none; border-top: 1px solid var(--border); padding: 12px 14px; }
+.mgr-card.expanded .mgr-squad { display: block; }
+
+.squad-pos-group { margin-bottom: 10px; }
+.squad-pos-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  color: var(--muted); margin-bottom: 6px; text-transform: uppercase;
+}
+.squad-players { display: flex; flex-wrap: wrap; gap: 5px; }
+.squad-player {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--card); border-radius: 8px; padding: 6px 8px;
+  min-width: 0; flex: 1; min-width: calc(50% - 3px); max-width: calc(50% - 3px);
+}
+.squad-player.bench { opacity: .6; }
+.squad-player.captain { border: 1px solid rgba(255,215,0,.35); }
+.squad-team-logo {
+  width: 22px; height: 22px; flex-shrink: 0;
+  object-fit: contain; filter: drop-shadow(0 1px 3px rgba(0,0,0,.6));
+}
+.squad-player-name { font-size: 12px; font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.squad-player-pts { font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.squad-player-pts.blaze { color: var(--fire); }
+.squad-player-pts.hi { color: var(--neon); }
+.squad-player-pts.zero { color: var(--muted); }
+.cap-badge { font-size: 9px; font-weight: 700; background: rgba(255,215,0,.2); color: #FFD700; border-radius: 4px; padding: 1px 3px; flex-shrink: 0; }
+
+/* ── TOTW VIEW ── */
+.totw-view-body { padding: 10px 12px 16px; }
+.totw-toggle {
+  display: flex; gap: 6px; margin-bottom: 14px;
+  padding: 3px; background: var(--surf); border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.totw-toggle-btn {
+  flex: 1; padding: 8px 0; background: none; border: none;
+  color: var(--muted); font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .06em;
+  border-radius: 8px; cursor: pointer; transition: background .15s, color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.totw-toggle-btn.active { background: var(--card2); color: var(--text); }
+
+.totw-pitch-wrap { position: relative; width: 100%; }
+.totw-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px; padding: 0 2px;
+}
+.totw-meta-left { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); }
+.totw-meta-left span { color: var(--fire); }
+.totw-meta-right { font-size: 12px; color: var(--muted); text-align: right; }
+.totw-meta-pts { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--neon); }
+.totw-form-tag {
+  display: inline-block; background: rgba(0,240,255,.1); border: 1px solid rgba(0,240,255,.2);
+  color: var(--neon); font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: .1em;
+  padding: 3px 8px; border-radius: 6px; margin-bottom: 10px;
+}
+
+/* Mobile Pitch */
+.mob-pitch {
+  background: var(--pitch-bg); border-radius: var(--r);
+  border: 1px solid rgba(255,255,255,.06);
+  padding: 14px 8px; position: relative; overflow: hidden;
+}
+.mob-pitch::before {
+  content: ''; position: absolute; top: 50%; left: 5%; right: 5%;
+  height: 1px; background: var(--pitch-line);
+}
+.mob-pitch::after {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 1px solid var(--pitch-line);
+}
+.mob-pitch-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; }
+.mob-pitch-row:last-child { margin-bottom: 0; }
+
+/* Mobile pitch cards */
+.mob-pc {
+  position: relative; width: 68px; flex-shrink: 0;
+  background: rgba(15,17,32,.85); border: 1px solid rgba(0,240,255,.1);
+  border-radius: 10px; padding: 6px 4px; text-align: center;
+  overflow: hidden; transition: border-color .2s;
+}
+.mob-pc.is-mine { border-color: rgba(255,87,34,.4); }
+.mob-pc.cap { border-color: rgba(255,215,0,.5); }
+.mob-pc-bg {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  pointer-events: none; opacity: .08;
+}
+.mob-pc-bg img { width: 42px; height: 42px; object-fit: contain; }
+.mob-pc-body { position: relative; }
+.mob-pc-n { font-size: 10px; font-weight: 600; line-height: 1.2; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mob-pc-pts { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; line-height: 1; }
+.mob-pc-pts.blaze { color: var(--fire); }
+.mob-pc-pts.hi { color: var(--neon); }
+.mob-pc-pts.zero { color: var(--muted); }
+.mob-owner-badge {
+  position: absolute; top: 3px; right: 3px; width: 14px; height: 14px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 6px; font-weight: 800; font-family: 'Barlow Condensed', sans-serif;
+  color: #fff; z-index: 2;
+}
+.mob-cap-badge {
+  position: absolute; top: 3px; left: 3px;
+  background: rgba(255,215,0,.25); color: #FFD700;
+  font-size: 8px; font-weight: 800; border-radius: 3px; padding: 1px 3px; z-index: 2;
+}
+
+/* TOTW stats strip */
+.totw-stats-strip {
+  display: flex; gap: 10px; margin-bottom: 14px;
+}
+.totw-stat-chip {
+  flex: 1; background: var(--surf); border: 1px solid var(--border);
+  border-radius: var(--rsm); padding: 10px 12px; text-align: center;
+}
+.totw-stat-val { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; }
+.totw-stat-val.fire { color: var(--fire); }
+.totw-stat-val.neon { color: var(--neon); }
+.totw-stat-lbl { font-size: 10px; color: var(--muted); letter-spacing: .06em; margin-top: 2px; }
+
+/* ── SCOUTING VIEW ── */
+.scout-view-body { padding: 10px 12px 16px; }
+.scout-search-wrap { position: relative; margin-bottom: 10px; }
+.scout-search {
+  width: 100%; background: var(--surf); border: 1px solid var(--border2);
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+  padding: 10px 14px 10px 38px; border-radius: var(--rsm); outline: none;
+  transition: border-color .2s;
+}
+.scout-search:focus { border-color: rgba(0,240,255,.35); }
+.scout-search::placeholder { color: var(--muted); }
+.scout-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); opacity: .4; pointer-events: none; }
+
+.scout-pos-chips { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.scout-pos-chips::-webkit-scrollbar { display: none; }
+.pos-chip {
+  flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
+  background: var(--surf); border: 1px solid var(--border);
+  color: var(--muted); font-size: 12px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .06em; cursor: pointer; transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pos-chip.active { color: var(--text); }
+.pos-chip[data-pos="ALL"].active { background: var(--card2); border-color: var(--border2); color: var(--text); }
+.pos-chip[data-pos="GK"].active { background: rgba(255,179,0,.12); border-color: rgba(255,179,0,.3); color: var(--gk); }
+.pos-chip[data-pos="DEF"].active { background: rgba(76,175,80,.12); border-color: rgba(76,175,80,.3); color: var(--def); }
+.pos-chip[data-pos="MID"].active { background: rgba(66,165,245,.12); border-color: rgba(66,165,245,.3); color: var(--mid); }
+.pos-chip[data-pos="FWD"].active { background: rgba(239,83,80,.12); border-color: rgba(239,83,80,.3); color: var(--fwd); }
+
+.scout-sort-row { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.scout-sort-row::-webkit-scrollbar { display: none; }
+.scout-sort-btn {
+  flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
+  background: var(--surf); border: 1px solid var(--border);
+  color: var(--muted); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.scout-sort-btn.active { background: var(--card2); border-color: var(--border2); color: var(--neon); }
+
+/* Scout player row */
+.scout-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: var(--rsm); padding: 10px 12px; margin-bottom: 6px;
+  transition: border-color .15s;
+}
+.scout-row.mine { border-color: rgba(255,87,34,.25); }
+
+.scout-ring { position: relative; flex-shrink: 0; }
+.scout-ring-pct {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-size: 9px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif;
+}
+.scout-info { flex: 1; min-width: 0; }
+.scout-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scout-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.scout-pos-badge {
+  font-size: 9px; font-weight: 800; font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .08em; padding: 2px 5px; border-radius: 4px;
+}
+.scout-pos-badge.GK { background: rgba(255,179,0,.15); color: var(--gk); }
+.scout-pos-badge.DEF { background: rgba(76,175,80,.15); color: var(--def); }
+.scout-pos-badge.MID { background: rgba(66,165,245,.15); color: var(--mid); }
+.scout-pos-badge.FWD { background: rgba(239,83,80,.15); color: var(--fwd); }
+.scout-team { font-size: 11px; color: var(--muted); }
+
+.scout-dots { display: flex; gap: 3px; margin-top: 3px; }
+.scout-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+.scout-stats { display: flex; gap: 6px; flex-shrink: 0; }
+.scout-stat { text-align: center; min-width: 28px; }
+.scout-stat-val { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; line-height: 1; }
+.scout-stat-val.hi { color: var(--neon); }
+.scout-stat-val.zero { color: var(--muted); }
+.scout-stat-lbl { font-size: 9px; color: var(--muted); letter-spacing: .06em; }
+
+.scout-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; padding: 40px 20px; color: var(--muted); font-size: 13px;
+}
+
+/* ── SKELETON ── */
+.skel { background: linear-gradient(90deg, var(--surf) 25%, var(--card2) 50%, var(--surf) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: var(--rsm); }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.skel-row { height: 64px; margin-bottom: 8px; border-radius: var(--r); }
+
+/* ── FIRE EFFECTS ── */
+.fire-t1 .mob-pc-pts { color: var(--fire2); }
+.fire-t2 .mob-pc-pts { color: var(--fire); text-shadow: 0 0 8px rgba(255,87,34,.6); }
+.fire-t3 .mob-pc-pts { color: #fff; text-shadow: 0 0 12px var(--fire), 0 0 24px rgba(255,87,34,.4); }
+
+/* ── SCROLLBAR ── */
+.view::-webkit-scrollbar { width: 3px; }
+.view::-webkit-scrollbar-track { background: transparent; }
+.view::-webkit-scrollbar-thumb { background: rgba(0,240,255,.2); border-radius: 2px; }
+
+/* noise overlay */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: .025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="top-bar">
+  <img src="/static/brand-logo.png" class="top-logo" alt="PitchPulse" onerror="this.style.display='none'"/>
+  <div class="top-title">Pitch<span>Pulse</span></div>
+
+  <div class="md-dropdown-wrap" style="position:relative">
+    <button class="md-btn" onclick="toggleMdDropdown()" id="mdBtn">
+      <span id="mdBtnLabel">MD 12</span>
+      <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+    </button>
+    <div class="md-dropdown" id="mdDropdown">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <div style="position:relative">
+    <div class="user-btn" onclick="toggleUserDropdown()" id="userBtn">
+      <div class="user-avatar-sm" id="topUserAvatar" style="background:#E64A19"></div>
+      <span class="user-btn-name" id="topUserName">—</span>
+    </div>
+    <div class="user-dropdown" id="userDropdown"></div>
+  </div>
+</header>
+
+<!-- TAB BODY -->
+<main class="tab-body">
+
+  <!-- CLASAMENT -->
+  <section id="view-clasament" class="view active">
+    <div class="cls-view-body">
+      <div class="cls-sort-tabs">
+        <button class="cls-sort-tab active" id="tab-etapa" onclick="switchCls('etapa',this)">Etapă</button>
+        <button class="cls-sort-tab" id="tab-overall" onclick="switchCls('overall',this)">Overall</button>
+      </div>
+      <div id="clsList">
+        <div class="skel skel-row"></div>
+        <div class="skel skel-row"></div>
+        <div class="skel skel-row"></div>
+        <div class="skel skel-row"></div>
+        <div class="skel skel-row"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOTW -->
+  <section id="view-totw" class="view">
+    <div class="totw-view-body">
+      <div class="totw-toggle">
+        <button class="totw-toggle-btn active" id="ttbLiga" onclick="switchTotw('liga',this)">Liga Noastră</button>
+        <button class="totw-toggle-btn" id="ttbBest" onclick="switchTotw('best',this)">Cel Mai Bun XI</button>
+      </div>
+      <div class="totw-stats-strip" id="totwStats"></div>
+      <div id="totwPitchWrap"></div>
+    </div>
+  </section>
+
+  <!-- SCOUTING -->
+  <section id="view-scouting" class="view">
+    <div class="scout-view-body">
+      <div class="scout-search-wrap">
+        <svg class="scout-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="scout-search" id="scoutSearch" placeholder="Caută jucător sau echipă..." oninput="onScoutSearch(this.value)"/>
+      </div>
+      <div class="scout-pos-chips">
+        <button class="pos-chip active" data-pos="ALL" onclick="setScoutPos('ALL',this)">Toți</button>
+        <button class="pos-chip" data-pos="GK" onclick="setScoutPos('GK',this)">GK</button>
+        <button class="pos-chip" data-pos="DEF" onclick="setScoutPos('DEF',this)">DEF</button>
+        <button class="pos-chip" data-pos="MID" onclick="setScoutPos('MID',this)">MID</button>
+        <button class="pos-chip" data-pos="FWD" onclick="setScoutPos('FWD',this)">ATT</button>
+      </div>
+      <div class="scout-sort-row" id="scoutSortRow"></div>
+      <div id="scoutList">
+        <div class="skel skel-row"></div>
+        <div class="skel skel-row"></div>
+        <div class="skel skel-row"></div>
+        <div class="skel skel-row"></div>
+        <div class="skel skel-row"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-btn active" data-tab="clasament" onclick="switchTab('clasament',this)">
+    <div class="bnav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <rect x="2" y="13" width="4" height="9" rx="1"/><rect x="9" y="8" width="4" height="14" rx="1"/><rect x="16" y="3" width="4" height="19" rx="1"/>
+      </svg>
+    </div>
+    <span class="bnav-label">Clasament</span>
+  </button>
+  <button class="bnav-btn" data-tab="totw" onclick="switchTab('totw',this)">
+    <div class="bnav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+      </svg>
+    </div>
+    <span class="bnav-label">TOTW</span>
+  </button>
+  <button class="bnav-btn" data-tab="scouting" onclick="switchTab('scouting',this)">
+    <div class="bnav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        <line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/>
+      </svg>
+    </div>
+    <span class="bnav-label">Scouting</span>
+  </button>
+</nav>
+
+<script>
+// ─── CONSTANTS ───
+const TOTAL_MDS = 17;
+let MD = 12;
+
+const NICKNAMES = {
+  'memedine zidane': 'Radu',
+  'chirila': 'Pui',
+  'pep voicuiola': 'Voiq',
+  'mihai': 'Mike',
+  'tiberiu': 'Tibi',
+  'andrei': 'Voinea',
+  'dudu': 'Dudu',
+  'dan': 'Dan',
+  'coco': 'Coco',
+  'mircea': 'Mircea',
+  'eduard': 'Eduard'
+};
+function getNick(username) {
+  if (!username) return '?';
+  const key = username.toLowerCase().trim();
+  // exact match
+  if (NICKNAMES[key]) return NICKNAMES[key];
+  // partial match (first word or contains)
+  for (const [k, v] of Object.entries(NICKNAMES)) {
+    if (key.includes(k) || k.includes(key.split(' ')[0])) return v;
+  }
+  return username.split(' ')[0];
+}
+
+function initials(name) {
+  return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) || '??';
+}
+
+const MGR_COLORS = ['#E64A19','#FF5722','#43A047','#1565C0','#C62828','#6A1B9A','#00838F','#4527A0','#AD1457','#EF6C00'];
+
+// ─── STATE ───
+let MANAGERS = [];
+let ROSTERS = {};
+let allPlayers = [];
+let CURRENT_USER = null;
+let currentTab = 'clasament';
+let currentCls = 'etapa';
+let expandedMgr = null;
+let currentTotw = 'liga';
+let scoutPosFilter = 'ALL';
+let scoutSortCol = 'ownerPct';
+let scoutSortDir = 1;
+let scoutQuery = '';
+let scoutDataCache = null;
+let mdCache = {};
+
+// ─── API LOADING ───
+async function loadApiData(md) {
+  try {
+    let data;
+    if (mdCache[md]) {
+      data = mdCache[md];
+    } else {
+      const r = await fetch(`/api/data?md=${md}`);
+      data = await r.json();
+      if (data.error) { console.error('API error:', data.error); return; }
+      mdCache[md] = data;
+    }
+
+    MANAGERS = (data.managers || []).map((m, i) => ({
+      guid: m.guid,
+      username: m.username,
+      nick: getNick(m.username),
+      teamName: m.teamName,
+      gdPoints: m.gdPoints || 0,
+      gdRank: m.gdRank || 0,
+      ovPoints: m.ovPoints || 0,
+      ovRank: m.ovRank || 0,
+      color: MGR_COLORS[i % MGR_COLORS.length]
+    }));
+
+    const urlUser = new URLSearchParams(window.location.search).get('user');
+    if (urlUser) {
+      const match = MANAGERS.find(m => m.username.toLowerCase() === urlUser.toLowerCase());
+      CURRENT_USER = match ? match.guid : (MANAGERS[0]?.guid || null);
+    } else {
+      const me = MANAGERS.find(m => /eduard/i.test(m.username));
+      CURRENT_USER = me ? me.guid : (MANAGERS[0]?.guid || null);
+    }
+
+    ROSTERS = {};
+    (data.managers || []).forEach(m => {
+      const starters = [], bench = [];
+      (m.players || []).forEach(p => {
+        const mapped = {
+          id: p.id, name: p.name || p.fullName || '',
+          posCode: p.posCode || '', teamCode: p.teamCode || '',
+          pts: p.mdPoints || 0, captain: p.isCaptain || false,
+          goals: p.mdGoals || 0, assists: p.mdAssists || 0,
+          cs: p.mdCleanSheet ? true : false, isTransfer: p.isTransfer || false
+        };
+        if (p.isStarter) starters.push(mapped); else bench.push(mapped);
+      });
+      const transfersOut = (m.transfersOut || []).map(p => ({
+        id: p.id, name: p.name || '', posCode: p.posCode || '',
+        teamCode: p.teamCode || '', pts: p.mdPoints || 0
+      }));
+      ROSTERS[m.guid] = { starters, bench, transfersOut };
+    });
+
+    allPlayers = (data.allPlayers || []).map(p => ({
+      id: p.id, name: p.name || p.fullName || '',
+      posCode: p.posCode || '', teamCode: p.teamCode || '',
+      team: p.team || '', pts: p.curGDPts || 0,
+      goals: p.mdGoals || 0, assists: p.mdAssists || 0,
+      cs: p.mdCleanSheet ? true : false,
+      totPts: p.totPts || 0, selPer: p.selPer || 0,
+      value: p.value || 0, localOwnership: p.localOwnership || 0,
+      ownedBy: p.ownedBy || []
+    }));
+
+    scoutDataCache = null;
+    populateUserDropdown();
+    updateTopUser();
+    renderClasament();
+    if (currentTab === 'totw') renderTOTW();
+    if (currentTab === 'scouting') renderScouting();
+  } catch(e) {
+    console.error('loadApiData error:', e);
+  }
+}
+
+// ─── DROPDOWN / MD ───
+function toggleMdDropdown() {
+  document.getElementById('mdDropdown').classList.toggle('open');
+}
+function toggleUserDropdown() {
+  document.getElementById('userDropdown').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.md-dropdown-wrap')) document.getElementById('mdDropdown').classList.remove('open');
+  if (!e.target.closest('[onclick="toggleUserDropdown()"]') && !e.target.closest('#userDropdown'))
+    document.getElementById('userDropdown').classList.remove('open');
+});
+
+function buildMdDropdown() {
+  const dd = document.getElementById('mdDropdown');
+  let html = '';
+  for (let i = 1; i <= TOTAL_MDS; i++) {
+    html += `<div class="md-opt${i === MD ? ' active' : ''}" onclick="switchMD(${i})">MD ${i}</div>`;
+  }
+  dd.innerHTML = html;
+}
+
+function switchMD(md) {
+  MD = md;
+  document.getElementById('mdBtnLabel').textContent = `MD ${md}`;
+  document.getElementById('mdDropdown').classList.remove('open');
+  buildMdDropdown();
+  scoutDataCache = null;
+  expandedMgr = null;
+  loadApiData(md);
+}
+
+function populateUserDropdown() {
+  const dd = document.getElementById('userDropdown');
+  dd.innerHTML = MANAGERS.map(m =>
+    `<div class="user-drop-item${m.guid === CURRENT_USER ? ' active' : ''}" onclick="switchUser('${m.guid}')">
+      <div class="user-drop-avatar" style="background:${m.color}">${initials(m.nick)}</div>
+      <span class="user-drop-name">${m.nick}</span>
+    </div>`
+  ).join('');
+}
+
+function updateTopUser() {
+  const m = MANAGERS.find(x => x.guid === CURRENT_USER);
+  if (!m) return;
+  const av = document.getElementById('topUserAvatar');
+  const nm = document.getElementById('topUserName');
+  if (av) { av.style.background = m.color; av.textContent = initials(m.nick); }
+  if (nm) nm.textContent = m.nick;
+}
+
+function switchUser(guid) {
+  CURRENT_USER = guid;
+  document.getElementById('userDropdown').classList.remove('open');
+  populateUserDropdown();
+  updateTopUser();
+  scoutDataCache = null;
+  renderClasament();
+  if (currentTab === 'totw') renderTOTW();
+  if (currentTab === 'scouting') renderScouting();
+}
+
+// ─── TAB SWITCHING ───
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'totw') renderTOTW();
+  if (tab === 'scouting') renderScouting();
+}
+
+// ─── CLASAMENT ───
+function switchCls(sort, btn) {
+  currentCls = sort;
+  document.querySelectorAll('.cls-sort-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  expandedMgr = null;
+  renderClasament();
+}
+
+function getSorted() {
+  const m = [...MANAGERS];
+  if (currentCls === 'etapa') m.sort((a,b) => b.gdPoints - a.gdPoints);
+  else m.sort((a,b) => b.ovPoints - a.ovPoints);
+  return m;
+}
+
+function getPrivateRank(guid) {
+  const sorted = [...MANAGERS].sort((a,b) => b.ovPoints - a.ovPoints);
+  return sorted.findIndex(m => m.guid === guid) + 1;
+}
+
+function renderClasament() {
+  const list = document.getElementById('clsList');
+  if (!list || !MANAGERS.length) return;
+  const sorted = getSorted();
+  const myMgr = MANAGERS.find(m => m.guid === CURRENT_USER);
+  const myPts = myMgr ? (currentCls === 'etapa' ? myMgr.gdPoints : myMgr.ovPoints) : 0;
+
+  list.innerHTML = sorted.map((m, i) => {
+    const rank = i + 1;
+    const pts = currentCls === 'etapa' ? m.gdPoints : m.ovPoints;
+    const isMe = m.guid === CURRENT_USER;
+    const isExp = m.guid === expandedMgr;
+    const rankCls = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'normal';
+
+    let diffHtml = '';
+    if (!isMe) {
+      const diff = pts - myPts;
+      if (diff > 0) diffHtml = `<span class="mgr-diff diff-neg">-${diff}</span>`;
+      else if (diff < 0) diffHtml = `<span class="mgr-diff diff-pos">+${Math.abs(diff)}</span>`;
+      else diffHtml = `<span class="mgr-diff diff-eq">=</span>`;
+    }
+
+    const squadHtml = buildSquadHtml(m.guid);
+
+    return `<div class="mgr-card${isMe ? ' me' : ''}${isExp ? ' expanded' : ''}" id="card-${m.guid}">
+      <div class="mgr-card-header" onclick="toggleSquad('${m.guid}')">
+        <div class="mgr-rank ${rankCls}">${rank}</div>
+        <div class="mgr-avatar" style="background:${m.color}">${initials(m.nick)}</div>
+        <div class="mgr-info">
+          <div class="mgr-nick">${m.nick}${isMe ? ' <span style="color:var(--neon);font-size:10px;font-weight:700;">TU</span>' : ''}</div>
+          <div class="mgr-team">${m.teamName}</div>
+        </div>
+        <div class="mgr-pts-col">
+          <div class="mgr-pts${isMe ? ' fire-col' : ''}">${pts}${diffHtml}</div>
+          <div class="mgr-pts-label">${currentCls === 'etapa' ? 'PTS MD' : 'PTS TOT'}</div>
+        </div>
+        <svg class="mgr-expand-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="mgr-squad">${squadHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSquad(guid) {
+  if (expandedMgr === guid) {
+    expandedMgr = null;
+  } else {
+    expandedMgr = guid;
+  }
+  renderClasament();
+  // scroll card into view
+  setTimeout(() => {
+    const card = document.getElementById('card-' + guid);
+    if (card && expandedMgr === guid) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 80);
+}
+
+function buildSquadHtml(guid) {
+  const roster = ROSTERS[guid];
+  if (!roster || (!roster.starters.length && !roster.bench.length)) return '<div style="color:var(--muted);font-size:12px;padding:4px 0">Nu există date pentru acest manager.</div>';
+
+  const groups = { GK: [], DEF: [], MID: [], FWD: [] };
+  const benchGuids = new Set(roster.bench.map(p => p.name + '|' + p.teamCode));
+  [...roster.starters, ...roster.bench].forEach(p => {
+    if (groups[p.posCode]) groups[p.posCode].push(p);
+  });
+
+  const posOrder = ['GK','DEF','MID','FWD'];
+  const posLabel = { GK: 'Portar', DEF: 'Fundași', MID: 'Mijlocași', FWD: 'Atacanți' };
+
+  return posOrder.filter(pos => groups[pos].length).map(pos => {
+    const players = groups[pos];
+    const cards = players.map(p => {
+      const isBench = benchGuids.has(p.name + '|' + p.teamCode) && !roster.starters.includes(p);
+      const ptsCls = p.pts >= 10 ? 'blaze' : p.pts >= 5 ? 'hi' : p.pts === 0 ? 'zero' : '';
+      const shortName = p.name.includes(' ') ? p.name.split(' ').pop() : p.name;
+      return `<div class="squad-player${isBench ? ' bench' : ''}${p.captain ? ' captain' : ''}">
+        <img class="squad-team-logo" src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/>
+        <span class="squad-player-name" title="${p.name}">${shortName}${p.captain ? ' <span class="cap-badge">C</span>' : ''}</span>
+        <span class="squad-player-pts ${ptsCls}">${p.pts}</span>
+      </div>`;
+    }).join('');
+    return `<div class="squad-pos-group">
+      <div class="squad-pos-label">${posLabel[pos]}</div>
+      <div class="squad-players">${cards}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── TOTW LOGIC ───
+function switchTotw(mode, btn) {
+  currentTotw = mode;
+  document.querySelectorAll('.totw-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTOTW();
+}
+
+function fireTier(p) {
+  const pts = p.pts || 0, goals = p.goals || 0, assists = p.assists || 0;
+  if (pts >= 15) return 3;
+  if (pts >= 10) return 2;
+  if (goals || assists) return 1;
+  return 0;
+}
+
+function buildTotwData(mode) {
+  if (mode === 'best' && allPlayers.length) {
+    return allPlayers.map(p => ({ ...p, ownerGuid: null }));
+  }
+  const playerMap = {};
+  MANAGERS.forEach(mgr => {
+    const roster = ROSTERS[mgr.guid];
+    if (!roster) return;
+    [...roster.starters, ...(roster.bench || [])].forEach(p => {
+      const key = p.name + '|' + p.teamCode;
+      if (!playerMap[key] || (p.pts || 0) > (playerMap[key].pts || 0)) {
+        playerMap[key] = { ...p, ownerGuid: mgr.guid };
+      }
+    });
+  });
+  return Object.values(playerMap);
+}
+
+function pickBestXI(players) {
+  const bp = { GK: [], DEF: [], MID: [], FWD: [] };
+  players.forEach(p => { if (bp[p.posCode]) bp[p.posCode].push({...p}); });
+  Object.keys(bp).forEach(k => bp[k].sort((a, b) => (b.pts||0) - (a.pts||0)));
+  let best = null, bestTotal = -1;
+  for (let d = 3; d <= 5; d++) {
+    for (let m = 2; m <= 5; m++) {
+      const f = 10 - d - m;
+      if (f < 1 || f > 3) continue;
+      if (bp.GK.length < 1 || bp.DEF.length < d || bp.MID.length < m || bp.FWD.length < f) continue;
+      const squad = [bp.GK[0], ...bp.DEF.slice(0, d), ...bp.MID.slice(0, m), ...bp.FWD.slice(0, f)];
+      const total = squad.reduce((s, p) => s + (p.pts || 0), 0);
+      if (total > bestTotal) { bestTotal = total; best = { squad, d, m, f, total }; }
+    }
+  }
+  return best || { squad: [], d: 4, m: 3, f: 3, total: 0 };
+}
+
+function renderTOTW() {
+  if (!MANAGERS.length) return;
+  const players = buildTotwData(currentTotw);
+  const xi = pickBestXI(players);
+
+  const myRoster = ROSTERS[CURRENT_USER];
+  const myNames = myRoster ? [...myRoster.starters, ...(myRoster.bench || [])].map(p => p.name) : [];
+
+  const statsEl = document.getElementById('totwStats');
+  if (statsEl) {
+    const ligaXI = pickBestXI(buildTotwData('liga'));
+    const bestXI = pickBestXI(buildTotwData('best'));
+    statsEl.innerHTML = `
+      <div class="totw-stat-chip">
+        <div class="totw-stat-val fire">${ligaXI.total}</div>
+        <div class="totw-stat-lbl">LIGA PTS</div>
+      </div>
+      <div class="totw-stat-chip">
+        <div class="totw-stat-val neon">${bestXI.total}</div>
+        <div class="totw-stat-lbl">GLOBAL PTS</div>
+      </div>`;
+  }
+
+  const wrap = document.getElementById('totwPitchWrap');
+  if (!wrap) return;
+
+  if (!xi.squad.length) {
+    wrap.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:13px;">Se încarcă...</div>';
+    return;
+  }
+
+  const byPos = { GK: [], DEF: [], MID: [], FWD: [] };
+  xi.squad.forEach(p => { if (byPos[p.posCode]) byPos[p.posCode].push(p); });
+  const formation = `${xi.d}-${xi.m}-${xi.f}`;
+  const myCount = xi.squad.filter(p => myNames.includes(p.name)).length;
+
+  const rows = [byPos.FWD, byPos.MID, byPos.DEF, byPos.GK].filter(r => r.length).map(row => {
+    const cards = row.map(p => {
+      const pts = p.pts || 0;
+      const shortName = p.name.includes(' ') ? p.name.split(' ').pop() : p.name;
+      const tier = fireTier(p);
+      const isMine = myNames.includes(p.name);
+      const ownerMgr = p.ownerGuid ? MANAGERS.find(mg => mg.guid === p.ownerGuid) : null;
+      const ptsCls = pts >= 10 ? 'blaze' : pts >= 5 ? 'hi' : pts === 0 ? 'zero' : '';
+
+      return `<div class="mob-pc${tier ? ' fire-t'+tier : ''}${isMine ? ' is-mine' : ''}${p.captain ? ' cap' : ''}">
+        ${p.captain ? '<div class="mob-cap-badge">C</div>' : ''}
+        ${ownerMgr ? `<div class="mob-owner-badge" style="background:${ownerMgr.color}">${initials(ownerMgr.nick)}</div>` : ''}
+        <div class="mob-pc-bg"><img src="/static/logos/${p.teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
+        <div class="mob-pc-body">
+          <div class="mob-pc-n">${shortName}</div>
+          <div class="mob-pc-pts ${ptsCls}">${pts}</div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="mob-pitch-row">${cards}</div>`;
+  }).join('');
+
+  const label = currentTotw === 'liga' ? 'Liga Noastră' : 'Cel Mai Bun XI';
+  wrap.innerHTML = `
+    <div class="totw-meta">
+      <div class="totw-meta-left">${label.includes('Liga') ? '<span>Liga</span> Noastră' : 'Cel Mai Bun XI'}</div>
+      <div class="totw-meta-right">
+        <div class="totw-meta-pts">${xi.total} pts</div>
+        <div style="font-size:10px;color:var(--muted)">${myCount}/11 ai mei</div>
+      </div>
+    </div>
+    <div class="totw-form-tag">${formation}</div>
+    <div class="mob-pitch">${rows}</div>`;
+}
+
+// ─── SCOUTING ───
+function buildScoutingData() {
+  if (scoutDataCache) return scoutDataCache;
+  const playerMap = {};
+  const totalMgrs = MANAGERS.length;
+  MANAGERS.forEach(mgr => {
+    const roster = ROSTERS[mgr.guid];
+    if (!roster) return;
+    const all = [...roster.starters, ...(roster.bench || [])];
+    all.forEach(p => {
+      const key = p.name + '|' + p.teamCode;
+      if (!playerMap[key]) {
+        playerMap[key] = { name: p.name, posCode: p.posCode, teamCode: p.teamCode,
+          pts: p.pts || 0, goals: p.goals || 0, assists: p.assists || 0,
+          cs: p.cs ? 1 : 0, owners: [] };
+      }
+      const entry = playerMap[key];
+      if (!entry.owners.includes(mgr.guid)) entry.owners.push(mgr.guid);
+      if ((p.pts || 0) > entry.pts) {
+        entry.pts = p.pts; entry.goals = p.goals || 0;
+        entry.assists = p.assists || 0; entry.cs = p.cs ? 1 : 0;
+      }
+    });
+  });
+  scoutDataCache = Object.values(playerMap).map(p => ({
+    ...p,
+    ownerCount: p.owners.length,
+    ownerPct: Math.round(p.owners.length / totalMgrs * 100),
+    ga: (p.goals || 0) + (p.assists || 0)
+  }));
+  return scoutDataCache;
+}
+
+function ringColor(pct) {
+  if (pct >= 80) return '#dc2626';
+  if (pct >= 60) return '#f97316';
+  if (pct >= 40) return '#eab308';
+  if (pct > 0) return '#00f0ff';
+  return '#4a5580';
+}
+
+function renderScouting() {
+  const sortRow = document.getElementById('scoutSortRow');
+  if (sortRow && !sortRow.dataset.init) {
+    sortRow.dataset.init = '1';
+    const sorts = [
+      { col: 'ownerPct', label: 'Local %' },
+      { col: 'pts', label: 'Puncte' },
+      { col: 'ga', label: 'G+A' },
+      { col: 'cs', label: 'Clean Sheet' }
+    ];
+    sortRow.innerHTML = sorts.map(s =>
+      `<button class="scout-sort-btn${s.col === scoutSortCol ? ' active' : ''}" onclick="setScoutSort('${s.col}',this)">${s.label}</button>`
+    ).join('');
+  }
+
+  let data = buildScoutingData();
+  const q = scoutQuery.toLowerCase();
+  if (q) data = data.filter(p => p.name.toLowerCase().includes(q) || p.teamCode.toLowerCase().includes(q));
+  if (scoutPosFilter !== 'ALL') data = data.filter(p => p.posCode === scoutPosFilter);
+  data.sort((a, b) => ((b[scoutSortCol]||0) - (a[scoutSortCol]||0)) * scoutSortDir);
+
+  const listEl = document.getElementById('scoutList');
+  if (!listEl) return;
+  if (!data.length) {
+    listEl.innerHTML = '<div class="scout-empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Niciun jucător găsit</span></div>';
+    return;
+  }
+
+  const myRoster = ROSTERS[CURRENT_USER];
+  const myNames = myRoster ? [...myRoster.starters, ...(myRoster.bench||[])].map(p => p.name) : [];
+
+  listEl.innerHTML = data.slice(0, 80).map(p => {
+    const isMine = myNames.includes(p.name);
+    const rc = ringColor(p.ownerPct);
+    const circ = 2 * Math.PI * 14;
+    const offset = circ * (1 - p.ownerPct / 100);
+    const dots = MANAGERS.map(m => {
+      const owns = p.owners.includes(m.guid);
+      const isStart = ROSTERS[m.guid]?.starters.some(s => s.name === p.name);
+      return owns ? `<div class="scout-dot" style="background:${m.color};opacity:${isStart ? 1 : 0.45}"></div>` : `<div class="scout-dot" style="background:rgba(255,255,255,.08)"></div>`;
+    }).join('');
+
+    return `<div class="scout-row${isMine ? ' mine' : ''}">
+      <div class="scout-ring">
+        <svg width="36" height="36" viewBox="0 0 32 32">
+          <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="2.5"/>
+          <circle cx="16" cy="16" r="14" fill="none" stroke="${rc}" stroke-width="2.5"
+            stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"
+            stroke-linecap="round" transform="rotate(-90 16 16)"
+            style="filter:drop-shadow(0 0 2px ${rc})"/>
+        </svg>
+        <span class="scout-ring-pct" style="color:${rc}">${p.ownerPct}%</span>
+      </div>
+      <div class="scout-info">
+        <div class="scout-name">${p.name}</div>
+        <div class="scout-meta">
+          <span class="scout-pos-badge ${p.posCode}">${p.posCode}</span>
+          <span class="scout-team">${p.teamCode}</span>
+        </div>
+        <div class="scout-dots">${dots}</div>
+      </div>
+      <div class="scout-stats">
+        <div class="scout-stat">
+          <div class="scout-stat-val${p.ga === 0 ? ' zero' : p.ga >= 2 ? ' hi' : ''}">${p.ga}</div>
+          <div class="scout-stat-lbl">G+A</div>
+        </div>
+        <div class="scout-stat">
+          <div class="scout-stat-val${p.pts === 0 ? ' zero' : p.pts >= 10 ? ' hi' : ''}">${p.pts}</div>
+          <div class="scout-stat-lbl">PTS</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function onScoutSearch(val) {
+  scoutQuery = val;
+  renderScouting();
+}
+
+function setScoutPos(pos, btn) {
+  scoutPosFilter = pos;
+  document.querySelectorAll('.pos-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderScouting();
+}
+
+function setScoutSort(col, btn) {
+  if (scoutSortCol === col) scoutSortDir *= -1;
+  else { scoutSortCol = col; scoutSortDir = 1; }
+  document.querySelectorAll('.scout-sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderScouting();
+}
+
+// ─── INIT ───
+buildMdDropdown();
+loadApiData(MD);
+</script>
+</body>
+</html>

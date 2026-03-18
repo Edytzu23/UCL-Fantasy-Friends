@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import requests
@@ -1234,14 +1234,31 @@ def manual_refresh(md: int = 11):
     return JSONResponse({"error": "Refresh failed"}, status_code=500)
 
 
+def _is_mobile(request: Request) -> bool:
+    ua = request.headers.get("user-agent", "")
+    return bool(any(kw in ua for kw in ["Mobile", "Android", "iPhone", "iPad", "iPod", "Windows Phone"]))
+
+
 @app.get("/")
-def landing():
+def landing(request: Request):
+    if _is_mobile(request):
+        return RedirectResponse("/mobile", status_code=302)
     base = os.path.dirname(os.path.abspath(__file__))
     path = os.path.join(base, "templates", "landing.html")
     if os.path.exists(path):
         with open(path, encoding="utf-8") as f:
             return HTMLResponse(f.read())
     return HTMLResponse("<h1>Eroare: templates/landing.html lipseste din repo!</h1>", status_code=500)
+
+
+@app.get("/mobile")
+def mobile_dashboard():
+    base = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base, "templates", "mockup_mobile.html")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return HTMLResponse(f.read())
+    return HTMLResponse("<h1>Eroare: templates/mockup_mobile.html lipseste din repo!</h1>", status_code=500)
 
 
 @app.get("/dashboard")
