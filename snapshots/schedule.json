@@ -1,10 +1,10 @@
 {
-  "matchday": 11,
+  "matchday": 12,
   "checkpoints": [
     {
       "time": "20:30",
       "label": "HTM1",
-      "fired": true
+      "fired": false
     },
     {
       "time": "21:30",
@@ -14,7 +14,7 @@
     {
       "time": "22:45",
       "label": "HTM2",
-      "fired": true
+      "fired": false
     },
     {
       "time": "23:45",
@@ -22,7 +22,7 @@
       "fired": false
     },
     {
-      "time": "07:00",
+      "time": "09:00",
       "label": "FINALMD",
       "fired": false
     }
