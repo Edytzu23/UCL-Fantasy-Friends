@@ -509,6 +509,20 @@ def build_data(matchday=11):
     except Exception as e:
         print(f"Live events fetch failed (non-fatal): {e}")
 
+    # Fetch live fantasy scores (tPoints per player) from UEFA scoring feed
+    live_pts = {}  # pid (int) -> tPoints
+    try:
+        live_data = fetch_live_scores(matchday)
+        if live_data and live_data.get("players"):
+            for pid_str, pdata in live_data["players"].items():
+                pts = pdata.get("pts", 0)
+                if pts:  # only override if live feed has non-zero points
+                    live_pts[int(pid_str)] = pts
+            if live_pts:
+                print(f"  Live scores: {len(live_pts)} players with points")
+    except Exception as e:
+        print(f"Live scores fetch failed (non-fatal): {e}")
+
     managers_raw = fetch_team_data(matchday)
 
     player_ownership = {}  # pid -> list of usernames
@@ -535,7 +549,7 @@ def build_data(matchday=11):
         for rp in mgr["rawPlayers"]:
             pid = int(rp["id"])
             pub = public_players.get(pid, {})
-            mdpts = pub.get("curGDPts", 0) or rp.get("overallpoints", 0)
+            mdpts = live_pts.get(pid) or pub.get("curGDPts", 0) or rp.get("overallpoints", 0)
             is_captain = rp.get("iscaptain", 0) == 1
             is_starter = rp.get("benchposition", 0) == 0
 
@@ -596,9 +610,13 @@ def build_data(matchday=11):
     all_players = []
     for pid, p in public_players.items():
         owners = player_ownership.get(pid, [])
+        enriched_p = {**p}
+        # Override curGDPts with live scores if available
+        if pid in live_pts:
+            enriched_p["curGDPts"] = live_pts[pid]
         all_players.append(
             {
-                **p,
+                **enriched_p,
                 "localOwnership": len(owners),
                 "localPer": round(len(owners) / len(FRIENDS_IDS) * 100),
                 "ownedBy": owners,
@@ -618,7 +636,7 @@ def build_data(matchday=11):
             for rp in wl_raw["rawPlayers"]:
                 pid = int(rp["id"])
                 pub = public_players.get(pid, {})
-                mdpts = pub.get("curGDPts", 0) or rp.get("overallpoints", 0)
+                mdpts = live_pts.get(pid) or pub.get("curGDPts", 0) or rp.get("overallpoints", 0)
                 is_captain = rp.get("iscaptain", 0) == 1
                 is_starter = rp.get("benchposition", 0) == 0
                 wl_players.append({
