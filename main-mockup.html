@@ -1516,10 +1516,11 @@ body::before {
 
   <div class="nav-right">
     <div class="md-toggle">
-      <div class="md-current"><span class="dot"></span> <span id="mdLabel">MD 11 (MD Curent)</span></div>
+      <div class="md-current"><span class="dot"></span> <span id="mdLabel">MD 12 (MD Curent)</span></div>
       <div class="md-istoric" onclick="toggleDropdown()">
         Istoric MD
         <div class="md-dropdown" id="mdDropdown">
+          <div class="md-drop-item" onclick="switchMD(12)">MD 12</div>
           <div class="md-drop-item" onclick="switchMD(11)">MD 11</div>
           <div class="md-drop-item" onclick="switchMD(10)">MD 10</div>
           <div class="md-drop-item" onclick="switchMD(9)">MD 9</div>
@@ -1632,7 +1633,7 @@ body::before {
 
 <script>
 // ─── DATA ───
-let MD = 11;
+let MD = 12;
 let MANAGERS = [];
 let ROSTERS = {};
 let CURRENT_USER = null;
