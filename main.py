@@ -588,12 +588,17 @@ def build_data(matchday=11):
                 player_ownership[pid] = []
             player_ownership[pid].append(mgr["username"])
 
+        # Calculate dynamic gdPoints from enriched player data
+        computed_gd = sum(
+            p["mdPoints"] * (2 if p["isCaptain"] else 1)
+            for p in enriched if p["isStarter"]
+        )
         managers.append(
             {
                 "guid": mgr["guid"],
                 "username": mgr["username"],
                 "teamName": mgr["teamName"],
-                "gdPoints": mgr["gdPoints"],
+                "gdPoints": computed_gd if live_pts else mgr["gdPoints"],
                 "gdRank": mgr["gdRank"],
                 "ovPoints": mgr["ovPoints"],
                 "ovRank": mgr["ovRank"],
