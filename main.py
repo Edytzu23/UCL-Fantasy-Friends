@@ -511,15 +511,25 @@ def build_data(matchday=11):
 
     # Fetch live fantasy scores (tPoints per player) from UEFA scoring feed
     live_pts = {}  # pid (int) -> tPoints
+    live_scoring_stats = {}  # pid (int) -> {"goals": int, "assists": int, "cs": int}
     try:
         live_data = fetch_live_scores(matchday)
         if live_data and live_data.get("players"):
             for pid_str, pdata in live_data["players"].items():
+                pid_int = int(pid_str)
                 pts = pdata.get("pts", 0)
                 if pts:  # only override if live feed has non-zero points
-                    live_pts[int(pid_str)] = pts
+                    live_pts[pid_int] = pts
+                # Capture per-match goals/assists/cs from scoring feed
+                g = pdata.get("goals", 0) or 0
+                a = pdata.get("assists", 0) or 0
+                cs = pdata.get("cs", 0) or 0
+                if g or a or cs:
+                    live_scoring_stats[pid_int] = {"goals": g, "assists": a, "cs": cs}
             if live_pts:
                 print(f"  Live scores: {len(live_pts)} players with points")
+            if live_scoring_stats:
+                print(f"  Live scoring stats: {len(live_scoring_stats)} players with goals/assists/cs")
     except Exception as e:
         print(f"Live scores fetch failed (non-fatal): {e}")
 
@@ -571,10 +581,10 @@ def build_data(matchday=11):
                 "goals": pub.get("goals", 0),
                 "assists": pub.get("assists", 0),
                 "cleanSheets": pub.get("cleanSheets", 0),
-                # Per-MD stats: prefer live events, fallback to diff
-                "mdGoals": live_events.get(pid, {}).get("goals") or md_stat(pid, "goals", public_players, prev_players),
-                "mdAssists": live_events.get(pid, {}).get("assists") or md_stat(pid, "assists", public_players, prev_players),
-                "mdCleanSheet": (1 if pid in live_clean_sheet_pids else 0) or md_stat(pid, "cleanSheets", public_players, prev_players),
+                # Per-MD stats: prefer live events → live scoring → cumulative diff
+                "mdGoals": live_events.get(pid, {}).get("goals") or live_scoring_stats.get(pid, {}).get("goals") or md_stat(pid, "goals", public_players, prev_players),
+                "mdAssists": live_events.get(pid, {}).get("assists") or live_scoring_stats.get(pid, {}).get("assists") or md_stat(pid, "assists", public_players, prev_players),
+                "mdCleanSheet": (1 if pid in live_clean_sheet_pids else 0) or live_scoring_stats.get(pid, {}).get("cs") or md_stat(pid, "cleanSheets", public_players, prev_players),
                 "selPer": pub.get("selPer", 0),
                 "rating": pub.get("rating", 0),
                 "status": pub.get("status", "A"),
@@ -625,9 +635,9 @@ def build_data(matchday=11):
                 "localOwnership": len(owners),
                 "localPer": round(len(owners) / len(FRIENDS_IDS) * 100),
                 "ownedBy": owners,
-                "mdGoals": live_events.get(pid, {}).get("goals") or md_stat(pid, "goals", public_players, prev_players),
-                "mdAssists": live_events.get(pid, {}).get("assists") or md_stat(pid, "assists", public_players, prev_players),
-                "mdCleanSheet": (1 if pid in live_clean_sheet_pids else 0) or md_stat(pid, "cleanSheets", public_players, prev_players),
+                "mdGoals": live_events.get(pid, {}).get("goals") or live_scoring_stats.get(pid, {}).get("goals") or md_stat(pid, "goals", public_players, prev_players),
+                "mdAssists": live_events.get(pid, {}).get("assists") or live_scoring_stats.get(pid, {}).get("assists") or md_stat(pid, "assists", public_players, prev_players),
+                "mdCleanSheet": (1 if pid in live_clean_sheet_pids else 0) or live_scoring_stats.get(pid, {}).get("cs") or md_stat(pid, "cleanSheets", public_players, prev_players),
             }
         )
     all_players.sort(key=lambda x: x["totPts"], reverse=True)

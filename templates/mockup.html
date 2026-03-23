@@ -809,6 +809,15 @@ body::before {
 .fm-ev.assist{filter:drop-shadow(0 0 2px #4488FF) drop-shadow(0 0 5px rgba(68,136,255,.4));}
 .fm-ev.cs{filter:drop-shadow(0 0 2px #00E676) drop-shadow(0 0 5px rgba(0,230,118,.4));}
 .fm-ev.motm{filter:drop-shadow(0 0 2px #FFD700) drop-shadow(0 0 5px rgba(255,215,0,.4));}
+/* fire-scoped event icon micro-animations */
+.fm-pc[class*="fire-t"] .fm-ev.goal{animation:evPulse 3.5s ease-in-out infinite;}
+.fm-pc[class*="fire-t"] .fm-ev.assist{animation:evWiggle 4s ease-in-out infinite;}
+.fm-pc[class*="fire-t"] .fm-ev.motm{animation:evSpin 5s linear infinite;}
+.fm-pc[class*="fire-t"] .fm-ev.cs{animation:evBreathe 4.5s ease-in-out infinite;}
+@keyframes evPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.18);}}
+@keyframes evWiggle{0%,100%{transform:rotate(0deg);}25%{transform:rotate(-6deg);}75%{transform:rotate(6deg);}}
+@keyframes evSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes evBreathe{0%,100%{filter:drop-shadow(0 0 2px #00E676) drop-shadow(0 0 5px rgba(0,230,118,.4)) brightness(.9);}50%{filter:drop-shadow(0 0 4px #00E676) drop-shadow(0 0 8px rgba(0,230,118,.6)) brightness(1.2);}}
 
 /* ── FIRE TIERS ── */
 /* T1: 1+ goal/assist — neon green border */
@@ -819,7 +828,7 @@ body::before {
 .fm-pc.fire-t2 .fm-pc-body::after{background:#f97316;opacity:1;}
 .fm-pc.fire-t2 .fm-pc-body::before{content:'';position:absolute;bottom:-8px;left:10%;right:10%;height:40px;background:radial-gradient(ellipse at center bottom,rgba(255,87,34,.35) 0%,rgba(255,87,34,.12) 40%,transparent 70%);z-index:0;animation:fireGlowSmall 2s ease-in-out infinite alternate;pointer-events:none;border-radius:50%;}
 /* T3: 15+ pts — full blaze */
-.fm-pc.fire-t3 .fm-pc-body{border-color:rgba(255,100,30,.8);overflow:visible;animation:borderPulse 2.5s ease-in-out infinite;}
+.fm-pc.fire-t3 .fm-pc-body{border-color:rgba(255,100,30,.8);overflow:visible;animation:borderPulse 4.5s ease-in-out infinite;}
 .fm-pc.fire-t3 .fm-pc-body::after{background:#ff6b35;opacity:1;box-shadow:0 0 8px rgba(255,107,53,.8);}
 .fm-pc.fire-t3 .fm-pc-body::before{content:'';position:absolute;bottom:-18px;left:-10%;right:-10%;height:70px;background:radial-gradient(ellipse at center bottom,rgba(255,80,10,.55) 0%,rgba(255,87,34,.25) 35%,transparent 80%);z-index:-1;animation:fireGlowBig 1.2s ease-in-out infinite alternate;pointer-events:none;border-radius:50%;}
 /* inner particles */
@@ -874,6 +883,24 @@ body::before {
 /* outer glow T3 */
 .fm-pc.fire-t3>.fire-outer-glow{position:absolute;inset:-16px;z-index:-2;pointer-events:none;border-radius:20px;background:radial-gradient(ellipse at center 70%,rgba(255,80,10,.2) 0%,rgba(255,87,34,.08) 40%,transparent 70%);animation:outerGlowPulse 2s ease-in-out infinite alternate;}
 
+/* ── HOVER AMPLIFICATION T2/T3 ── */
+.fm-pc.fire-t2 .fm-pc-body{transition:transform 250ms cubic-bezier(.25,1,.5,1),box-shadow 250ms cubic-bezier(.25,1,.5,1);}
+.fm-pc.fire-t2:hover .fm-pc-body{transform:scale(1.03);box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 16px rgba(255,87,34,.4),0 0 32px rgba(255,87,34,.2);}
+.fm-pc.fire-t3 .fm-pc-body{transition:transform 250ms cubic-bezier(.25,1,.5,1),box-shadow 250ms cubic-bezier(.25,1,.5,1);}
+.fm-pc.fire-t3:hover .fm-pc-body{transform:scale(1.04);}
+.fm-pc.fire-t3:hover>.fire-outer-glow{opacity:1;transform:scale(1.06);}
+
+/* ── BREATHING GLOW (post-entry ambient loop) ── */
+.fm-pc.fire-t1.fire-breathing .fm-pc-body{animation:fireBreatheT1 5s ease-in-out infinite;}
+.fm-pc.fire-t2.fire-breathing .fm-pc-body{animation:fireBreatheT2 4.5s ease-in-out infinite;}
+.fm-pc.fire-t3.fire-breathing .fm-pc-body{animation:fireBreatheT3 4s ease-in-out infinite;}
+
+/* ── T3 PARTICLE SURGE ── */
+.fm-pc.fire-t3 .fire-particles-inner{animation:particleSurge 7s ease-in-out infinite;}
+
+/* ── T3 SCORE GLOW SYNC ── */
+.fm-pc.fire-t3 .fm-pc-pts{animation:scorePulse 4.5s ease-in-out infinite;}
+
 /* keyframes */
 @keyframes fireGlowSmall{0%{opacity:.6;transform:scaleX(.9);}100%{opacity:1;transform:scaleX(1.05);}}
 @keyframes fireGlowBig{0%{opacity:.7;transform:scaleX(.92) scaleY(.9);}100%{opacity:1;transform:scaleX(1.08) scaleY(1.1);}}
@@ -883,6 +910,20 @@ body::before {
 @keyframes wispSideR{0%{opacity:0;transform:translate(0,0) scaleY(1) scaleX(1);}10%{opacity:.6;}50%{opacity:.3;transform:translate(10px,-15px) scaleY(1.2) scaleX(.7);}100%{opacity:0;transform:translate(18px,-25px) scaleY(.4) scaleX(.3);}}
 @keyframes outerGlowPulse{0%{opacity:.5;transform:scale(.97);}100%{opacity:1;transform:scale(1.03);}}
 @keyframes borderPulse{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 18px rgba(255,87,34,.4),0 0 40px rgba(255,80,20,.2),0 0 60px rgba(255,60,10,.1),inset 0 -12px 28px rgba(255,87,34,.1);}50%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 25px rgba(255,87,34,.55),0 0 55px rgba(255,80,20,.3),0 0 75px rgba(255,60,10,.15),inset 0 -15px 32px rgba(255,87,34,.15);}}
+/* breathing glow per tier */
+@keyframes fireBreatheT1{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 8px rgba(74,222,128,.2),0 0 16px rgba(74,222,128,.08);}50%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 16px rgba(74,222,128,.35),0 0 28px rgba(74,222,128,.15);}}
+@keyframes fireBreatheT2{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 10px rgba(255,87,34,.2),0 0 20px rgba(255,87,34,.08);}50%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 22px rgba(255,87,34,.4),0 0 36px rgba(255,87,34,.18);}}
+@keyframes fireBreatheT3{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 18px rgba(255,87,34,.4),0 0 40px rgba(255,80,20,.2),0 0 60px rgba(255,60,10,.1),inset 0 -12px 28px rgba(255,87,34,.1);}50%{box-shadow:0 4px 16px rgba(0,0,0,.6),0 0 35px rgba(255,87,34,.6),0 0 55px rgba(255,80,20,.35),0 0 75px rgba(255,60,10,.18),inset 0 -15px 32px rgba(255,87,34,.18);}}
+/* T3 particle surge */
+@keyframes particleSurge{0%,75%,100%{filter:brightness(1);transform:scale(1);}85%{filter:brightness(1.5);transform:scale(1.05);}92%{filter:brightness(1.2);transform:scale(1.02);}}
+/* T3 score glow sync */
+@keyframes scorePulse{0%,100%{text-shadow:0 0 6px rgba(255,87,34,.3);}50%{text-shadow:0 0 14px rgba(255,87,34,.6),0 0 28px rgba(255,60,10,.2);}}
+/* fire ignite entry */
+@keyframes fireIgnite{0%{opacity:0;transform:scale(.88);}35%{opacity:1;transform:scale(1.04);filter:brightness(1.3);}100%{opacity:1;transform:scale(1);filter:brightness(1);}}
+.fm-pc.fire-ignite{animation:fireIgnite 500ms cubic-bezier(.25,1,.5,1) both;}
+/* card reveal entry (non-fire cards) */
+@keyframes cardReveal{0%{opacity:0;transform:translateY(12px) scale(.96);}100%{opacity:1;transform:translateY(0) scale(1);}}
+.fm-pc.card-reveal{animation:cardReveal 400ms cubic-bezier(.25,1,.5,1) both;}
 
 /* Scrollbar for fm-left / fm-right */
 .fm-left::-webkit-scrollbar,.fm-right::-webkit-scrollbar { width: 5px; }
@@ -2534,6 +2575,9 @@ function renderPitch() {
       <div class="fm-bench-list">${benchHtml}</div>
     </div>` : ''}
     ${transfersHtml}`;
+
+  // Card entry stagger on pitch cards
+  staggerCardEntry(document.getElementById('fmLeft'));
 }
 
 // ─── INTERACTIONS ───
@@ -2946,6 +2990,9 @@ function renderTOTW() {
   document.getElementById('totwBest').innerHTML = bestHtml;
   document.getElementById('totwLeague1').innerHTML = league1Html;
   document.getElementById('totwWorld').innerHTML = worldHtml;
+
+  // Card entry stagger on TOTW cards
+  staggerCardEntry(document.getElementById('view-totw'));
 }
 
 // ═══════════════════════════════════════════
@@ -3879,6 +3926,35 @@ toggleStatsDrawer = function() {
   }
   _origToggleStats();
 };
+
+// ── Card Entry Stagger (fire ignite + non-fire reveal) ──
+function staggerCardEntry(container) {
+  if (!container) return;
+  const allCards = container.querySelectorAll('.fm-pc');
+  let idx = 0;
+  allCards.forEach((card) => {
+    const isFire = /fire-t[123]/.test(card.className);
+    card.classList.remove('fire-breathing', 'fire-ignite', 'card-reveal');
+    card.style.animationDelay = (idx * 60) + 'ms';
+    idx++;
+    if (isFire) {
+      card.classList.add('fire-ignite');
+      card.addEventListener('animationend', function onEnd() {
+        card.removeEventListener('animationend', onEnd);
+        card.classList.remove('fire-ignite');
+        card.style.animationDelay = '';
+        card.classList.add('fire-breathing');
+      }, { once: true });
+    } else {
+      card.classList.add('card-reveal');
+      card.addEventListener('animationend', function onEnd() {
+        card.removeEventListener('animationend', onEnd);
+        card.classList.remove('card-reveal');
+        card.style.animationDelay = '';
+      }, { once: true });
+    }
+  });
+}
 
 // ── Init ──
 initCardTilt();
