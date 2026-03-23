@@ -4,8 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>PitchPulse — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Barlow+Condensed:wght@400;600;700;800&family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Barlow+Condensed:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 :root {
   --bg: #0a0c14;
@@ -32,7 +31,36 @@
   --mid: #42A5F5;
   --fwd: #EF5350;
   --r: 16px;
-  --rsm: 10px;
+  --rsm: 8px;
+
+  /* ── Type scale ── */
+  --text-title-1: 28px;
+  --text-title-2: 22px;
+  --text-headline: 17px;
+  --text-body: 15px;
+  --text-subhead: 13px;
+  --text-footnote: 12px;
+  --text-caption: 11px;
+
+  /* ── 4px spacing grid ── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+
+  /* ── Motion ── */
+  --spring: cubic-bezier(.34,1.56,.64,1);
+  --ease-out: cubic-bezier(.4,0,.2,1);
+  --spring-fast: 150ms cubic-bezier(.34,1.56,.64,1);
+  --spring-modal: 380ms cubic-bezier(.32,.72,0,1);
+
+  /* ── Depth shadows ── */
+  --shadow-elevated: 0 2px 8px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.25);
+  --shadow-floating: 0 24px 64px rgba(0,0,0,.6), 0 8px 24px rgba(0,240,255,.06);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -73,7 +101,9 @@ body::before {
 /* ─── NAVBAR ─── */
 .navbar {
   height: 56px;
-  background: var(--surf);
+  background: rgba(15,17,32,.88);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -120,7 +150,7 @@ body::before {
   margin-left: 32px;
 }
 .nav-tab {
-  padding: 7px 18px;
+  padding: 8px 16px;
   border-radius: 20px;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px;
@@ -131,15 +161,17 @@ body::before {
   cursor: pointer;
   border: 1px solid transparent;
   background: transparent;
-  transition: color .2s, background .2s, border-color .2s;
+  transition: color 200ms var(--spring), background 200ms var(--spring), border-color 200ms var(--spring), transform var(--spring-fast);
 }
-.nav-tab:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.nav-tab:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.nav-tab:active { transform: scale(.96); }
 .nav-tab.active {
   color: #fff;
   background: var(--fire);
   border-color: var(--fire);
   box-shadow: 0 2px 16px rgba(255,87,34,.35), 0 0 6px rgba(255,87,34,.2);
 }
+.nav-tab:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
 
 .nav-fixtures {
   flex: 1;
@@ -185,19 +217,19 @@ body::before {
 }
 .nav-fix-badge img { width: 100%; height: 100%; object-fit: contain; }
 .nav-fix-fallback {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 7px; font-weight: 700;
   color: var(--sub); letter-spacing: .3px;
   display: none;
 }
 .nav-fix-vs {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 9px; font-weight: 600;
   color: var(--muted);
   letter-spacing: .5px;
 }
 .nav-fix-score {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px; font-weight: 700;
   color: var(--text);
   letter-spacing: .5px;
@@ -282,17 +314,19 @@ body::before {
 .md-drop-item:hover { background: rgba(255,255,255,.06); color: var(--text); }
 
 .nav-icon-btn {
-  width: 36px; height: 36px;
+  width: 44px; height: 44px;
   border-radius: 10px;
   background: var(--card);
   border: 1px solid var(--border);
   display: flex; align-items: center; justify-content: center;
   color: var(--muted);
   cursor: pointer;
-  transition: color .2s, background .2s, border-color .2s;
+  transition: color 200ms var(--spring), background 200ms var(--spring), border-color 200ms var(--spring), transform var(--spring-fast);
   font-size: 16px;
 }
 .nav-icon-btn:hover { color: var(--text); background: var(--card2); border-color: rgba(255,255,255,.12); }
+.nav-icon-btn:active { transform: scale(.94); }
+.nav-icon-btn:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
 
 .nav-user-sel { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 700; color: var(--text); cursor: pointer; white-space: nowrap; user-select: none; transition: border-color .15s; }
 .nav-user-sel:hover { border-color: rgba(255,255,255,.2); }
@@ -319,15 +353,16 @@ body::before {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 14px 12px;
-  gap: 10px;
+  padding: 12px;
+  gap: 8px;
 }
 
 .cls-header {
-  padding: 14px 14px 12px;
+  padding: 16px;
   background: var(--card);
   border-radius: var(--r);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-elevated);
 }
 .cls-title {
   font-family: 'Barlow Condensed', sans-serif;
@@ -358,18 +393,20 @@ body::before {
 }
 .cls-tab {
   flex: 1;
-  padding: 8px 6px;
+  padding: 8px 4px;
   text-align: center;
   font-size: 12px;
   font-weight: 700;
   color: var(--muted);
   border-radius: 8px;
   cursor: pointer;
-  transition: color .2s, background .2s, box-shadow .2s;
+  transition: color 200ms var(--spring), background 200ms var(--spring), box-shadow 200ms var(--spring), transform var(--spring-fast);
   white-space: nowrap;
   font-family: 'DM Sans', sans-serif;
 }
-.cls-tab:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.cls-tab:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.cls-tab:active { transform: scale(.96); }
+.cls-tab:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
 .cls-tab.active {
   background: var(--fire);
   color: #fff;
@@ -393,15 +430,16 @@ body::before {
 .cls-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 8px;
+  padding: 8px 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background .2s, border-color .2s, box-shadow .2s;
+  transition: background 200ms var(--spring), border-color 200ms var(--spring), box-shadow 200ms var(--spring), transform var(--spring-fast);
   margin-bottom: 2px;
   border: 1px solid transparent;
 }
-.cls-row:hover { background: rgba(255,255,255,.03); }
+.cls-row:hover { background: rgba(255,255,255,.04); }
+.cls-row:active { transform: scale(.98); }
 .cls-row.active {
   background: rgba(0,240,255,.04);
   border-color: rgba(0,240,255,.2);
@@ -477,7 +515,7 @@ body::before {
 .fm-hdr{
   background:linear-gradient(160deg,rgba(22,32,48,1) 0%,rgba(14,22,36,1) 100%);
   border-bottom:1px solid var(--border);
-  padding:18px 26px 16px;
+  padding:16px 24px;
   position:relative;
   overflow:hidden;
   flex-shrink:0;
@@ -504,14 +542,14 @@ body::before {
   background:linear-gradient(135deg,#1a4a8a 0%,#0d2d5e 100%);
   border:1.5px solid rgba(100,180,255,.25);
   display:flex;align-items:center;justify-content:center;
-  font-family:'Oswald',sans-serif;
+  font-family:'Barlow Condensed',sans-serif;
   font-size:18px;font-weight:700;color:#fff;
   letter-spacing:.5px;
   box-shadow:0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);
   flex-shrink:0;
 }
 .fm-mgr-name{
-  font-family:'Oswald','Barlow Condensed',sans-serif;
+  font-family:'Barlow Condensed',sans-serif;
   font-size:21px;font-weight:700;
   text-transform:uppercase;letter-spacing:.8px;
   line-height:1;color:var(--text);
@@ -528,15 +566,16 @@ body::before {
   background:rgba(255,255,255,.03);
   border:1px solid rgba(255,255,255,.07);
   border-radius:8px;
-  padding:10px 14px 11px;
-  display:flex;flex-direction:column;gap:5px;
+  padding:12px 16px;
+  display:flex;flex-direction:column;gap:4px;
+  box-shadow:0 2px 8px rgba(0,0,0,.25), 0 1px 0 rgba(255,255,255,.04) inset;
 }
 .fm-stat-private{
   border-color:rgba(255,179,0,.2);
   background:rgba(255,179,0,.04);
 }
 .fm-stat-v{
-  font-family:'Oswald','Barlow Condensed',sans-serif;
+  font-family:'Barlow Condensed',sans-serif;
   font-size:26px;font-weight:700;line-height:1;letter-spacing:-.5px;display:block;
 }
 .fm-stat-v.orange{color:#FF5722;}
@@ -563,7 +602,7 @@ body::before {
 .fm-left{
   display:flex;flex-direction:column;
   border-right:1px solid var(--border);
-  padding:22px 26px 22px;
+  padding:24px;
   background:var(--bg);
   overflow-y:auto;
 }
@@ -572,7 +611,7 @@ body::before {
   margin-bottom:12px;
 }
 .fm-sec-lbl{
-  font-family:'Oswald','Barlow Condensed',sans-serif;
+  font-family:'Barlow Condensed',sans-serif;
   font-size:12px;font-weight:600;
   color:#FF5722;letter-spacing:2.5px;text-transform:uppercase;flex-shrink:0;
 }
@@ -680,7 +719,7 @@ body::before {
 }
 .fm-pc-n{
   position:relative;z-index:1;
-  font-family:'Source Sans 3','Source Sans Pro',sans-serif;
+  font-family:'DM Sans',sans-serif;
   font-size:14px;font-weight:700;color:#fff;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   max-width:100%;line-height:1.2;margin-bottom:2px;
@@ -688,7 +727,7 @@ body::before {
 }
 .fm-pc-p{
   position:relative;z-index:1;
-  font-family:'Oswald','Barlow Condensed',sans-serif;
+  font-family:'Barlow Condensed',sans-serif;
   font-size:40px;font-weight:700;letter-spacing:-.5px;
   line-height:1;color:#fff;
 }
@@ -712,7 +751,7 @@ body::before {
   margin-bottom:10px;
 }
 .fm-r-lbl{
-  font-family:'Oswald','Barlow Condensed',sans-serif;
+  font-family:'Barlow Condensed',sans-serif;
   font-size:12px;font-weight:600;
   color:#FF5722;letter-spacing:2px;text-transform:uppercase;
 }
@@ -735,7 +774,7 @@ body::before {
 
 /* transfer delta */
 .fm-tr-delta{
-  font-family:'Oswald','Barlow Condensed',sans-serif;
+  font-family:'Barlow Condensed',sans-serif;
   font-size:18px;font-weight:700;letter-spacing:-.3px;
 }
 .fm-tr-delta.pos{color:#4CAF50;}
@@ -769,6 +808,7 @@ body::before {
 .fm-ev.goal{filter:drop-shadow(0 0 2px #FF4444) drop-shadow(0 0 5px rgba(255,68,68,.4));}
 .fm-ev.assist{filter:drop-shadow(0 0 2px #4488FF) drop-shadow(0 0 5px rgba(68,136,255,.4));}
 .fm-ev.cs{filter:drop-shadow(0 0 2px #00E676) drop-shadow(0 0 5px rgba(0,230,118,.4));}
+.fm-ev.motm{filter:drop-shadow(0 0 2px #FFD700) drop-shadow(0 0 5px rgba(255,215,0,.4));}
 
 /* ── FIRE TIERS ── */
 /* T1: 1+ goal/assist — neon green border */
@@ -860,8 +900,8 @@ body::before {
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
   overflow-y: auto;
-  padding: 14px 12px;
-  gap: 10px;
+  padding: 12px;
+  gap: 8px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,.08) transparent;
 }
@@ -902,7 +942,7 @@ body::before {
 }
 .pos-btn {
   flex: 1;
-  padding: 7px 4px;
+  padding: 8px 4px;
   text-align: center;
   font-size: 11px;
   font-weight: 700;
@@ -913,11 +953,11 @@ body::before {
   background: transparent;
   font-family: 'DM Sans', sans-serif;
   letter-spacing: .5px;
-  transition: color .2s, background .2s, box-shadow .2s;
+  transition: color 200ms var(--spring), background 200ms var(--spring), box-shadow 200ms var(--spring), transform var(--spring-fast);
 }
-.pos-btn:hover { color: var(--text); background: rgba(255,255,255,.04); }
-.pos-btn:focus-visible { outline: 2px solid var(--neon); outline-offset: -2px; }
-.pos-btn:active { opacity: .85; }
+.pos-btn:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.pos-btn:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
+.pos-btn:active { transform: scale(.95); }
 .pos-btn.active[data-pos="ALL"] { background: var(--fire); color: #fff; box-shadow: 0 2px 14px rgba(255,87,34,.35); }
 .pos-btn.active[data-pos="GK"]  { background: var(--gk);  color: #1a1a1a; box-shadow: 0 2px 14px rgba(255,179,0,.35); }
 .pos-btn.active[data-pos="DEF"] { background: var(--def); color: #fff; box-shadow: 0 2px 14px rgba(76,175,80,.35); }
@@ -949,7 +989,7 @@ body::before {
   display: flex; flex-wrap: wrap; gap: 5px;
 }
 .mgr-chip {
-  padding: 5px 10px;
+  padding: 4px 12px;
   border-radius: 16px;
   font-size: 11px; font-weight: 600;
   color: var(--sub);
@@ -957,16 +997,83 @@ body::before {
   background: transparent;
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
-  transition: color .15s, background .15s, border-color .15s, transform .1s;
+  transition: color 150ms var(--spring), background 150ms var(--spring), border-color 150ms var(--spring), transform var(--spring-fast);
   white-space: nowrap;
 }
-.mgr-chip:hover { color: var(--text); background: rgba(255,255,255,.05); }
-.mgr-chip:focus-visible { outline: 2px solid var(--neon); outline-offset: -2px; }
-.mgr-chip:active { transform: scale(.96); }
+.mgr-chip:hover { color: var(--text); background: rgba(255,255,255,.06); }
+.mgr-chip:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
+.mgr-chip:active { transform: scale(.94); }
 .mgr-chip.active {
   color: #fff;
   border-color: var(--chip-color, var(--fire));
   background: color-mix(in srgb, var(--chip-color, var(--fire)) 20%, transparent);
+}
+
+/* Team chips — same as mgr-chip but auto-color */
+.team-chip {
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 11px; font-weight: 700;
+  color: var(--sub);
+  border: 1px solid rgba(255,255,255,.1);
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .4px;
+  transition: color 150ms var(--spring), background 150ms var(--spring), border-color 150ms var(--spring), transform var(--spring-fast);
+  white-space: nowrap;
+}
+.team-chip:hover { color: var(--text); background: rgba(255,255,255,.06); }
+.team-chip:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
+.team-chip:active { transform: scale(.94); }
+.team-chip.active {
+  color: #fff;
+  border-color: var(--fire);
+  background: rgba(255,87,34,.2);
+}
+
+/* Suspension risk toggle */
+.susp-toggle {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px; font-weight: 600;
+  color: var(--sub);
+  border: 1px solid rgba(255,255,255,.1);
+  background: transparent;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-align: left;
+  display: flex; align-items: center; gap: 8px;
+  transition: color 150ms var(--spring), background 150ms var(--spring), border-color 150ms var(--spring), transform var(--spring-fast);
+}
+.susp-toggle:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.susp-toggle:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
+.susp-toggle:active { transform: scale(.98); }
+.susp-toggle.active {
+  color: #fbbf24;
+  border-color: rgba(251,191,36,.5);
+  background: rgba(251,191,36,.12);
+}
+
+/* Yellow card badge on scout rows */
+.yc-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 10px; font-weight: 700;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .3px;
+}
+.yc-badge.risk {
+  color: #fbbf24;
+  background: rgba(251,191,36,.15);
+  border: 1px solid rgba(251,191,36,.3);
+}
+.yc-badge.danger {
+  color: #f87171;
+  background: rgba(248,113,113,.15);
+  border: 1px solid rgba(248,113,113,.3);
 }
 
 /* Sort buttons */
@@ -983,13 +1090,13 @@ body::before {
   border: none;
   background: transparent;
   font-family: 'DM Sans', sans-serif;
-  transition: color .15s, background .15s;
+  transition: color 150ms var(--spring), background 150ms var(--spring), transform var(--spring-fast);
   text-align: left;
   width: 100%;
 }
-.sort-btn:hover { color: var(--text); background: rgba(255,255,255,.04); }
-.sort-btn:focus-visible { outline: 2px solid var(--neon); outline-offset: -2px; }
-.sort-btn:active { opacity: .85; }
+.sort-btn:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.sort-btn:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
+.sort-btn:active { transform: scale(.97); }
 .sort-btn.active { color: var(--fire); background: var(--fire-dim); }
 .sort-arrow {
   font-size: 10px;
@@ -1010,7 +1117,7 @@ body::before {
   display: grid;
   grid-template-columns: 54px 1fr 56px 46px 56px;
   align-items: center;
-  padding: 10px 20px;
+  padding: 8px 20px;
   border-bottom: 1px solid var(--border);
   background: var(--surf);
   flex-shrink: 0;
@@ -1026,7 +1133,7 @@ body::before {
 .scout-list {
   flex: 1;
   overflow-y: auto;
-  padding: 6px 8px;
+  padding: 4px 8px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,.08) transparent;
 }
@@ -1037,16 +1144,18 @@ body::before {
   display: grid;
   grid-template-columns: 54px 1fr 56px 46px 56px;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background .15s;
-  margin-bottom: 2px;
+  transition: background 180ms var(--spring), transform var(--spring-fast);
+  margin-bottom: 0;
   border: 1px solid transparent;
 }
-.sc-row:hover { background: rgba(255,255,255,.03); }
-.sc-row:focus-visible { outline: 2px solid var(--neon); outline-offset: -2px; }
-.sc-row:active { opacity: .88; }
+.sc-row:hover { background: rgba(255,255,255,.04); }
+.sc-row:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
+.sc-row:active { transform: scale(.99); }
+.sc-row:nth-child(even) { background: rgba(255,255,255,.018); }
+.sc-row:nth-child(even):hover { background: rgba(255,255,255,.045); }
 .sc-row.mine {
   background: rgba(255,87,34,.04);
   border-color: rgba(255,87,34,.12);
@@ -1061,7 +1170,7 @@ body::before {
 .sc-ring svg { transform: rotate(-90deg); }
 .sc-ring-pct {
   position: absolute;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px; font-weight: 600;
   color: var(--text);
 }
@@ -1109,7 +1218,7 @@ body::before {
 /* Stat cells */
 .sc-stat {
   text-align: center;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 16px; font-weight: 600;
   color: var(--text);
   line-height: 1;
@@ -1151,7 +1260,7 @@ body::before {
 .totw-center {
   flex: 1;
   display: flex; flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto; overflow-x: hidden;
   min-width: 0;
 }
 
@@ -1176,7 +1285,7 @@ body::before {
   margin-bottom: 12px;
 }
 .totw-hdr-title {
-  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 20px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 1px;
   color: var(--text);
@@ -1222,7 +1331,7 @@ body::before {
   display: flex; flex-direction: column;
 }
 .totw-half .totw-half-title {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 15px; font-weight: 700;
   letter-spacing: .06em;
   color: var(--text);
@@ -1240,7 +1349,7 @@ body::before {
 .totw-half .fm-pc { transform: scale(.88); }
 .totw-half .fm-row { gap: 4px; }
 .totw-half .totw-form-tag {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px; font-weight: 600;
   color: var(--muted);
   letter-spacing: .05em;
@@ -1253,7 +1362,7 @@ body::before {
 }
 .totw-stat-block { text-align: center; }
 .totw-stat-v {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 24px; font-weight: 700;
   line-height: 1; letter-spacing: -.3px;
 }
@@ -1287,7 +1396,7 @@ body::before {
   background: rgba(255,87,34,.12);
   border: 1px solid rgba(255,87,34,.3);
   border-radius: 6px;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px; font-weight: 600;
   color: var(--fire);
   letter-spacing: 1px;
@@ -1448,7 +1557,7 @@ body::before {
   flex-shrink: 0;
 }
 .stats-drawer-title {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 18px; font-weight: 700;
   letter-spacing: -.02em;
   color: var(--text);
@@ -1460,20 +1569,22 @@ body::before {
   border-radius: 6px;
   padding: 3px 10px;
   font-size: 12px; font-weight: 800;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
 }
 .stats-drawer-close {
-  width: 32px; height: 32px;
+  width: 44px; height: 44px;
   border-radius: 8px;
   background: rgba(255,255,255,.06);
   border: 1px solid var(--border);
   color: var(--muted);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  transition: color .2s, background .2s, border-color .2s;
+  flex-shrink: 0;
+  transition: color 200ms var(--spring), background 200ms var(--spring), border-color 200ms var(--spring), transform var(--spring-fast);
 }
 .stats-drawer-close:hover { color: var(--text); background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.15); }
 .stats-drawer-close:active { transform: scale(.92); }
+.stats-drawer-close:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
 
 .stats-drawer-body {
   flex: 1; overflow-y: auto;
@@ -1495,7 +1606,7 @@ body::before {
 }
 .stats-section:hover { border-color: rgba(255,255,255,.1); }
 .stats-sec-title {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 13px; font-weight: 700;
   color: var(--text);
   margin-bottom: 6px;
@@ -1508,21 +1619,23 @@ body::before {
   border-radius: 8px;
   padding: 6px 14px;
   font-size: 14px; font-weight: 800;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
 }
 .stats-save-btn {
   background: var(--fire);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 8px 18px;
+  padding: 8px 20px;
   font-size: 12px; font-weight: 700;
   cursor: pointer;
-  transition: opacity .15s, transform .15s;
-  font-family: 'Inter', sans-serif;
+  transition: opacity 150ms var(--spring), transform var(--spring-fast);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 36px;
 }
 .stats-save-btn:hover { opacity: .88; }
-.stats-save-btn:active { opacity: .75; transform: scale(.97); }
+.stats-save-btn:active { transform: scale(.96); opacity: .8; }
+.stats-save-btn:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
 .stats-save-btn:disabled { opacity: .45; cursor: default; }
 .stats-status { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
 .stats-status.ok { background: rgba(76,175,80,.15); color: #4CAF50; }
@@ -1559,7 +1672,7 @@ body::before {
 .snap-pill.live.active { background: rgba(255,87,34,.25); border-color: var(--fire); }
 
 .sched-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-.sched-row .sched-label { font-size: 12px; font-weight: 700; color: var(--text); min-width: 65px; font-family: 'Oswald', sans-serif; }
+.sched-row .sched-label { font-size: 12px; font-weight: 700; color: var(--text); min-width: 65px; font-family: 'Barlow Condensed', sans-serif; }
 .sched-row .sched-fired { font-size: 11px; font-weight: 700; color: #4CAF50; margin-left: 4px; }
 .sched-row .sched-pending { font-size: 11px; font-weight: 700; color: var(--muted); margin-left: 4px; }
 
@@ -1585,7 +1698,7 @@ body::before {
 }
 /* ── MATCH DETAIL MODAL ── */
 .match-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px}
-.match-modal{background:var(--surf);border:1px solid var(--border);border-radius:16px;max-width:860px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.match-modal{background:var(--surf);border:1px solid var(--border);border-radius:16px;max-width:860px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-floating)}
 .match-modal-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
 .match-modal-score{display:flex;align-items:center;gap:16px;flex:1;justify-content:center}
 .match-modal-team{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:80px}
@@ -1763,6 +1876,17 @@ body::before {
         <div class="mgr-chips" id="mgrChips"></div>
       </div>
       <div class="scout-filter-card">
+        <div class="scout-section-lbl">Echipă</div>
+        <div class="mgr-chips" id="teamChips"></div>
+      </div>
+      <div class="scout-filter-card">
+        <div class="scout-section-lbl">Risc</div>
+        <button class="susp-toggle" id="suspToggle" onclick="toggleSuspFilter()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0"><rect x="2" y="1" width="12" height="14" rx="1.5" fill="#fbbf24" opacity=".9"/><rect x="5" y="4" width="6" height="1.5" rx=".75" fill="#1a1200"/><rect x="5" y="7" width="6" height="1.5" rx=".75" fill="#1a1200"/><rect x="5" y="10" width="4" height="1.5" rx=".75" fill="#1a1200"/></svg>
+          Risc suspendare
+        </button>
+      </div>
+      <div class="scout-filter-card">
         <div class="scout-section-lbl">Sortare</div>
         <div class="sort-btns" id="sortBtns"></div>
       </div>
@@ -1800,6 +1924,9 @@ body::before {
       <div class="totw-duo" id="totwPitchWrap">
         <div class="totw-half" id="totwLiga"></div>
         <div class="totw-half" id="totwBest"></div>
+        <div style="flex-basis:100%;height:0;flex-shrink:0;"></div>
+        <div class="totw-half" id="totwLeague1"></div>
+        <div class="totw-half" id="totwWorld"></div>
       </div>
     </div>
   </div>
@@ -1896,6 +2023,7 @@ async function loadApiData(md) {
           goals: p.mdGoals || 0,
           assists: p.mdAssists || 0,
           cs: p.mdCleanSheet ? true : false,
+          momFlag: p.momFlag || false,
           isTransfer: p.isTransfer || false
         };
         // isTransfer marks players transferred IN this MD — they're still part of the squad
@@ -1928,6 +2056,7 @@ async function loadApiData(md) {
       selPer: p.selPer || 0,
       value: p.value || 0,
       localOwnership: p.localOwnership || 0,
+      yellowCards: p.yellowCards || 0,
       ownedBy: p.ownedBy || []
     }));
 
@@ -1943,6 +2072,8 @@ async function loadApiData(md) {
       scoutDataCache = null;
       const chipsEl = document.getElementById('mgrChips');
       if (chipsEl) chipsEl.dataset.init = '';
+      const teamChipsEl = document.getElementById('teamChips');
+      if (teamChipsEl) teamChipsEl.dataset.init = '';
       renderScouting();
     }
   } catch(e) {
@@ -1990,6 +2121,8 @@ let scoutSortDir = 1; // 1=desc, -1=asc
 let scoutQuery = '';
 let totwMode = 'liga';
 let scoutDataCache = null;
+let scoutTeamFilter = new Set();
+let scoutSuspFilter = false;
 const TOTAL_MDS = 17;
 let mdCache = {};
 
@@ -2078,10 +2211,12 @@ function mdEventIcons(p) {
   const ball = `<svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#FF4444" stroke-width="1.3"/><path d="M10 4.5L13 7.5L11.8 11.5H8.2L7 7.5Z" stroke="#FF4444" stroke-width="1" stroke-linejoin="round" fill="none"/><line x1="10" y1="4.5" x2="10" y2="1.5" stroke="#FF4444" stroke-width=".8"/><line x1="13" y1="7.5" x2="17.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="11.8" y1="11.5" x2="15.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="8.2" y1="11.5" x2="4.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="7" y1="7.5" x2="2.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/></svg>`;
   const boot = `<svg width="22" height="15" viewBox="0 0 28 18" fill="none"><path d="M6 1Q3 1 3 4L3 13L26 13Q28 13 28 11Q28 9 26 9L16 9L13 4Q13 1 10 1Z" stroke="#4488FF" stroke-width="1.3" stroke-linejoin="round" fill="none"/><line x1="7" y1="13" x2="7" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="13" x2="15" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="23" y1="13" x2="23" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/></svg>`;
   const shield = `<svg width="15" height="17" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg>`;
+  const star = `<svg width="17" height="17" viewBox="0 0 20 20" fill="none"><path d="M10 2L12.4 7.2L18 7.8L13.8 11.6L15 17L10 14.2L5 17L6.2 11.6L2 7.8L7.6 7.2Z" stroke="#FFD700" stroke-width="1.3" stroke-linejoin="round" fill="rgba(255,215,0,.15)"/></svg>`;
   let h = '<div class="fm-pc-events">';
   for (let i = 0; i < Math.min(goals, 3); i++) h += `<span class="fm-ev goal" title="Gol MD">${ball}</span>`;
   for (let i = 0; i < Math.min(assists, 3); i++) h += `<span class="fm-ev assist" title="Assist MD">${boot}</span>`;
   if (cs && p.posCode !== 'FWD') h += `<span class="fm-ev cs" title="Clean Sheet MD">${shield}</span>`;
+  if (p.momFlag) h += `<span class="fm-ev motm" title="Man of the Match">${star}</span>`;
   return h + '</div>';
 }
 
@@ -2254,7 +2389,7 @@ function populateUserDropdown() {
   if (!dd) return;
   dd.innerHTML = MANAGERS.map(m =>
     `<div class="nav-user-drop-item${m.guid === CURRENT_USER ? ' active' : ''}" onclick="switchGlobalUser('${m.guid}');event.stopPropagation()">${nick(m.username)}</div>`
-  ).join('');
+  ).join('') + '<div style="border-top:1px solid var(--border);margin-top:4px;padding-top:4px"><div class="nav-user-drop-item" onclick="window.location.href='/';event.stopPropagation()" style="color:var(--muted)">← Cine ești?</div></div>';
 }
 
 function updateNavUserName() {
@@ -2303,6 +2438,10 @@ document.addEventListener('click', e => {
 // ═══════════════════════════════════════════
 function buildScoutingData() {
   if (scoutDataCache) return scoutDataCache;
+  // Build yellow card lookup from allPlayers
+  const ycMap = {};
+  allPlayers.forEach(p => { ycMap[p.name + '|' + p.teamCode] = p.yellowCards || 0; });
+
   const playerMap = {};
   const totalMgrs = MANAGERS.length;
   MANAGERS.forEach(mgr => {
@@ -2315,7 +2454,8 @@ function buildScoutingData() {
         playerMap[key] = {
           name: p.name, posCode: p.posCode, teamCode: p.teamCode,
           pts: p.pts || 0, goals: p.goals || 0, assists: p.assists || 0,
-          cs: p.cs ? 1 : 0, owners: [], isStarter: {}
+          cs: p.cs ? 1 : 0, owners: [], isStarter: {},
+          yellowCards: ycMap[key] || 0
         };
       }
       const entry = playerMap[key];
@@ -2345,6 +2485,19 @@ function ringColor(pct) {
 }
 
 // ─── RENDER SCOUTING ───
+function toggleSuspFilter() {
+  scoutSuspFilter = !scoutSuspFilter;
+  const btn = document.getElementById('suspToggle');
+  if (btn) btn.classList.toggle('active', scoutSuspFilter);
+  renderScouting();
+}
+
+function toggleTeamChip(teamCode, el) {
+  if (scoutTeamFilter.has(teamCode)) { scoutTeamFilter.delete(teamCode); el.classList.remove('active'); }
+  else { scoutTeamFilter.add(teamCode); el.classList.add('active'); }
+  renderScouting();
+}
+
 function renderScouting() {
   // Manager chips
   const chipsEl = document.getElementById('mgrChips');
@@ -2352,6 +2505,17 @@ function renderScouting() {
     chipsEl.dataset.init = '1';
     chipsEl.innerHTML = MANAGERS.map(m =>
       `<div class="mgr-chip" data-guid="${m.guid}" style="--chip-color:${m.color}" onclick="toggleMgrChip('${m.guid}',this)">${initials(nick(m.username))}</div>`
+    ).join('');
+  }
+
+  // Team chips — built from current scouting data, sorted alphabetically
+  const teamChipsEl = document.getElementById('teamChips');
+  if (teamChipsEl && !teamChipsEl.dataset.init) {
+    teamChipsEl.dataset.init = '1';
+    const allData = buildScoutingData();
+    const teams = [...new Set(allData.map(p => p.teamCode))].sort();
+    teamChipsEl.innerHTML = teams.map(tc =>
+      `<button class="team-chip${scoutTeamFilter.has(tc) ? ' active' : ''}" onclick="toggleTeamChip('${tc}',this)">${tc}</button>`
     ).join('');
   }
 
@@ -2378,6 +2542,8 @@ function renderScouting() {
   if (q) data = data.filter(p => p.name.toLowerCase().includes(q) || p.teamCode.toLowerCase().includes(q));
   if (scoutPosFilter !== 'ALL') data = data.filter(p => p.posCode === scoutPosFilter);
   if (scoutMgrFilter.size > 0) data = data.filter(p => p.owners.some(o => scoutMgrFilter.has(o)));
+  if (scoutTeamFilter.size > 0) data = data.filter(p => scoutTeamFilter.has(p.teamCode));
+  if (scoutSuspFilter) data = data.filter(p => p.yellowCards >= 2);
 
   data.sort((a, b) => {
     const av = a[scoutSortCol] || 0, bv = b[scoutSortCol] || 0;
@@ -2419,6 +2585,7 @@ function renderScouting() {
         <div class="sc-player-meta">
           <span class="sc-pos-badge ${p.posCode}">${p.posCode}</span>
           <span class="sc-team-name">${p.teamCode}</span>
+          ${p.yellowCards >= 2 ? `<span class="yc-badge ${p.yellowCards >= 3 ? 'danger' : 'risk'}">🟨 ${p.yellowCards}</span>` : ''}
         </div>
         <div class="sc-dots">${dots}</div>
       </div>
@@ -2559,20 +2726,66 @@ function renderTOTW() {
   const bestXI = pickBestXI(bestPlayers);
   const bestHtml = bestXI.squad.length ? buildPitchHtml(bestXI.squad, bestXI.d, bestXI.m, bestXI.f, 'Cel Mai Bun XI') : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Se \u00eencarc\u0103...</div>';
 
+  // ── #1 Liga Noastra — actual team of the league's top-scoring manager this MD
+  let league1Html = '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Date indisponibile</div>';
+  let league1Pts = 0;
+  const sortedMgrs = [...MANAGERS].sort((a, b) => b.gdPoints - a.gdPoints);
+  const topMgr = sortedMgrs[0];
+  if (topMgr && ROSTERS[topMgr.guid]) {
+    const roster = ROSTERS[topMgr.guid];
+    const l1Players = roster.starters.map(p => ({ ...p, ownerGuid: topMgr.guid, ownerName: topMgr.username }));
+    const l1XI = pickBestXI(l1Players);
+    league1Pts = l1XI.total || 0;
+    const l1Label = `#1 Liga · <span style="font-size:10px;opacity:.65">${topMgr.username} · ${topMgr.gdPoints} pts</span>`;
+    league1Html = l1XI.squad.length
+      ? buildPitchHtml(l1XI.squad, l1XI.d, l1XI.m, l1XI.f, l1Label)
+      : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Date indisponibile</div>';
+  }
+
+  // ── #1 Global — actual team of the globally ranked #1 player this MD
+  let worldHtml = '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Date indisponibile</div>';
+  let worldPts = 0;
+  if (worldLeader && worldLeader.players && worldLeader.players.length) {
+    const wlPlayers = worldLeader.players
+      .filter(p => p.isStarter)
+      .map(p => ({
+        ...p,
+        pts: p.mdPoints || 0,
+        captain: p.isCaptain,
+        ownerGuid: null,
+        ownerName: ''
+      }));
+    const worldXI = pickBestXI(wlPlayers);
+    worldPts = worldXI.total || 0;
+    const wlLabel = `#1 Global · <span style="font-size:10px;opacity:.65">${worldLeader.fullName} · ${worldLeader.teamName}</span>`;
+    worldHtml = worldXI.squad.length
+      ? buildPitchHtml(worldXI.squad, worldXI.d, worldXI.m, worldXI.f, wlLabel)
+      : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Date indisponibile</div>';
+  }
+
   // Stats header
-  const totalPts = ligaXI.total + bestXI.total;
   document.getElementById('totwStats').innerHTML = `
     <div class="totw-stat-block">
       <div class="totw-stat-v fire">${ligaXI.total}</div>
-      <div class="totw-stat-l">Liga Pts</div>
+      <div class="totw-stat-l">Best XI Liga</div>
     </div>
     <div class="totw-stat-block">
       <div class="totw-stat-v neon">${bestXI.total}</div>
-      <div class="totw-stat-l">Global Pts</div>
+      <div class="totw-stat-l">Best XI Global</div>
+    </div>
+    <div class="totw-stat-block">
+      <div class="totw-stat-v" style="color:#c0a0ff">${league1Pts}</div>
+      <div class="totw-stat-l">#1 Liga</div>
+    </div>
+    <div class="totw-stat-block">
+      <div class="totw-stat-v" style="color:#FFD700">${worldPts}</div>
+      <div class="totw-stat-l">#1 Global</div>
     </div>`;
 
   document.getElementById('totwLiga').innerHTML = ligaHtml;
   document.getElementById('totwBest').innerHTML = bestHtml;
+  document.getElementById('totwLeague1').innerHTML = league1Html;
+  document.getElementById('totwWorld').innerHTML = worldHtml;
 }
 
 // ═══════════════════════════════════════════
@@ -2663,19 +2876,34 @@ async function loadFixturesFromAPI() {
 // ═══════════════════════════════════════════
 // ─── TAB SWITCHING ───
 // ═══════════════════════════════════════════
+function activateTab(tabName) {
+  if (!document.getElementById('view-' + tabName)) return;
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const tabEl = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
+  if (tabEl) tabEl.classList.add('active');
+  document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tabName).classList.add('active');
+  currentTab = tabName;
+  location.hash = tabName;
+  if (tabName === 'scouting') renderScouting();
+  if (tabName === 'totw') renderTOTW();
+}
+
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const tabName = tab.dataset.tab;
     if (tabName === currentTab) return;
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-    document.getElementById('view-' + tabName).classList.add('active');
-    currentTab = tabName;
-    if (tabName === 'scouting') renderScouting();
-    if (tabName === 'totw') renderTOTW();
+    activateTab(tabName);
   });
 });
+
+// Restore tab from URL hash on load
+(function() {
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById('view-' + hash)) {
+    activateTab(hash);
+  }
+})();
 
 // Position filter clicks
 document.querySelectorAll('.pos-btn').forEach(btn => {
@@ -2751,8 +2979,12 @@ async function showMatchModal(idx) {
       const fantasyPlayer = allPlayers.find(x => String(x.id) === pid);
       const pos = (fantasyPlayer && fantasyPlayer.posCode) || posMap[(p.player||{}).fieldPosition||p.fieldPosition||p.type||''] || 'MID';
       const fs = (fantasy||{})[pid]||{};
-      const pts = fs.pts||0, goals = fs.goals||scorerMap[pid]||0, assists = fs.assists||assistMap[pid]||0;
-      const cs = fs.cs||0, yc = fs.yc||0, rc = fs.rc||0;
+      const fp = fantasyPlayer || {};
+      const pts = fs.pts || fp.pts || 0;
+      const goals = fs.goals || scorerMap[pid] || fp.goals || 0;
+      const assists = fs.assists || assistMap[pid] || fp.assists || 0;
+      const cs = fs.cs || fp.cs || 0;
+      const yc = fs.yc||0, rc = fs.rc||0;
       let ev = '';
       for(let g=0;g<Math.min(goals,4);g++) ev+='<span class="match-ev-icon">⚽</span>';
       for(let a=0;a<Math.min(assists,4);a++) ev+='<span class="match-ev-icon">👟</span>';

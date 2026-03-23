@@ -1,0 +1,518 @@
+leaders tab
+
+*URL-ul complet*
+
+https://gaming.uefa.com/en/uclfantasy/services/api//Leaderboard/leaders?optType=1&phaseId=0&matchdayId=0&vPageChunk=25&vPageNo=1&vPageOneChunk=25&buster=m8uzapq021771578439052
+
+*request headers*
+
+:authority
+gaming.uefa.com
+:method
+GET
+:path
+/en/uclfantasy/services/api//Leaderboard/leaders?optType=1&phaseId=0&matchdayId=0&vPageChunk=25&vPageNo=1&vPageOneChunk=25&buster=m8uzapq021771578439052
+:scheme
+https
+accept
+application/json
+accept-encoding
+gzip, deflate, br, zstd
+accept-language
+en-US,en;q=0.9,ro;q=0.8,pl;q=0.7,ru;q=0.6,sk;q=0.5,fr;q=0.4,nl;q=0.3,de;q=0.2,it;q=0.1,pt-BR;q=0.1,pt;q=0.1
+access-control-expose-headers
+Date
+cookie
+OptanonAlertBoxClosed=2025-08-25T10:48:38.378Z; eupubconsent-v2=CQWsuUgQWsuUgAcABBENB5FgAP_AAEPAAChQF5wAgAWgLzAvOACAvMAA.f_gACHgAAAAA; gh_prod_was_logged=true; _wt.user-2579904=WT3Uhx-uFfTRBDgs0z5epTi8Y3moJdxEsQlHt0Ppon0XLdlGUOEP3nIAYu33fMtFcL3zlRi68uwVjCDqK2HbeHo4tbkRpLKtnDVbnGa4uKouHE~; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Dec+11+2025+10%3A26%3A37+GMT%2B0200+(Eastern+European+Standard+Time)&version=202411.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=H302%3A1%2CH269%3A0%2CH293%3A0%2CH109%3A0%2CH272%3A0%2CH105%3A0%2CH244%3A0%2CH23%3A0%2CH212%3A0%2CH264%3A0%2CH26%3A0%2CH291%3A0%2CH43%3A0%2CH236%3A0%2CH300%3A0%2CH225%3A0%2CH280%3A0&consentId=73b2ada2-7379-471d-801e-0f3d44ab933c&interactionCount=1&isAnonUser=1&landingPath=NotLandingPage&groups=1%3A1%2C2%3A1%2C4%3A1%2CV2STACK42%3A1%2CC0021%3A0&intType=1&geolocation=RO%3BB&AwaitingReconsent=false&genVendors=V5%3A0%2C; __cmpconsentx158372=CQcn47AQcn47AAfF0BENCJFoAPLAAELAAAigF5wAgAWgLzAvOACAvMAA.IF5wAgAWgLzA; __cmpcccx158372=aCQcpcK0gBaWZgItMTGtaZVlGJCYAMaBWETFKaJTBIYAgoIEGsiEyIrA; UCL_CLASSIC_007=4B0044004E00650067006100770045005500700049004A004400760063004A004B0075006C00670065005A00350046004D00570035006A00690059004900330031005A006A004A005000660031006F005A0076006E0072005100610047003400750075004F00760061006700360052004C0072005900560031004A0077004E0066007A002B00760045006800520072004B00570054004D0069007A007000350063006E00560075006200360073006F0043006D0059007800550078003500420070006400360044004400570030006D0045003500770074004E004D0053006F00590064004E002F0059006900760051006E00440048004E0059006D00630075004400750070004B00720048006A006B0071006C002B002F004700560048004E004C006F0037003600630041003D003D00; IDP-SDK-user-logged-in_prod=true; _wt.mode-2579904=WT3qr4pw_rjKng~; geo.Country={%22countryName%22:%22Romania%22%2C%22countryCode%22:%22ROU%22%2C%22countryCodeShort%22:%22RO%22%2C%22fifaCountryCode%22:%22ROU%22%2C%22uefaCountry%22:true}; UCL_CLASSIC_RAW=%7B%0A%20%20%22socialId%22%3A%20%2241521914%22%2C%0A%20%20%22gigyaId%22%3A%20%22236f105d400a45ffb2ccceeeb026bfd1%22%2C%0A%20%20%22fullName%22%3A%20%22Eduard%22%2C%0A%20%20%22isTeamExists%22%3A%201%2C%0A%20%20%22countryId%22%3A%200%2C%0A%20%20%22countryName%22%3A%20%22%22%2C%0A%20%20%22guid%22%3A%20%22abd0968c-81a1-11f0-bb57-abab47f5742d%22%2C%0A%20%20%22favTeamId%22%3A%20%220%22%2C%0A%20%20%22teamName%22%3A%20%22Ispitele%2520Masculine%2520U17%22%2C%0A%20%20%22isGdprActive%22%3A%200%2C%0A%20%20%22isLeagueCodeCopied%22%3A%200%2C%0A%20%20%22isLeagueCodeShared%22%3A%200%0A%7D; _ga=GA1.1.188164090.1756118919; BCSessionID=156be5a2-b869-4243-89e5-9dcd420ac6c7; gh_prod_token={%22user_id%22:41521914%2C%22favourites%22:null%2C%22token_type%22:%22Bearer%22%2C%22access_token%22:%22eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiNzE1MDU1NmRmMDY0YmM2YWQxODdkNTFmYzdlNDdlM2FkNGQ4NjJmYTgzOGEyYTJkNDRmMjNiZDQxNTJjOGQzNTgyZmUwY2Y0NGQyNGU2YmQiLCJpYXQiOjE3NzI0NTkyNDkuOTc4OTA2LCJuYmYiOjE3NzI0NTkyNDkuOTc4OTA4LCJleHAiOjE3NzMzMjMyNDkuOTY3OTk2LCJzdWIiOiI0MTUyMTkxNCIsInNjb3BlcyI6W119.jCtU7x8lYtQ_d0hpRfCXlUPm9XvS10Wpi2L8_XVypJPj8JcGcQ0-C2UlTQUKcX8VY-C-hQKAMhSaXiEBB7f1-Z_-fQfZQ7hYe546v8sVyV3GRh4UoXlgeGoIfSmvG2tNJcsIM8Vg2in9ahIN5eQWkOHb9wTz6MLlkVI6NwKTrBY7sF2B2VCO22wDnED1ebnxyJpmxc-4e-E3EHJGfzuj21uLGeG4oCZj3zwGB4Da5s8hfs0rSyZoM11gQTq9yM13CbW0616rwR3E4DtOIQdLnAM00VBlLPvMum0BpMgqIgAugXnlAV1UOOrSNGP1qVCvKxvLOI0KI4c9IAII5ODa-4-L0csh-wTv175mmxxU6pxUyDLaf6eNdDTE55qyfR9qiAbJN7r64ZxldrzLgPjUC3nqYrazVzdPqKVbffrn6fkJq4JFd2YwF5pG8Xoc4eu8fpWmpWlTEIUuCHDQjp1znJ7tcRI2XVgzSMp1ahzRxdkNGaJgs8z-FINEQhN7PPLsFFCZceC8fjWuPAudrcRGx4Bqb5q12FncXynksf-uCoIkWW01aSuY8fe4E9ZdzwBeat2ShtDnUYiHuGtZKAEOVs3IqcUmQ4wUogWryBVBoZVZEuMulB3A-YSXo8okYxLanHha1cDkjLFXVKoUw0uvvyxX4VkRzSpg8zHKU_HHDjE%22}; gh_prod_refresh_token={%22user_id%22:41521914%2C%22favourites%22:null%2C%22refresh_token%22:%22def502009d3374695ab3768d94087d5b917f422c31f1f00e3be6ca20532acc994ec715da5903aa04e04751e41d32cbadaf14cba606f724dde38a856e1fce65ab01bc8dac054a169bab76413130b173579b16cea60d969825fe8cbe7b7f60ba13e7ff0a158d7e027c1431a46e24b51ff7a6560fff634ccc90003a3897795c9f4ae69f257e7878267db4daf1673f781f411e73f521042866df9d697af5eb3decb7729adaabeaf00834726c6fdca67ec755908f3946939d8b091e93b636089266d5e4b7f028de3a7f32356874e5fff58c040a47ae87387ee8cb05b74f06543606265891e4babed36ed99d8fb92fc27a9f9694b177d985cb4cdf42923a56b4b02f2ee8e6cafd8714c172d85fd7077c7af57bbe318a1b61bad307a38d6f2080af684b98aab179c57930b0aa367d5b3226b6f8d355355529901e98547ba3c4b154fe4cd384d322a7b9509a3596fc68d4b147a62e35116d0cdf4b6779a9e9a02eb523694708168beefbff83%22}; AKA_A2=A; ck_Login_Status=true; _ga_X6QJTK7ZQG=GS2.1.s1772700111$o115$g1$t1772700345$j60$l0$h0; RT="z=1&dm=gaming.uefa.com&si=2d40e0ba-b1c6-4d64-893f-cc3778a433b1&ss=mmd7vijz&sl=2&tt=2k1&bcn=%2F%2F684dd330.akstat.io%2F&rl=1"
+entity
+ed0t4n$3!
+priority
+u=1, i
+referer
+https://gaming.uefa.com/en/uclfantasy/team/abd0968c-81a1-11f0-bb57-abab47f5742d/004500640075006100720064/0/0/1/Worldleaderboard?typeId=0031
+sec-ch-ua
+"Opera";v="127", "Chromium";v="143", "Not A(Brand";v="24"
+sec-ch-ua-mobile
+?0
+sec-ch-ua-platform
+"Windows"
+sec-fetch-dest
+empty
+sec-fetch-mode
+cors
+sec-fetch-site
+same-origin
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 OPR/127.0.0.0
+
+
+
+*response-ul*
+
+
+{
+    "data": {
+        "value": {
+            "userInfo": [
+                {
+                    "guid": "6e444e3a-8b51-11f0-9663-ef1c1fd1560e",
+                    "teamName": "Adem Ucl",
+                    "fullName": "BATHA",
+                    "rank": 1,
+                    "trend": 1,
+                    "overallPoints": 977.0,
+                    "currentGamedayPoints": 87.0,
+                    "rankNo": 1,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf_19_{size}{ratio}.png",
+                    "level": "12",
+                    "levelName": "Intermédiaire"
+                },
+                {
+                    "guid": "302391a6-9245-11f0-837c-31c2583f34b2",
+                    "teamName": "Shankos Stars",
+                    "fullName": "shanko21",
+                    "rank": 2,
+                    "trend": 2,
+                    "overallPoints": 971.0,
+                    "currentGamedayPoints": 89.0,
+                    "rankNo": 2,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-white_{size}{ratio}.png",
+                    "level": "7",
+                    "levelName": "Apprentice"
+                },
+                {
+                    "guid": "eb696556-840a-11f0-8fab-9d8fff7cb91b",
+                    "teamName": "RMA",
+                    "fullName": "Mo ALI",
+                    "rank": 3,
+                    "trend": 2,
+                    "overallPoints": 958.0,
+                    "currentGamedayPoints": 83.0,
+                    "rankNo": 3,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf-white_{size}{ratio}.png",
+                    "level": "18",
+                    "levelName": "Contender"
+                },
+                {
+                    "guid": "aa864a50-84bd-11f0-8ae7-3b5df62209dd",
+                    "teamName": "Oracion Seis",
+                    "fullName": "Vialli Gonsalves",
+                    "rank": 4,
+                    "trend": 1,
+                    "overallPoints": 947.0,
+                    "currentGamedayPoints": 67.0,
+                    "rankNo": 4,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf-red_{size}{ratio}.png",
+                    "level": "10",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "40e7f886-8a68-11f0-bed4-9f8ad5ce0696",
+                    "teamName": "Abdoullah",
+                    "fullName": "Abdellah tamimi",
+                    "rank": 5,
+                    "trend": 1,
+                    "overallPoints": 944.0,
+                    "currentGamedayPoints": 69.0,
+                    "rankNo": 5,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-white_{size}{ratio}.png",
+                    "level": "10",
+                    "levelName": "Intermédiaire"
+                },
+                {
+                    "guid": "17e88100-92fe-11f0-b723-690cc04b612e",
+                    "teamName": "Reds team",
+                    "fullName": "Mohammed",
+                    "rank": 6,
+                    "trend": 2,
+                    "overallPoints": 940.0,
+                    "currentGamedayPoints": 69.0,
+                    "rankNo": 6,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf_19_{size}{ratio}.png",
+                    "level": "37",
+                    "levelName": "Professional"
+                },
+                {
+                    "guid": "f38b06c0-8bf0-11f0-b5a7-f3d54812ffd5",
+                    "teamName": "Estewow",
+                    "fullName": "Adamya Aggarwal",
+                    "rank": 7,
+                    "trend": 3,
+                    "overallPoints": 938.0,
+                    "currentGamedayPoints": 63.0,
+                    "rankNo": 7,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf-blue_white_{size}{ratio}.png",
+                    "level": "43",
+                    "levelName": "Expert"
+                },
+                {
+                    "guid": "c9d06d62-92d4-11f0-966e-c7b78a546764",
+                    "teamName": "Pathetico Madrid",
+                    "fullName": "Aswin S",
+                    "rank": 8,
+                    "trend": 3,
+                    "overallPoints": 935.0,
+                    "currentGamedayPoints": 47.0,
+                    "rankNo": 8,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-red_{size}{ratio}.png",
+                    "level": "44",
+                    "levelName": "Expert"
+                },
+                {
+                    "guid": "e4733070-8427-11f0-be1e-e161973b159a",
+                    "teamName": "Shkaperdhaperplasja",
+                    "fullName": "David",
+                    "rank": 9,
+                    "trend": 2,
+                    "overallPoints": 931.0,
+                    "currentGamedayPoints": 70.0,
+                    "rankNo": 9,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf_19_{size}{ratio}.png",
+                    "level": "9",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "f49e5908-8255-11f0-bed4-9f8ad5ce0696",
+                    "teamName": "T A J",
+                    "fullName": "Erfan",
+                    "rank": 10,
+                    "trend": 2,
+                    "overallPoints": 930.0,
+                    "currentGamedayPoints": 66.0,
+                    "rankNo": 10,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf_19_{size}{ratio}.png",
+                    "level": "16",
+                    "levelName": "Contender"
+                },
+                {
+                    "guid": "a190d930-9316-11f0-9208-116de083d7f0",
+                    "teamName": "alonewolf",
+                    "fullName": "alonewolf",
+                    "rank": 11,
+                    "trend": 2,
+                    "overallPoints": 929.0,
+                    "currentGamedayPoints": 62.0,
+                    "rankNo": 11,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf_19_{size}{ratio}.png",
+                    "level": "9",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "4a57b162-82bc-11f0-b5f4-8973af599f37",
+                    "teamName": "Diego FC",
+                    "fullName": "Diego",
+                    "rank": 11,
+                    "trend": 2,
+                    "overallPoints": 929.0,
+                    "currentGamedayPoints": 63.0,
+                    "rankNo": 12,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf_19_{size}{ratio}.png",
+                    "level": "36",
+                    "levelName": "Professional"
+                },
+                {
+                    "guid": "3234d082-930c-11f0-8c52-99c8afe77092",
+                    "teamName": "prvaki",
+                    "fullName": "rope44",
+                    "rank": 13,
+                    "trend": 3,
+                    "overallPoints": 928.0,
+                    "currentGamedayPoints": 54.0,
+                    "rankNo": 13,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-claret_amber_{size}{ratio}.png",
+                    "level": "12",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "1133b5c6-8b3f-11f0-b0bc-b922b6f619f0",
+                    "teamName": "Ahmad Abutaleb",
+                    "fullName": "Ahmad abutaleb",
+                    "rank": 13,
+                    "trend": 2,
+                    "overallPoints": 928.0,
+                    "currentGamedayPoints": 71.0,
+                    "rankNo": 14,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-white_{size}{ratio}.png",
+                    "level": "9",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "0f87170a-8c01-11f0-a613-51bad0e3a5e1",
+                    "teamName": "RKS HUWDU",
+                    "fullName": "Maciej",
+                    "rank": 15,
+                    "trend": 2,
+                    "overallPoints": 926.0,
+                    "currentGamedayPoints": 93.0,
+                    "rankNo": 15,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf_19_{size}{ratio}.png",
+                    "level": "9",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "7ab1228c-91d8-11f0-8dc6-519366e48f0d",
+                    "teamName": "革命道中 - On The Way",
+                    "fullName": "黑翼白毛",
+                    "rank": 16,
+                    "trend": 2,
+                    "overallPoints": 925.0,
+                    "currentGamedayPoints": 62.0,
+                    "rankNo": 16,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf-red_{size}{ratio}.png",
+                    "level": "13",
+                    "levelName": "Advanced"
+                },
+                {
+                    "guid": "be520b46-7b8f-11f0-aeb7-c7e93fdf190e",
+                    "teamName": "Raduniak",
+                    "fullName": "Maciej K",
+                    "rank": 17,
+                    "trend": 3,
+                    "overallPoints": 924.0,
+                    "currentGamedayPoints": 56.0,
+                    "rankNo": 17,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-red_white_{size}{ratio}.png",
+                    "level": "47",
+                    "levelName": "Expert"
+                },
+                {
+                    "guid": "cc78c802-8e4c-11f0-a613-51bad0e3a5e1",
+                    "teamName": "Texx Team",
+                    "fullName": "Anthony",
+                    "rank": 18,
+                    "trend": 3,
+                    "overallPoints": 923.0,
+                    "currentGamedayPoints": 59.0,
+                    "rankNo": 18,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf-blue_white_{size}{ratio}.png",
+                    "level": "9",
+                    "levelName": "Intermédio"
+                },
+                {
+                    "guid": "46872c10-8416-11f0-ba1a-496f1ba71d3c",
+                    "teamName": "FC PEPE SILVIA",
+                    "fullName": "Fantasy Ed",
+                    "rank": 19,
+                    "trend": 2,
+                    "overallPoints": 922.0,
+                    "currentGamedayPoints": 88.0,
+                    "rankNo": 19,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-white_{size}{ratio}.png",
+                    "level": "11",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "71f328be-8438-11f0-b5a7-f3d54812ffd5",
+                    "teamName": "EKLOPSİ",
+                    "fullName": "murat erdemli",
+                    "rank": 19,
+                    "trend": 2,
+                    "overallPoints": 922.0,
+                    "currentGamedayPoints": 63.0,
+                    "rankNo": 20,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/flags-red_{size}{ratio}.png",
+                    "level": "9",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "047be26e-91ab-11f0-940b-e71c9003e1aa",
+                    "teamName": "Turkish De Ligt",
+                    "fullName": "Jimmy",
+                    "rank": 19,
+                    "trend": 2,
+                    "overallPoints": 922.0,
+                    "currentGamedayPoints": 64.0,
+                    "rankNo": 21,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-white_{size}{ratio}.png",
+                    "level": "10",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "e7cc7dee-92e1-11f0-9b51-2373700e192d",
+                    "teamName": "Improviso FC",
+                    "fullName": "dralves355",
+                    "rank": 22,
+                    "trend": 2,
+                    "overallPoints": 921.0,
+                    "currentGamedayPoints": 99.0,
+                    "rankNo": 22,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf_19_{size}{ratio}.png",
+                    "level": "32",
+                    "levelName": "Profissional"
+                },
+                {
+                    "guid": "83422656-8762-11f0-81de-39058bd643a0",
+                    "teamName": "E4 Hit Squad",
+                    "fullName": "Carl",
+                    "rank": 22,
+                    "trend": 2,
+                    "overallPoints": 921.0,
+                    "currentGamedayPoints": 70.0,
+                    "rankNo": 23,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-white_{size}{ratio}.png",
+                    "level": "10",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "26131568-91cf-11f0-a7c3-f702571a69a0",
+                    "teamName": "ANAS lb",
+                    "fullName": "ANAS LÂABED",
+                    "rank": 22,
+                    "trend": 2,
+                    "overallPoints": 921.0,
+                    "currentGamedayPoints": 70.0,
+                    "rankNo": 24,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/scarf-white_{size}{ratio}.png",
+                    "level": "11",
+                    "levelName": "Intermediate"
+                },
+                {
+                    "guid": "cf19fb96-9318-11f0-8b01-89328144180e",
+                    "teamName": "om r",
+                    "fullName": "Omar Matar",
+                    "rank": 22,
+                    "trend": 3,
+                    "overallPoints": 921.0,
+                    "currentGamedayPoints": 55.0,
+                    "rankNo": 25,
+                    "avatarId": "https://gaming.uefa.com/assets/avatars/cap-white_{size}{ratio}.png",
+                    "level": "13",
+                    "levelName": "Advanced"
+                }
+            ],
+            "totUser": "1.5m+",
+            "totUserNew": 1738014
+        },
+        "feedTime": {
+            "utcTime": "3/5/26 8:52:14 AM",
+            "istTime": "3/5/26 2:22:14 PM",
+            "cestTime": "3/5/26 9:52:14 AM"
+        }
+    },
+    "meta": {
+        "message": "Success",
+        "retVal": 1,
+        "success": true,
+        "timestamp": {
+            "utcTime": "3/5/26 8:52:14 AM",
+            "istTime": "3/5/26 2:22:14 PM",
+            "cestTime": "3/5/26 9:52:14 AM"
+        }
+    }
+}
+
+
+
+
+Rank tab
+
+*url complet*
+
+
+https://gaming.uefa.com/en/uclfantasy/services/api//Leaderboard/abd0968c-81a1-11f0-bb57-abab47f5742d/rank?optType=1&phaseId=0&matchdayId=0&vPageChunk=25&vPageNo=1&vPageOneChunk=25&rankEndpoint=%2FLeaderboard%2Fabd0968c-81a1-11f0-bb57-abab47f5742d%2Frank&buster=g4p5e72g61771578439052
+
+
+*request headers*
+
+:authority
+gaming.uefa.com
+:method
+GET
+:path
+/en/uclfantasy/services/api//Leaderboard/abd0968c-81a1-11f0-bb57-abab47f5742d/rank?optType=1&phaseId=0&matchdayId=0&vPageChunk=25&vPageNo=1&vPageOneChunk=25&rankEndpoint=%2FLeaderboard%2Fabd0968c-81a1-11f0-bb57-abab47f5742d%2Frank&buster=g4p5e72g61771578439052
+:scheme
+https
+accept
+application/json
+accept-encoding
+gzip, deflate, br, zstd
+accept-language
+en-US,en;q=0.9,ro;q=0.8,pl;q=0.7,ru;q=0.6,sk;q=0.5,fr;q=0.4,nl;q=0.3,de;q=0.2,it;q=0.1,pt-BR;q=0.1,pt;q=0.1
+access-control-expose-headers
+Date
+cookie
+OptanonAlertBoxClosed=2025-08-25T10:48:38.378Z; eupubconsent-v2=CQWsuUgQWsuUgAcABBENB5FgAP_AAEPAAChQF5wAgAWgLzAvOACAvMAA.f_gACHgAAAAA; gh_prod_was_logged=true; _wt.user-2579904=WT3Uhx-uFfTRBDgs0z5epTi8Y3moJdxEsQlHt0Ppon0XLdlGUOEP3nIAYu33fMtFcL3zlRi68uwVjCDqK2HbeHo4tbkRpLKtnDVbnGa4uKouHE~; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Dec+11+2025+10%3A26%3A37+GMT%2B0200+(Eastern+European+Standard+Time)&version=202411.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=H302%3A1%2CH269%3A0%2CH293%3A0%2CH109%3A0%2CH272%3A0%2CH105%3A0%2CH244%3A0%2CH23%3A0%2CH212%3A0%2CH264%3A0%2CH26%3A0%2CH291%3A0%2CH43%3A0%2CH236%3A0%2CH300%3A0%2CH225%3A0%2CH280%3A0&consentId=73b2ada2-7379-471d-801e-0f3d44ab933c&interactionCount=1&isAnonUser=1&landingPath=NotLandingPage&groups=1%3A1%2C2%3A1%2C4%3A1%2CV2STACK42%3A1%2CC0021%3A0&intType=1&geolocation=RO%3BB&AwaitingReconsent=false&genVendors=V5%3A0%2C; __cmpconsentx158372=CQcn47AQcn47AAfF0BENCJFoAPLAAELAAAigF5wAgAWgLzAvOACAvMAA.IF5wAgAWgLzA; __cmpcccx158372=aCQcpcK0gBaWZgItMTGtaZVlGJCYAMaBWETFKaJTBIYAgoIEGsiEyIrA; UCL_CLASSIC_007=4B0044004E00650067006100770045005500700049004A004400760063004A004B0075006C00670065005A00350046004D00570035006A00690059004900330031005A006A004A005000660031006F005A0076006E0072005100610047003400750075004F00760061006700360052004C0072005900560031004A0077004E0066007A002B00760045006800520072004B00570054004D0069007A007000350063006E00560075006200360073006F0043006D0059007800550078003500420070006400360044004400570030006D0045003500770074004E004D0053006F00590064004E002F0059006900760051006E00440048004E0059006D00630075004400750070004B00720048006A006B0071006C002B002F004700560048004E004C006F0037003600630041003D003D00; IDP-SDK-user-logged-in_prod=true; _wt.mode-2579904=WT3qr4pw_rjKng~; geo.Country={%22countryName%22:%22Romania%22%2C%22countryCode%22:%22ROU%22%2C%22countryCodeShort%22:%22RO%22%2C%22fifaCountryCode%22:%22ROU%22%2C%22uefaCountry%22:true}; UCL_CLASSIC_RAW=%7B%0A%20%20%22socialId%22%3A%20%2241521914%22%2C%0A%20%20%22gigyaId%22%3A%20%22236f105d400a45ffb2ccceeeb026bfd1%22%2C%0A%20%20%22fullName%22%3A%20%22Eduard%22%2C%0A%20%20%22isTeamExists%22%3A%201%2C%0A%20%20%22countryId%22%3A%200%2C%0A%20%20%22countryName%22%3A%20%22%22%2C%0A%20%20%22guid%22%3A%20%22abd0968c-81a1-11f0-bb57-abab47f5742d%22%2C%0A%20%20%22favTeamId%22%3A%20%220%22%2C%0A%20%20%22teamName%22%3A%20%22Ispitele%2520Masculine%2520U17%22%2C%0A%20%20%22isGdprActive%22%3A%200%2C%0A%20%20%22isLeagueCodeCopied%22%3A%200%2C%0A%20%20%22isLeagueCodeShared%22%3A%200%0A%7D; _ga=GA1.1.188164090.1756118919; BCSessionID=156be5a2-b869-4243-89e5-9dcd420ac6c7; gh_prod_token={%22user_id%22:41521914%2C%22favourites%22:null%2C%22token_type%22:%22Bearer%22%2C%22access_token%22:%22eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiNzE1MDU1NmRmMDY0YmM2YWQxODdkNTFmYzdlNDdlM2FkNGQ4NjJmYTgzOGEyYTJkNDRmMjNiZDQxNTJjOGQzNTgyZmUwY2Y0NGQyNGU2YmQiLCJpYXQiOjE3NzI0NTkyNDkuOTc4OTA2LCJuYmYiOjE3NzI0NTkyNDkuOTc4OTA4LCJleHAiOjE3NzMzMjMyNDkuOTY3OTk2LCJzdWIiOiI0MTUyMTkxNCIsInNjb3BlcyI6W119.jCtU7x8lYtQ_d0hpRfCXlUPm9XvS10Wpi2L8_XVypJPj8JcGcQ0-C2UlTQUKcX8VY-C-hQKAMhSaXiEBB7f1-Z_-fQfZQ7hYe546v8sVyV3GRh4UoXlgeGoIfSmvG2tNJcsIM8Vg2in9ahIN5eQWkOHb9wTz6MLlkVI6NwKTrBY7sF2B2VCO22wDnED1ebnxyJpmxc-4e-E3EHJGfzuj21uLGeG4oCZj3zwGB4Da5s8hfs0rSyZoM11gQTq9yM13CbW0616rwR3E4DtOIQdLnAM00VBlLPvMum0BpMgqIgAugXnlAV1UOOrSNGP1qVCvKxvLOI0KI4c9IAII5ODa-4-L0csh-wTv175mmxxU6pxUyDLaf6eNdDTE55qyfR9qiAbJN7r64ZxldrzLgPjUC3nqYrazVzdPqKVbffrn6fkJq4JFd2YwF5pG8Xoc4eu8fpWmpWlTEIUuCHDQjp1znJ7tcRI2XVgzSMp1ahzRxdkNGaJgs8z-FINEQhN7PPLsFFCZceC8fjWuPAudrcRGx4Bqb5q12FncXynksf-uCoIkWW01aSuY8fe4E9ZdzwBeat2ShtDnUYiHuGtZKAEOVs3IqcUmQ4wUogWryBVBoZVZEuMulB3A-YSXo8okYxLanHha1cDkjLFXVKoUw0uvvyxX4VkRzSpg8zHKU_HHDjE%22}; gh_prod_refresh_token={%22user_id%22:41521914%2C%22favourites%22:null%2C%22refresh_token%22:%22def502009d3374695ab3768d94087d5b917f422c31f1f00e3be6ca20532acc994ec715da5903aa04e04751e41d32cbadaf14cba606f724dde38a856e1fce65ab01bc8dac054a169bab76413130b173579b16cea60d969825fe8cbe7b7f60ba13e7ff0a158d7e027c1431a46e24b51ff7a6560fff634ccc90003a3897795c9f4ae69f257e7878267db4daf1673f781f411e73f521042866df9d697af5eb3decb7729adaabeaf00834726c6fdca67ec755908f3946939d8b091e93b636089266d5e4b7f028de3a7f32356874e5fff58c040a47ae87387ee8cb05b74f06543606265891e4babed36ed99d8fb92fc27a9f9694b177d985cb4cdf42923a56b4b02f2ee8e6cafd8714c172d85fd7077c7af57bbe318a1b61bad307a38d6f2080af684b98aab179c57930b0aa367d5b3226b6f8d355355529901e98547ba3c4b154fe4cd384d322a7b9509a3596fc68d4b147a62e35116d0cdf4b6779a9e9a02eb523694708168beefbff83%22}; AKA_A2=A; ck_Login_Status=true; _ga_X6QJTK7ZQG=GS2.1.s1772700111$o115$g1$t1772700345$j60$l0$h0; RT="z=1&dm=gaming.uefa.com&si=2d40e0ba-b1c6-4d64-893f-cc3778a433b1&ss=mmd7vijz&sl=2&tt=2k1&bcn=%2F%2F684dd330.akstat.io%2F&rl=1"
+entity
+ed0t4n$3!
+priority
+u=1, i
+referer
+https://gaming.uefa.com/en/uclfantasy/team/abd0968c-81a1-11f0-bb57-abab47f5742d/004500640075006100720064/0/0/1/Worldleaderboard?typeId=0031
+sec-ch-ua
+"Opera";v="127", "Chromium";v="143", "Not A(Brand";v="24"
+sec-ch-ua-mobile
+?0
+sec-ch-ua-platform
+"Windows"
+sec-fetch-dest
+empty
+sec-fetch-mode
+cors
+sec-fetch-site
+same-origin
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 OPR/127.0.0.0
+
+
+*response tab*
+
+{
+    "data": {
+        "value": [
+            {
+                "guid": "e1328934-7945-11f0-b4a2-e77efaa05f50",
+                "teamName": "FC NIKC",
+                "fullName": "Nicky",
+                "rank": 92318,
+                "trend": 2,
+                "overallPoints": 727.0,
+                "currentGamedayPoints": 87.0,
+                "rankNo": 93647,
+                "avatarId": "https://gaming.uefa.com/assets/avatars/cap-white_{size}{ratio}.png",
+                "level": "8",
+                "levelName": "Intermediate"
+            },
+            {
+                "guid": "abd0968c-81a1-11f0-bb57-abab47f5742d",
+                "teamName": "Ispitele Masculine U17",
+                "fullName": "Eduard",
+                "rank": 92318,
+                "trend": 2,
+                "overallPoints": 727.0,
+                "currentGamedayPoints": 77.0,
+                "rankNo": 93648,
+                "avatarId": "https://gaming.uefa.com/assets/avatars/0_scarf_euro2024_{size}{ratio}.png",
+                "level": "9",
+                "levelName": "Intermediate"
+            },
+            {
+                "guid": "2c2a01a0-9305-11f0-929a-e5bbfeeb7e7c",
+                "teamName": "bomboclat",
+                "fullName": "Victor Telleria",
+                "rank": 92318,
+                "trend": 2,
+                "overallPoints": 727.0,
+                "currentGamedayPoints": 79.0,
+                "rankNo": 93649,
+                "avatarId": "https://gaming.uefa.com/assets/avatars/cap-white_{size}{ratio}.png",
+                "level": "9",
+                "levelName": "Intermediate"
+            }
+        ],
+        "feedTime": {
+            "utcTime": "3/5/26 8:52:14 AM",
+            "istTime": "3/5/26 2:22:14 PM",
+            "cestTime": "3/5/26 9:52:14 AM"
+        }
+    },
+    "meta": {
+        "message": "cl_user_rank_get",
+        "retVal": 1,
+        "success": true,
+        "timestamp": {
+            "utcTime": "3/5/26 8:52:14 AM",
+            "istTime": "3/5/26 2:22:14 PM",
+            "cestTime": "3/5/26 9:52:14 AM"
+        }
+    }
+}

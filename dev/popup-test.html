@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Popup Test — MD Event Badges</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800;900&family=Oswald:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0c141f;--surf:#162030;--card:#1c2c42;--card2:#243550;
+  --border:rgba(255,255,255,.08);--acc:#3b82f6;--fire:#f97316;
+  --gold:#f59e0b;--text:#e8f0fa;--muted:#5a7799;
+  --r:12px;--rsm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:40px;}
+h2{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center;}
+
+/* ── FM POPUP (same as production) ── */
+.fm-wrap{display:flex;flex-direction:column;font-family:'Barlow',sans-serif;background:var(--surf);border:1px solid var(--border);border-radius:20px;width:100%;max-width:600px;overflow:hidden;}
+@media(min-width:700px){.fm-wrap{display:grid;grid-template-columns:1fr 300px;}}
+
+.fm-hdr{background:var(--surf);border-bottom:2px solid #2E7D32;padding:14px 18px 12px;position:relative;overflow:hidden;grid-column:1/-1;}
+.fm-hdr::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,87,34,.5),transparent);}
+.fm-hdr-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.fm-avatar{width:42px;height:42px;background:linear-gradient(135deg,#1d3a6e,#2d5ca8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.fm-mgr-name{font-family:'Oswald','Barlow Condensed',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;line-height:1;color:var(--text);}
+.fm-mgr-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono','Inter',monospace;}
+.fm-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.fm-stat{background:var(--card);padding:9px 10px;text-align:left;}
+.fm-stat-v{font-family:'Oswald','Barlow Condensed',sans-serif;font-size:30px;font-weight:700;line-height:1;letter-spacing:-.5px;display:block;}
+.fm-stat-v.orange{color:#FF5722;}.fm-stat-v.green{color:#4CAF50;}.fm-stat-v.chalk{color:var(--text);font-size:20px;}
+.fm-stat-l{font-family:'JetBrains Mono','Inter',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;display:block;font-weight:500;}
+
+.fm-left{display:flex;flex-direction:column;border-right:1px solid var(--border);padding:14px 14px 16px;background:var(--bg);}
+.fm-sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.fm-sec-lbl{font-family:'Oswald','Barlow Condensed',sans-serif;font-size:12px;font-weight:600;color:#FF5722;letter-spacing:2.5px;text-transform:uppercase;flex-shrink:0;}
+.fm-sec-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,87,34,.3),transparent);}
+
+.fm-pitch{flex:1;background:#0D1F0E;background-image:linear-gradient(rgba(46,125,50,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(46,125,50,.07) 1px,transparent 1px);background-size:48px 48px;border-radius:9px;border:1px solid rgba(46,125,50,.3);position:relative;overflow:hidden;padding:24px 14px 20px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;min-height:460px;}
+.fm-pitch::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#2E7D32,transparent);}
+.fm-pitch-cl{position:absolute;top:50%;left:5%;right:5%;height:2px;background:rgba(255,255,255,.15);}
+.fm-pitch-cc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;border:1px solid rgba(46,125,50,.15);}
+.fm-pitch-gb{position:absolute;left:50%;transform:translateX(-50%);width:110px;height:26px;border:1px solid rgba(46,125,50,.15);}
+.fm-pitch-gb.top{top:0;border-top:none;border-radius:0 0 5px 5px;}
+.fm-pitch-gb.bot{bottom:0;border-bottom:none;border-radius:5px 5px 0 0;}
+
+.fm-row{display:flex;justify-content:center;align-items:flex-start;gap:10px;position:relative;z-index:1;}
+
+.fm-pc{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;transition:transform .18s cubic-bezier(.34,1.56,.64,1);width:112px;}
+.fm-pc:hover{transform:translateY(-3px);}
+.fm-pc-body{width:104px;background:#1A1F2A;border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:12px 10px 12px;text-align:center;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.6);transition:border-color .12s,box-shadow .12s;}
+.fm-pc-body::after{content:'';position:absolute;top:12%;bottom:12%;right:0;width:3px;background:#2E7D32;border-radius:2px 0 0 2px;opacity:.5;}
+.fm-pc.cap .fm-pc-body{border-color:rgba(255,87,34,.5);background:linear-gradient(160deg,rgba(255,87,34,.12),#1A1F2A);box-shadow:0 4px 20px rgba(255,87,34,.18);}
+.fm-pc.cap .fm-pc-body::after{background:#FF5722;opacity:1;}
+.fm-cap-badge{position:absolute;top:-1px;right:-1px;background:#FF5722;color:#fff;font-size:9px;font-weight:900;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:0 8px 0 7px;z-index:2;}
+.fm-pc-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;border-radius:7px;}
+.fm-pc-bg img{width:70%;height:70%;object-fit:contain;opacity:.22;filter:grayscale(10%);}
+.fm-pc-n{position:relative;z-index:1;font-family:'Source Sans 3','Source Sans Pro',sans-serif;font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2;margin-bottom:2px;letter-spacing:.3px;}
+.fm-pc-p{position:relative;z-index:1;font-family:'Oswald','Barlow Condensed',sans-serif;font-size:38px;font-weight:700;letter-spacing:-.5px;line-height:1;color:#fff;}
+.fm-pc-p.hi{color:#4CAF50;}.fm-pc-p.zero{color:rgba(255,255,255,.22);}
+
+/* ── MD EVENT ICONS — neon outline style ── */
+.fm-pc-events{display:flex;gap:4px;justify-content:center;align-items:center;margin-top:5px;flex-wrap:wrap;min-height:22px;}
+.fm-ev{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fm-ev.goal{filter:drop-shadow(0 0 2px #FF4444) drop-shadow(0 0 5px rgba(255,68,68,.4));}
+.fm-ev.assist{filter:drop-shadow(0 0 2px #4488FF) drop-shadow(0 0 5px rgba(68,136,255,.4));}
+.fm-ev.cs{filter:drop-shadow(0 0 2px #00E676) drop-shadow(0 0 5px rgba(0,230,118,.4));}
+.fm-br-events{display:inline-flex;gap:3px;align-items:center;margin-left:4px;vertical-align:middle;}
+.fm-ev-sm{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fm-ev-sm.goal{filter:drop-shadow(0 0 1.5px #FF4444) drop-shadow(0 0 3px rgba(255,68,68,.4));}
+.fm-ev-sm.assist{filter:drop-shadow(0 0 1.5px #4488FF) drop-shadow(0 0 3px rgba(68,136,255,.4));}
+.fm-ev-sm.cs{filter:drop-shadow(0 0 1.5px #00E676) drop-shadow(0 0 3px rgba(0,230,118,.4));}
+
+/* ── RIGHT PANEL ── */
+.fm-right{display:flex;flex-direction:column;background:var(--surf);overflow-y:auto;}
+.fm-r-sec{padding:18px 20px;border-bottom:1px solid var(--border);}
+.fm-r-sec:last-child{border-bottom:none;}
+.fm-r-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.fm-r-lbl{font-family:'Oswald','Barlow Condensed',sans-serif;font-size:12px;font-weight:600;color:#FF5722;letter-spacing:2px;text-transform:uppercase;}
+.fm-bench-list{display:flex;flex-direction:column;gap:6px;}
+.fm-br{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:10px 14px;cursor:pointer;position:relative;overflow:hidden;transition:background .12s,transform .12s;}
+.fm-br::after{content:'';position:absolute;right:0;top:15%;bottom:15%;width:3px;background:#2E7D32;border-radius:2px 0 0 2px;opacity:.45;}
+.fm-br:hover{background:var(--card2);transform:translateX(-2px);}
+.fm-br-pos{font-size:10px;font-weight:600;padding:3px 7px;border-radius:4px;min-width:32px;text-align:center;flex-shrink:0;font-family:'JetBrains Mono','Inter',monospace;letter-spacing:.5px;}
+.fm-br-pos.GK{background:rgba(255,179,0,.2);color:#FFB300;}
+.fm-br-pos.DEF{background:rgba(76,175,80,.2);color:#4CAF50;}
+.fm-br-pos.MID{background:rgba(66,165,245,.2);color:#42A5F5;}
+.fm-br-pos.FWD{background:rgba(239,83,80,.2);color:#EF5350;}
+.fm-br-crest{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:16px;}
+.fm-br-info{flex:1;min-width:0;}
+.fm-br-name{font-family:'Source Sans 3','Source Sans Pro',sans-serif;font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fm-br-club{font-family:'JetBrains Mono','Inter',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.fm-br-pts{font-family:'Oswald','Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--text);flex-shrink:0;}
+.fm-br-pts.zero{color:rgba(255,255,255,.22);}
+
+/* Legend */
+.legend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<h2>MD Event Badges — Neon Outline</h2>
+<p style="color:var(--muted);font-size:12px;text-align:center;margin-top:-30px;">Vini Jr. = 1 gol + 1 assist + clean sheet · Neon outline style</p>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item">
+    <span class="fm-ev goal"><svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#FF4444" stroke-width="1.3"/><path d="M10 4.5L13 7.5L11.8 11.5H8.2L7 7.5Z" stroke="#FF4444" stroke-width="1" stroke-linejoin="round" fill="none"/><line x1="10" y1="4.5" x2="10" y2="1.5" stroke="#FF4444" stroke-width=".8"/><line x1="13" y1="7.5" x2="17.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="11.8" y1="11.5" x2="15.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="8.2" y1="11.5" x2="4.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="7" y1="7.5" x2="2.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/></svg></span>
+    <span>Gol marcat în MD</span>
+  </div>
+  <div class="legend-item">
+    <span class="fm-ev assist"><svg width="22" height="15" viewBox="0 0 28 18" fill="none"><path d="M6 1Q3 1 3 4L3 13L26 13Q28 13 28 11Q28 9 26 9L16 9L13 4Q13 1 10 1Z" stroke="#4488FF" stroke-width="1.3" stroke-linejoin="round" fill="none"/><line x1="7" y1="13" x2="7" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="13" x2="15" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="23" y1="13" x2="23" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/></svg></span>
+    <span>Assist în MD</span>
+  </div>
+  <div class="legend-item">
+    <span class="fm-ev cs"><svg width="15" height="17" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
+    <span>Clean Sheet în MD</span>
+  </div>
+</div>
+
+<!-- MANAGER POPUP -->
+<div class="fm-wrap">
+  <!-- HEADER -->
+  <div class="fm-hdr">
+    <div class="fm-hdr-top">
+      <div class="fm-avatar">⚽</div>
+      <div>
+        <div class="fm-mgr-name">Eduard</div>
+        <div class="fm-mgr-sub">Real Barca United FC</div>
+      </div>
+    </div>
+    <div class="fm-stats">
+      <div class="fm-stat">
+        <span class="fm-stat-v orange">47</span>
+        <span class="fm-stat-l">MD10 Pts</span>
+      </div>
+      <div class="fm-stat">
+        <span class="fm-stat-v green">412</span>
+        <span class="fm-stat-l">Total Pts</span>
+      </div>
+      <div class="fm-stat">
+        <span class="fm-stat-v chalk">#1,204</span>
+        <span class="fm-stat-l">Overall</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEFT: PITCH -->
+  <div class="fm-left">
+    <div class="fm-sec-hdr">
+      <span class="fm-sec-lbl">Titulari</span>
+      <span class="fm-sec-line"></span>
+    </div>
+    <div class="fm-pitch">
+      <div class="fm-pitch-cl"></div>
+      <div class="fm-pitch-cc"></div>
+      <div class="fm-pitch-gb top"></div>
+      <div class="fm-pitch-gb bot"></div>
+
+      <!-- FWD ROW -->
+      <div class="fm-row">
+        <!-- VINI JR — all 3 badges -->
+        <div class="fm-pc">
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">Vini Jr.</div>
+            <div class="fm-pc-p hi">12</div>
+          </div>
+          <div class="fm-pc-events">
+            <span class="fm-ev goal" title="Gol MD"><svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#FF4444" stroke-width="1.3"/><path d="M10 4.5L13 7.5L11.8 11.5H8.2L7 7.5Z" stroke="#FF4444" stroke-width="1" stroke-linejoin="round" fill="none"/><line x1="10" y1="4.5" x2="10" y2="1.5" stroke="#FF4444" stroke-width=".8"/><line x1="13" y1="7.5" x2="17.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="11.8" y1="11.5" x2="15.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="8.2" y1="11.5" x2="4.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="7" y1="7.5" x2="2.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/></svg></span>
+            <span class="fm-ev assist" title="Assist MD"><svg width="22" height="15" viewBox="0 0 28 18" fill="none"><path d="M6 1Q3 1 3 4L3 13L26 13Q28 13 28 11Q28 9 26 9L16 9L13 4Q13 1 10 1Z" stroke="#4488FF" stroke-width="1.3" stroke-linejoin="round" fill="none"/><line x1="7" y1="13" x2="7" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="13" x2="15" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="23" y1="13" x2="23" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/></svg></span>
+            <span class="fm-ev cs" title="Clean Sheet MD"><svg width="15" height="17" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
+          </div>
+        </div>
+        <!-- Mbappe — no badge -->
+        <div class="fm-pc cap">
+          <div class="fm-cap-badge">©</div>
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">Mbappé</div>
+            <div class="fm-pc-p zero">0</div>
+          </div>
+          <div class="fm-pc-events"></div>
+        </div>
+      </div>
+
+      <!-- MID ROW -->
+      <div class="fm-row">
+        <div class="fm-pc">
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">Bellingham</div>
+            <div class="fm-pc-p">8</div>
+          </div>
+          <div class="fm-pc-events">
+            <span class="fm-ev assist" title="Assist MD"><svg width="22" height="15" viewBox="0 0 28 18" fill="none"><path d="M6 1Q3 1 3 4L3 13L26 13Q28 13 28 11Q28 9 26 9L16 9L13 4Q13 1 10 1Z" stroke="#4488FF" stroke-width="1.3" stroke-linejoin="round" fill="none"/><line x1="7" y1="13" x2="7" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="13" x2="15" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="23" y1="13" x2="23" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/></svg></span>
+          </div>
+        </div>
+        <div class="fm-pc">
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">Pedri</div>
+            <div class="fm-pc-p">6</div>
+          </div>
+          <div class="fm-pc-events"></div>
+        </div>
+        <div class="fm-pc">
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">De Bruyne</div>
+            <div class="fm-pc-p zero">0</div>
+          </div>
+          <div class="fm-pc-events"></div>
+        </div>
+      </div>
+
+      <!-- DEF ROW -->
+      <div class="fm-row">
+        <div class="fm-pc">
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">Alexander</div>
+            <div class="fm-pc-p">6</div>
+          </div>
+          <div class="fm-pc-events">
+            <span class="fm-ev assist" title="Assist MD"><svg width="22" height="15" viewBox="0 0 28 18" fill="none"><path d="M6 1Q3 1 3 4L3 13L26 13Q28 13 28 11Q28 9 26 9L16 9L13 4Q13 1 10 1Z" stroke="#4488FF" stroke-width="1.3" stroke-linejoin="round" fill="none"/><line x1="7" y1="13" x2="7" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="13" x2="15" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="23" y1="13" x2="23" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/></svg></span>
+            <span class="fm-ev cs" title="Clean Sheet MD"><svg width="15" height="17" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
+          </div>
+        </div>
+        <div class="fm-pc">
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">Rudiger</div>
+            <div class="fm-pc-p">9</div>
+          </div>
+          <div class="fm-pc-events">
+            <span class="fm-ev cs" title="Clean Sheet MD"><svg width="15" height="17" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
+          </div>
+        </div>
+        <div class="fm-pc">
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">Cancelo</div>
+            <div class="fm-pc-p">3</div>
+          </div>
+          <div class="fm-pc-events"></div>
+        </div>
+        <div class="fm-pc">
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">Robertson</div>
+            <div class="fm-pc-p">6</div>
+          </div>
+          <div class="fm-pc-events">
+            <span class="fm-ev cs" title="Clean Sheet MD"><svg width="15" height="17" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GK ROW -->
+      <div class="fm-row">
+        <div class="fm-pc">
+          <div class="fm-pc-body">
+            <div class="fm-pc-n">Courtois</div>
+            <div class="fm-pc-p hi">10</div>
+          </div>
+          <div class="fm-pc-events">
+            <span class="fm-ev cs" title="Clean Sheet MD"><svg width="15" height="17" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: BENCH -->
+  <div class="fm-right">
+    <div class="fm-r-sec">
+      <div class="fm-r-hdr"><span class="fm-r-lbl">Bancă</span></div>
+      <div class="fm-bench-list">
+        <!-- Lewandowski — goal -->
+        <div class="fm-br">
+          <span class="fm-br-pos FWD">FWD</span>
+          <div class="fm-br-crest">⚽</div>
+          <div class="fm-br-info">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div class="fm-br-name">Lewandowski</div>
+              <span class="fm-br-events">
+                <span class="fm-ev-sm goal" title="Gol MD"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#FF4444" stroke-width="1.3"/><path d="M10 4.5L13 7.5L11.8 11.5H8.2L7 7.5Z" stroke="#FF4444" stroke-width="1" stroke-linejoin="round" fill="none"/><line x1="10" y1="4.5" x2="10" y2="1.5" stroke="#FF4444" stroke-width=".8"/><line x1="13" y1="7.5" x2="17.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="11.8" y1="11.5" x2="15.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="8.2" y1="11.5" x2="4.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="7" y1="7.5" x2="2.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/></svg></span>
+              </span>
+            </div>
+            <div class="fm-br-club">FC Barcelona</div>
+          </div>
+          <div class="fm-br-pts">7</div>
+        </div>
+        <!-- Modric — assist -->
+        <div class="fm-br">
+          <span class="fm-br-pos MID">MID</span>
+          <div class="fm-br-crest">🏟️</div>
+          <div class="fm-br-info">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div class="fm-br-name">Modric</div>
+              <span class="fm-br-events">
+                <span class="fm-ev-sm assist" title="Assist MD"><svg width="17" height="12" viewBox="0 0 28 18" fill="none"><path d="M6 1Q3 1 3 4L3 13L26 13Q28 13 28 11Q28 9 26 9L16 9L13 4Q13 1 10 1Z" stroke="#4488FF" stroke-width="1.3" stroke-linejoin="round" fill="none"/><line x1="7" y1="13" x2="7" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="13" x2="15" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/><line x1="23" y1="13" x2="23" y2="17" stroke="#4488FF" stroke-width="2" stroke-linecap="round"/></svg></span>
+              </span>
+            </div>
+            <div class="fm-br-club">Real Madrid</div>
+          </div>
+          <div class="fm-br-pts">6</div>
+        </div>
+        <!-- Ederson — none -->
+        <div class="fm-br">
+          <span class="fm-br-pos GK">GK</span>
+          <div class="fm-br-crest">🥅</div>
+          <div class="fm-br-info">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div class="fm-br-name">Ederson</div>
+            </div>
+            <div class="fm-br-club">Man City</div>
+          </div>
+          <div class="fm-br-pts zero">0</div>
+        </div>
+        <!-- Militao — clean sheet -->
+        <div class="fm-br">
+          <span class="fm-br-pos DEF">DEF</span>
+          <div class="fm-br-crest">🛡️</div>
+          <div class="fm-br-info">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div class="fm-br-name">Militao</div>
+              <span class="fm-br-events">
+                <span class="fm-ev-sm cs" title="Clean Sheet MD"><svg width="12" height="13" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
+              </span>
+            </div>
+            <div class="fm-br-club">Real Madrid</div>
+          </div>
+          <div class="fm-br-pts">9</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

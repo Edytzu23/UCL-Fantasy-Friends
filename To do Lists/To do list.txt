@@ -1,0 +1,26 @@
+Cand dau refresh as vrea sa se pastreze pagina unde eram, nu sa ma dea inapoi la clasament.
+
+#First landing page:#
+
+As vrea prima oara cand intru pe site sa fie un ecran care sa te intrebe:
+
+"Cine esti?"
+
+Si sa fie displayed cei 10 useri intr-un mod dinamic in tema de cyberpunk holograma. Userul sa poata sa aleaga ce echipa este el si dupa aia sa ajunga e pagina default de clasament dashboard.
+
+#Clasament tab:# 
+
+1. As vrea daca apas pe echipa de la ps5, sa ma trimita la echipa folosita pentru a atinge locu ala in clasament (de ex dan are md8 #179, cand apas pe el, ma trimite la echipa lui din MD actual (10), as vrea sa-mi arate echipa de la MD8 cu care a facut scoru ala)
+
+#Scouting tab:#
+
+1. Filtru pentru a selecta/deselecta echipe
+2. Regula de colorare pentru Global % (La fel ca la local %)
+3. Filtru de top3 pentru selectat sa vad jucatorii doar de la cele 3 echipe din top-ul curent
+4. Vreau logo-ul echipei la fel de mare ca local % si pus imediat dupa
+5. Hai sa renuntam la focul de langa nume (doar din scouting tab)
+
+
+#TOTW tab:#
+
+1. La echipa locului 1 global as vrea sa se afiseze punctaju cu tot cu capitanu dublat.

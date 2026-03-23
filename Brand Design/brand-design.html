@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Friends — Brand Identity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ── Backgrounds ── */
+            --bg:         #0c141f;
+            --surf:       #162030;
+            --card:       #1c2c42;
+            --card2:      #243550;
+            --player:     #1A1F2A;
+
+            /* ── Accent ── */
+            --fire:       #FF5722;
+            --fire-hover: #E64A19;
+            --green:      #2E7D32;
+            --green-lt:   #4CAF50;
+            --blue:       #3b82f6;
+            --gold:       #f59e0b;
+            --blaze:      #f97316;
+
+            /* ── Position ── */
+            --gk:         #FFB300;
+            --def:        #4CAF50;
+            --mid:        #42A5F5;
+            --fwd:        #EF5350;
+
+            /* ── Text ── */
+            --text:       #e8f0fa;
+            --muted:      #5a7799;
+            --border:     rgba(255,255,255,.08);
+            --fill-s:     rgba(255,255,255,.03);
+            --fill-m:     rgba(255,255,255,.07);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── NOISE TEXTURE ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: .035;
+            pointer-events: none;
+            z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 180px;
+        }
+
+        /* ── HEADER ── */
+        .brand-header {
+            position: relative;
+            padding: 80px 60px 60px;
+            background: linear-gradient(160deg, rgba(22,32,48,1), rgba(14,22,36,1));
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .brand-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, var(--green) 30%, var(--green-lt) 50%, var(--green) 70%, transparent 100%);
+        }
+
+        .brand-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+        }
+
+        .brand-header .deco-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.03);
+            pointer-events: none;
+        }
+        .brand-header .deco-circle:nth-child(1) { width: 500px; height: 500px; top: -200px; right: -100px; }
+        .brand-header .deco-circle:nth-child(2) { width: 300px; height: 300px; top: -80px; right: 0; }
+        .brand-header .deco-circle:nth-child(3) { width: 180px; height: 180px; bottom: -60px; left: 80px; border-color: rgba(46,125,50,.08); }
+
+        .brand-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 56px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+        }
+        .brand-title span { color: var(--fire); }
+
+        .brand-sub {
+            font-size: 13px;
+            color: var(--muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── LAYOUT ── */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 60px;
+        }
+
+        section {
+            padding: 64px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        section:last-child { border-bottom: none; }
+
+        .sec-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--fire);
+            margin-bottom: 8px;
+        }
+
+        .sec-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 32px;
+            letter-spacing: .5px;
+            margin-bottom: 36px;
+        }
+
+        /* ── COLOR SWATCHES ── */
+        .swatch-group {
+            margin-bottom: 40px;
+        }
+
+        .swatch-group-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .swatches {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        .swatch {
+            background: var(--surf);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease;
+        }
+
+        .swatch:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,.4);
+        }
+
+        .swatch-color {
+            height: 72px;
+            position: relative;
+        }
+
+        .swatch-color.bordered {
+            border: 1px solid rgba(255,255,255,.1);
+            margin: 8px 8px 0;
+            border-radius: 8px;
+        }
+
+        .swatch-info {
+            padding: 14px 16px;
+        }
+
+        .swatch-name {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .swatch-hex {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            color: var(--muted);
+            letter-spacing: .5px;
+        }
+
+        .swatch-use {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        /* ── POSITION SWATCHES ── */
+        .pos-swatches {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .pos-swatch {
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: transform .18s cubic-bezier(.34,1.56,.64,1);
+        }
+        .pos-swatch:hover { transform: translateY(-3px); }
+
+        .pos-badge {
+            display: inline-block;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 1px;
+            padding: 5px 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .pos-colors {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* ── TYPOGRAPHY ── */
+        .type-showcase {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .type-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 24px;
+            align-items: baseline;
+            padding: 24px 28px;
+            background: var(--surf);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .type-meta {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .type-meta strong {
+            display: block;
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .type-sample-display {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 48px;
+            letter-spacing: -.5px;
+            line-height: 1.1;
+        }
+
+        .type-sample-heading {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 32px;
+            letter-spacing: .5px;
+        }
+
+        .type-sample-number {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 56px;
+            letter-spacing: -.5px;
+            color: var(--green-lt);
+        }
+
+        .type-sample-body {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text);
+        }
+
+        .type-sample-muted {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── GRADIENTS ── */
+        .gradient-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .gradient-card {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .gradient-preview {
+            height: 100px;
+            position: relative;
+        }
+
+        .gradient-preview.pitch {
+            background: #0D1F0E;
+            background-image:
+                linear-gradient(rgba(46,125,50,.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(46,125,50,.07) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-bottom: 2px solid rgba(46,125,50,.3);
+        }
+
+        .gradient-preview.pitch::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+        }
+
+        .gradient-preview.header-accent {
+            background: linear-gradient(160deg, rgba(22,32,48,1), rgba(14,22,36,1));
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .gradient-preview.header-accent::before {
+            content: '';
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, #2E7D32 30%, #4CAF50 50%, #2E7D32 70%, transparent 100%);
+        }
+
+        .gradient-preview.captain {
+            background: linear-gradient(160deg, rgba(255,87,34,.12), #1A1F2A);
+            border-left: 4px solid var(--fire);
+        }
+
+        .gradient-preview.avatar {
+            background: linear-gradient(135deg, #1a4a8a 0%, #0d2d5e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gradient-preview.avatar::after {
+            content: 'AB';
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 28px;
+            color: #fff;
+            opacity: .8;
+        }
+
+        .gradient-label {
+            padding: 14px 16px;
+            background: var(--surf);
+        }
+
+        .gradient-label strong {
+            font-size: 13px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .gradient-label span {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: 'Barlow Condensed', sans-serif;
+            letter-spacing: .5px;
+        }
+
+        /* ── COMPONENTS ── */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .comp-card {
+            background: var(--surf);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .comp-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+
+        /* stat card */
+        .demo-stat {
+            background: var(--fill-s);
+            border: 1px solid var(--fill-m);
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .demo-stat-v {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -.5px;
+        }
+
+        .demo-stat-l {
+            font-size: 9px;
+            color: var(--muted);
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        /* player card */
+        .demo-player {
+            width: 120px;
+            margin: 0 auto;
+        }
+
+        .demo-player-body {
+            background: var(--player);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 9px;
+            padding: 14px 12px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(0,0,0,.6);
+        }
+
+        .demo-player-body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--green);
+            border-radius: 0 9px 9px 0;
+            opacity: .5;
+        }
+
+        .demo-player-name {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .demo-player-pts {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -.5px;
+            color: var(--green-lt);
+        }
+
+        /* bench row */
+        .demo-bench {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            position: relative;
+        }
+
+        .demo-bench::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--green);
+            border-radius: 0 8px 8px 0;
+            opacity: .45;
+        }
+
+        .demo-bench-pos {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .demo-bench-name {
+            font-size: 13px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .demo-bench-pts {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* ── SHADOWS ── */
+        .shadow-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .shadow-demo {
+            background: var(--surf);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shadow-demo span {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: 'Barlow Condensed', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .shadow-demo.s1 {
+            box-shadow: 0 4px 16px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+        }
+        .shadow-demo.s2 {
+            box-shadow: 0 4px 16px rgba(0,0,0,.6);
+        }
+        .shadow-demo.s3 {
+            box-shadow: 0 4px 20px rgba(255,87,34,.18);
+            border-color: rgba(255,87,34,.5);
+            background: linear-gradient(160deg, rgba(255,87,34,.08), var(--surf));
+        }
+
+        /* ── TOKENS ── */
+        .tokens-block {
+            background: var(--player);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            font-family: 'Barlow Condensed', monospace;
+            font-size: 13px;
+            line-height: 2;
+            color: var(--muted);
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .tokens-block::before {
+            content: 'CSS';
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--fire);
+            font-weight: 700;
+        }
+
+        .tk-prop { color: var(--mid); }
+        .tk-val { color: var(--green-lt); }
+        .tk-comment { color: rgba(90,119,153,.5); font-style: italic; }
+
+        /* ── BORDERS ── */
+        .border-demos {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .border-demo {
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surf);
+        }
+
+        .border-demo span {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .border-demo.b1 { border: 1px solid var(--border); }
+        .border-demo.b2 { border: 1px solid rgba(255,255,255,.12); }
+        .border-demo.b3 { border: 1px solid rgba(46,125,50,.3); }
+        .border-demo.b4 { border: 1px solid rgba(255,87,34,.5); }
+
+        /* ── SPACING ── */
+        .spacing-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 12px;
+        }
+
+        .spacing-label {
+            width: 60px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            color: var(--muted);
+            text-align: right;
+        }
+
+        .spacing-bar {
+            height: 20px;
+            background: linear-gradient(90deg, rgba(59,130,246,.3), rgba(59,130,246,.1));
+            border: 1px solid rgba(59,130,246,.3);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+        }
+
+        .spacing-bar span {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            color: var(--blue);
+            letter-spacing: .5px;
+        }
+
+        /* ── FOOTER ── */
+        .brand-footer {
+            text-align: center;
+            padding: 48px 60px;
+            color: var(--muted);
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .brand-header { padding: 48px 28px 40px; }
+            .brand-title { font-size: 36px; }
+            .wrap { padding: 0 28px; }
+            .swatches, .pos-swatches { grid-template-columns: repeat(2, 1fr); }
+            .gradient-grid, .component-grid, .shadow-grid { grid-template-columns: 1fr; }
+            .type-row { grid-template-columns: 1fr; }
+            .border-demos { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ══ HEADER ══ -->
+    <header class="brand-header">
+        <div class="deco-circle"></div>
+        <div class="deco-circle"></div>
+        <div class="deco-circle"></div>
+        <h1 class="brand-title">Fantasy <span>Friends</span></h1>
+        <p class="brand-sub">Brand Identity &amp; Design System</p>
+    </header>
+
+    <!-- ══ 1. COLOR PALETTE ══ -->
+    <section>
+        <div class="wrap">
+            <div class="sec-label">01</div>
+            <h2 class="sec-title">Color Palette</h2>
+
+            <!-- Backgrounds -->
+            <div class="swatch-group">
+                <div class="swatch-group-title">Backgrounds — Dark Navy System</div>
+                <div class="swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#0c141f"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Deep Background</div>
+                            <div class="swatch-hex">#0C141F</div>
+                            <div class="swatch-use">Page background, overlays</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#162030"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Surface</div>
+                            <div class="swatch-hex">#162030</div>
+                            <div class="swatch-use">Modals, panels, sidebars</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#1c2c42"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Card</div>
+                            <div class="swatch-hex">#1C2C42</div>
+                            <div class="swatch-use">Card backgrounds, bench rows</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#243550"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Card Elevated</div>
+                            <div class="swatch-hex">#243550</div>
+                            <div class="swatch-use">Hovered cards, active states</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#1A1F2A"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Player Card</div>
+                            <div class="swatch-hex">#1A1F2A</div>
+                            <div class="swatch-use">Pitch player cards</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#0D1F0E"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Pitch Green</div>
+                            <div class="swatch-hex">#0D1F0E</div>
+                            <div class="swatch-use">Formation pitch area</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accents -->
+            <div class="swatch-group">
+                <div class="swatch-group-title">Accent Colors</div>
+                <div class="swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#FF5722"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Fire Orange</div>
+                            <div class="swatch-hex">#FF5722</div>
+                            <div class="swatch-use">Primary CTA, captain, labels</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#2E7D32"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Pitch Green</div>
+                            <div class="swatch-hex">#2E7D32</div>
+                            <div class="swatch-use">Accent lines, borders</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#4CAF50"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Green Light</div>
+                            <div class="swatch-hex">#4CAF50</div>
+                            <div class="swatch-use">Positive values, highlights</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#3b82f6"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Accent Blue</div>
+                            <div class="swatch-hex">#3B82F6</div>
+                            <div class="swatch-use">Links, info states</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#f59e0b"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Gold</div>
+                            <div class="swatch-hex">#F59E0B</div>
+                            <div class="swatch-use">Badges, private stats, GK</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#f97316"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Blaze Orange</div>
+                            <div class="swatch-hex">#F97316</div>
+                            <div class="swatch-use">Hot scores, fire accent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text & UI -->
+            <div class="swatch-group">
+                <div class="swatch-group-title">Text &amp; UI</div>
+                <div class="swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#e8f0fa"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Primary Text</div>
+                            <div class="swatch-hex">#E8F0FA</div>
+                            <div class="swatch-use">Headings, names, body</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background:#5a7799"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Muted</div>
+                            <div class="swatch-hex">#5A7799</div>
+                            <div class="swatch-use">Labels, meta, secondary</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color bordered" style="background:rgba(255,255,255,.08)"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Border</div>
+                            <div class="swatch-hex">rgba(255,255,255,.08)</div>
+                            <div class="swatch-use">Card borders, dividers</div>
+                        </div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color bordered" style="background:rgba(255,255,255,.03)"></div>
+                        <div class="swatch-info">
+                            <div class="swatch-name">Subtle Fill</div>
+                            <div class="swatch-hex">rgba(255,255,255,.03–.07)</div>
+                            <div class="swatch-use">Stat backgrounds, overlays</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Position Colors -->
+            <div class="swatch-group">
+                <div class="swatch-group-title">Position Colors</div>
+                <div class="pos-swatches">
+                    <div class="pos-swatch" style="background:rgba(255,179,0,.08); border-color:rgba(255,179,0,.2);">
+                        <div class="pos-badge" style="background:rgba(255,179,0,.2); color:#FFB300;">GK</div>
+                        <div class="pos-colors">#FFB300<br>rgba(255,179,0,.2)</div>
+                    </div>
+                    <div class="pos-swatch" style="background:rgba(76,175,80,.08); border-color:rgba(76,175,80,.2);">
+                        <div class="pos-badge" style="background:rgba(76,175,80,.2); color:#4CAF50;">DEF</div>
+                        <div class="pos-colors">#4CAF50<br>rgba(76,175,80,.2)</div>
+                    </div>
+                    <div class="pos-swatch" style="background:rgba(66,165,245,.08); border-color:rgba(66,165,245,.2);">
+                        <div class="pos-badge" style="background:rgba(66,165,245,.2); color:#42A5F5;">MID</div>
+                        <div class="pos-colors">#42A5F5<br>rgba(66,165,245,.2)</div>
+                    </div>
+                    <div class="pos-swatch" style="background:rgba(239,83,80,.08); border-color:rgba(239,83,80,.2);">
+                        <div class="pos-badge" style="background:rgba(239,83,80,.2); color:#EF5350;">FWD</div>
+                        <div class="pos-colors">#EF5350<br>rgba(239,83,80,.2)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 2. TYPOGRAPHY ══ -->
+    <section>
+        <div class="wrap">
+            <div class="sec-label">02</div>
+            <h2 class="sec-title">Typography</h2>
+
+            <div class="type-showcase">
+                <div class="type-row">
+                    <div class="type-meta">
+                        <strong>Display</strong>
+                        Barlow Condensed 800<br>
+                        48–56px · -0.5px tracking
+                    </div>
+                    <div class="type-sample-display">FANTASY FRIENDS</div>
+                </div>
+
+                <div class="type-row">
+                    <div class="type-meta">
+                        <strong>Heading</strong>
+                        Barlow Condensed 700<br>
+                        28–32px · 0.5px tracking
+                    </div>
+                    <div class="type-sample-heading">Team Overview</div>
+                </div>
+
+                <div class="type-row">
+                    <div class="type-meta">
+                        <strong>Big Number</strong>
+                        Barlow Condensed 700<br>
+                        26–56px · -0.5px tracking
+                    </div>
+                    <div class="type-sample-number">142</div>
+                </div>
+
+                <div class="type-row">
+                    <div class="type-meta">
+                        <strong>Body</strong>
+                        DM Sans 400/500<br>
+                        14–15px · 1.7 line-height
+                    </div>
+                    <div class="type-sample-body">Manage your squad, track live points, and dominate your private leagues. Every transfer counts — choose wisely.</div>
+                </div>
+
+                <div class="type-row">
+                    <div class="type-meta">
+                        <strong>Label</strong>
+                        DM Sans 400<br>
+                        9–11px · 1.2px tracking · uppercase
+                    </div>
+                    <div class="type-sample-muted">TOTAL POINTS &nbsp;&nbsp; GAMEWEEK RANK &nbsp;&nbsp; TRANSFERS</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 3. GRADIENTS & TEXTURES ══ -->
+    <section>
+        <div class="wrap">
+            <div class="sec-label">03</div>
+            <h2 class="sec-title">Gradients &amp; Textures</h2>
+
+            <div class="gradient-grid">
+                <div class="gradient-card">
+                    <div class="gradient-preview header-accent"></div>
+                    <div class="gradient-label">
+                        <strong>Header Accent</strong>
+                        <span>linear-gradient(160deg, #162030, #0E1624) + green top line</span>
+                    </div>
+                </div>
+
+                <div class="gradient-card">
+                    <div class="gradient-preview pitch"></div>
+                    <div class="gradient-label">
+                        <strong>Pitch Field</strong>
+                        <span>#0D1F0E + grid lines rgba(46,125,50,.07)</span>
+                    </div>
+                </div>
+
+                <div class="gradient-card">
+                    <div class="gradient-preview captain"></div>
+                    <div class="gradient-label">
+                        <strong>Captain Glow</strong>
+                        <span>linear-gradient(160deg, rgba(255,87,34,.12), #1A1F2A)</span>
+                    </div>
+                </div>
+
+                <div class="gradient-card">
+                    <div class="gradient-preview avatar"></div>
+                    <div class="gradient-label">
+                        <strong>Avatar</strong>
+                        <span>linear-gradient(135deg, #1a4a8a, #0d2d5e)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 4. COMPONENTS ══ -->
+    <section>
+        <div class="wrap">
+            <div class="sec-label">04</div>
+            <h2 class="sec-title">Component Samples</h2>
+
+            <div class="component-grid">
+                <!-- Stat Card -->
+                <div class="comp-card">
+                    <div class="comp-label">Stat Card</div>
+                    <div class="demo-stat">
+                        <div class="demo-stat-v" style="color: var(--green-lt);">142</div>
+                        <div class="demo-stat-l">TOTAL POINTS</div>
+                    </div>
+                    <div style="height:10px;"></div>
+                    <div class="demo-stat" style="border-color:rgba(245,158,11,.2); background:rgba(245,158,11,.04);">
+                        <div class="demo-stat-v" style="color: var(--gold);">3</div>
+                        <div class="demo-stat-l">PRIVATE RANK</div>
+                    </div>
+                </div>
+
+                <!-- Player Card -->
+                <div class="comp-card">
+                    <div class="comp-label">Player Card</div>
+                    <div class="demo-player">
+                        <div class="demo-player-body">
+                            <div class="demo-player-name">Haaland</div>
+                            <div class="demo-player-pts">12</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bench Row -->
+                <div class="comp-card">
+                    <div class="comp-label">Bench Row</div>
+                    <div class="demo-bench" style="margin-bottom:8px;">
+                        <div class="demo-bench-pos" style="background:rgba(76,175,80,.2); color:#4CAF50;">DEF</div>
+                        <div class="demo-bench-name">Alexander-Arnold</div>
+                        <div class="demo-bench-pts">8</div>
+                    </div>
+                    <div class="demo-bench">
+                        <div class="demo-bench-pos" style="background:rgba(66,165,245,.2); color:#42A5F5;">MID</div>
+                        <div class="demo-bench-name">Ødegaard</div>
+                        <div class="demo-bench-pts" style="color:rgba(255,255,255,.22);">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 5. SHADOWS & BORDERS ══ -->
+    <section>
+        <div class="wrap">
+            <div class="sec-label">05</div>
+            <h2 class="sec-title">Shadows &amp; Borders</h2>
+
+            <div class="shadow-grid" style="margin-bottom:40px;">
+                <div class="shadow-demo s1">
+                    <span>Inset Highlight</span>
+                </div>
+                <div class="shadow-demo s2">
+                    <span>Card Shadow</span>
+                </div>
+                <div class="shadow-demo s3">
+                    <span>Captain Glow</span>
+                </div>
+            </div>
+
+            <div class="swatch-group-title">Border Styles</div>
+            <div class="border-demos">
+                <div class="border-demo b1"><span>Default</span></div>
+                <div class="border-demo b2"><span>Card Active</span></div>
+                <div class="border-demo b3"><span>Pitch</span></div>
+                <div class="border-demo b4"><span>Captain</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 6. SPACING ══ -->
+    <section>
+        <div class="wrap">
+            <div class="sec-label">06</div>
+            <h2 class="sec-title">Spacing Scale</h2>
+
+            <div class="spacing-row">
+                <div class="spacing-label">4px</div>
+                <div class="spacing-bar" style="width: 40px;"><span>xs</span></div>
+            </div>
+            <div class="spacing-row">
+                <div class="spacing-label">8px</div>
+                <div class="spacing-bar" style="width: 80px;"><span>sm</span></div>
+            </div>
+            <div class="spacing-row">
+                <div class="spacing-label">14px</div>
+                <div class="spacing-bar" style="width: 120px;"><span>md</span></div>
+            </div>
+            <div class="spacing-row">
+                <div class="spacing-label">20px</div>
+                <div class="spacing-bar" style="width: 180px;"><span>lg</span></div>
+            </div>
+            <div class="spacing-row">
+                <div class="spacing-label">28px</div>
+                <div class="spacing-bar" style="width: 250px;"><span>xl</span></div>
+            </div>
+            <div class="spacing-row">
+                <div class="spacing-label">48px</div>
+                <div class="spacing-bar" style="width: 400px;"><span>2xl</span></div>
+            </div>
+            <div class="spacing-row">
+                <div class="spacing-label">64px</div>
+                <div class="spacing-bar" style="width: 540px;"><span>3xl</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 7. DESIGN TOKENS ══ -->
+    <section>
+        <div class="wrap">
+            <div class="sec-label">07</div>
+            <h2 class="sec-title">Design Tokens</h2>
+
+            <div class="tokens-block">
+<span class="tk-comment">/* ── Backgrounds ── */</span>
+<span class="tk-prop">--bg:</span>         <span class="tk-val">#0c141f;</span>
+<span class="tk-prop">--surf:</span>       <span class="tk-val">#162030;</span>
+<span class="tk-prop">--card:</span>       <span class="tk-val">#1c2c42;</span>
+<span class="tk-prop">--card2:</span>      <span class="tk-val">#243550;</span>
+<span class="tk-prop">--player:</span>     <span class="tk-val">#1A1F2A;</span>
+<span class="tk-prop">--pitch:</span>      <span class="tk-val">#0D1F0E;</span>
+
+<span class="tk-comment">/* ── Accents ── */</span>
+<span class="tk-prop">--fire:</span>       <span class="tk-val">#FF5722;</span>
+<span class="tk-prop">--green:</span>      <span class="tk-val">#2E7D32;</span>
+<span class="tk-prop">--green-lt:</span>   <span class="tk-val">#4CAF50;</span>
+<span class="tk-prop">--blue:</span>       <span class="tk-val">#3b82f6;</span>
+<span class="tk-prop">--gold:</span>       <span class="tk-val">#f59e0b;</span>
+<span class="tk-prop">--blaze:</span>      <span class="tk-val">#f97316;</span>
+
+<span class="tk-comment">/* ── Positions ── */</span>
+<span class="tk-prop">--gk:</span>         <span class="tk-val">#FFB300;</span>
+<span class="tk-prop">--def:</span>        <span class="tk-val">#4CAF50;</span>
+<span class="tk-prop">--mid:</span>        <span class="tk-val">#42A5F5;</span>
+<span class="tk-prop">--fwd:</span>        <span class="tk-val">#EF5350;</span>
+
+<span class="tk-comment">/* ── Text & UI ── */</span>
+<span class="tk-prop">--text:</span>       <span class="tk-val">#e8f0fa;</span>
+<span class="tk-prop">--muted:</span>      <span class="tk-val">#5a7799;</span>
+<span class="tk-prop">--border:</span>     <span class="tk-val">rgba(255,255,255,.08);</span>
+<span class="tk-prop">--fill-s:</span>     <span class="tk-val">rgba(255,255,255,.03);</span>
+<span class="tk-prop">--fill-m:</span>     <span class="tk-val">rgba(255,255,255,.07);</span>
+
+<span class="tk-comment">/* ── Shadows ── */</span>
+<span class="tk-prop">--shadow-card:</span>    <span class="tk-val">0 4px 16px rgba(0,0,0,.6);</span>
+<span class="tk-prop">--shadow-inset:</span>   <span class="tk-val">inset 0 1px 0 rgba(255,255,255,.08);</span>
+<span class="tk-prop">--shadow-captain:</span> <span class="tk-val">0 4px 20px rgba(255,87,34,.18);</span>
+
+<span class="tk-comment">/* ── Radius ── */</span>
+<span class="tk-prop">--r-sm:</span>       <span class="tk-val">6px;</span>
+<span class="tk-prop">--r-md:</span>       <span class="tk-val">9px;</span>
+<span class="tk-prop">--r-lg:</span>       <span class="tk-val">12px;</span>
+<span class="tk-prop">--r-xl:</span>       <span class="tk-val">20px;</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="brand-footer">
+        Fantasy Friends — Brand Identity System
+    </footer>
+
+</body>
+</html>

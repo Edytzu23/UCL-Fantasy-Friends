@@ -2,3 +2,7 @@ __pycache__/
 .env
 .env.*
 *.pyc
+node_modules/
+.tmp/
+.claude/
+*.exe

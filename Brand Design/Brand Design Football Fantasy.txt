@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PitchPulse | Fantasy Football Identity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --fire-orange: #FF5722;
+            --pitch-green: #2E7D32;
+            --deep-stadium: #121212;
+            --sideline-gray: #1E1E1E;
+            --text-white: #FFFFFF;
+            --text-muted: #A0A0A0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--deep-stadium);
+            color: var(--text-white);
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, .brand-logo {
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        header {
+            background-color: var(--sideline-gray);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--pitch-green);
+        }
+
+        .brand-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-white);
+        }
+
+        .brand-logo span {
+            color: var(--fire-orange);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 5%;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--sideline-gray) 0%, #252525 100%);
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border-left: 5px solid var(--fire-orange);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background-color: var(--fire-orange);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #E64A19;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .player-card {
+            background-color: var(--sideline-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .player-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--pitch-green);
+        }
+
+        .player-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .player-info {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .points-badge {
+            display: inline-block;
+            margin-top: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--pitch-green);
+        }
+
+        .status-dot {
+            height: 8px;
+            width: 8px;
+            background-color: var(--pitch-green);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .nav-links a {
+            color: var(--text-white);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--fire-orange);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-logo">PITCH<span>PULSE</span></div>
+        <nav class="nav-links">
+            <a href="#">Leagues</a>
+            <a href="#">Transfers</a>
+            <a href="#">My Team</a>
+            <a href="#" style="color: var(--fire-orange);">Live Scores</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Game Week 28 is Live</h1>
+            <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Manage your squad, track live points, and dominate your private leagues with PitchPulse.</p>
+            <a href="#" class="btn-primary">Optimize My Lineup</a>
+        </section>
+
+        <h2 style="margin-bottom: 1.5rem;">Top Performers</h2>
+        
+        <div class="stats-grid">
+            <div class="player-card">
+                <span class="player-name">Erling Haaland</span>
+                <div class="player-info">
+                    <span class="status-dot"></span> Available | Forward
+                </div>
+                <div class="points-badge">12 PTS</div>
+            </div>
+
+            <div class="player-card">
+                <span class="player-name">Mohamed Salah</span>
+                <div class="player-info">
+                    <span class="status-dot"></span> Available | Midfielder
+                </div>
+                <div class="points-badge">9 PTS</div>
+            </div>
+
+            <div class="player-card">
+                <span class="player-name">Bukayo Saka</span>
+                <div class="player-info">
+                    <span class="status-dot"></span> Available | Midfielder
+                </div>
+                <div class="points-badge">15 PTS</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
