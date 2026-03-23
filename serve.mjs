@@ -63,6 +63,19 @@ http.createServer((req, res) => {
     return;
   }
 
+  // Serve cached API data for local dev
+  if (url === '/api/data') {
+    const qs = new URLSearchParams(rawUrl.split('?')[1] || '');
+    const md = parseInt(qs.get('md')) || 12;
+    const cacheFile = path.join(__dirname, 'cache', `md${String(md).padStart(2,'0')}.json`);
+    fs.readFile(cacheFile, (err, data) => {
+      if (err) { res.writeHead(404, {'Content-Type':'application/json'}); res.end('{"error":"no cache"}'); return; }
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(data);
+    });
+    return;
+  }
+
   // Static file serving
   let filePath = path.join(__dirname, url === '/' ? '/index.html' : url);
   const ext = path.extname(filePath).toLowerCase();
