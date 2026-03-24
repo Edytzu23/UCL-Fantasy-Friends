@@ -1263,7 +1263,7 @@ body::before {
 .sort-btn:hover { color: var(--text); background: rgba(255,255,255,.05); }
 .sort-btn:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
 .sort-btn:active { transform: scale(.97); }
-.sort-btn.active { color: var(--fire); background: var(--fire-dim); }
+.sort-btn.active { color: var(--fire); background: var(--fire-dim); box-shadow: 0 0 8px rgba(255,87,34,.12); }
 .sort-arrow {
   font-size: 10px;
   transition: transform .2s;
@@ -1279,9 +1279,46 @@ body::before {
   background: var(--bg);
   min-width: 0;
 }
+
+/* Smart view tabs */
+.scout-view-tabs {
+  display: flex;
+  background: rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+  margin: 8px 12px 0;
+  flex-shrink: 0;
+}
+.scout-view-btn {
+  flex: 1;
+  padding: 7px 6px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sub);
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  transition: color 200ms var(--spring), background 200ms var(--spring), box-shadow 200ms var(--spring), transform var(--spring-fast);
+}
+.scout-view-btn:hover { color: var(--text); background: rgba(255,255,255,.06); }
+.scout-view-btn:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
+.scout-view-btn:active { transform: scale(.95); }
+.scout-view-btn.active {
+  background: var(--fire);
+  color: #fff;
+  box-shadow: 0 2px 16px rgba(255,87,34,.4), 0 0 24px rgba(255,87,34,.15);
+  text-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+
 .scout-list-header {
   display: grid;
-  grid-template-columns: 54px 1fr 56px 46px 56px;
+  grid-template-columns: 54px 1fr 46px 38px 46px 46px 62px;
   align-items: center;
   padding: 8px 20px;
   border-bottom: 1px solid var(--border);
@@ -1293,6 +1330,27 @@ body::before {
   font-size: 10px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 1px;
   color: var(--muted);
+  user-select: none;
+}
+.scout-list-header span[data-col] {
+  cursor: pointer;
+  transition: color 150ms ease, text-shadow 150ms ease;
+  position: relative;
+  padding-bottom: 3px;
+}
+.scout-list-header span[data-col]:hover { color: var(--text); }
+.scout-list-header span[data-col].sort-active {
+  color: var(--fire);
+  text-shadow: 0 0 8px rgba(255,87,34,.4);
+}
+.scout-list-header span[data-col].sort-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 10%; right: 10%;
+  height: 2px;
+  background: var(--fire);
+  border-radius: 1px;
+  box-shadow: 0 0 6px rgba(255,87,34,.5);
 }
 .scout-list-header span:nth-child(n+3) { text-align: center; }
 
@@ -1308,69 +1366,134 @@ body::before {
 
 .sc-row {
   display: grid;
-  grid-template-columns: 54px 1fr 56px 46px 56px;
+  grid-template-columns: 54px 1fr 46px 38px 46px 46px 62px;
   align-items: center;
   padding: 8px 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background 180ms var(--spring), transform var(--spring-fast);
+  transition: background 180ms var(--spring), transform 200ms cubic-bezier(.16,1,.3,1), box-shadow 300ms ease;
   margin-bottom: 0;
   border: 1px solid transparent;
+  border-left: 3px solid var(--pos-color, transparent);
+  position: relative;
+  overflow: hidden;
 }
-.sc-row:hover { background: rgba(255,255,255,.04); }
+.sc-row:hover {
+  background: rgba(255,255,255,.05);
+  transform: translateX(2px);
+  box-shadow: 0 2px 16px rgba(0,0,0,.2), 0 0 0 1px rgba(255,255,255,.04);
+}
+.sc-row:hover .sc-player-name { color: #fff; }
+.sc-row:hover .sc-ring { transform: scale(1.08); }
+.sc-row:hover .sc-stat.hi { text-shadow: 0 0 12px rgba(76,175,80,.4); }
 .sc-row:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
-.sc-row:active { transform: scale(.99); }
+.sc-row:active { transform: scale(.99) translateX(1px); }
 .sc-row:nth-child(even) { background: rgba(255,255,255,.018); }
-.sc-row:nth-child(even):hover { background: rgba(255,255,255,.045); }
+.sc-row:nth-child(even):hover { background: rgba(255,255,255,.055); transform: translateX(2px); }
 .sc-row.mine {
-  background: rgba(255,87,34,.04);
-  border-color: rgba(255,87,34,.12);
+  background: rgba(255,87,34,.05);
+  border-color: rgba(255,87,34,.15);
+  border-left: 3px solid var(--pos-color, var(--fire));
+}
+.sc-row.mine:hover { background: rgba(255,87,34,.08); }
+
+/* Hot pick — intense fire treatment */
+.sc-row.hot-pick {
+  border-left: 3px solid var(--fire);
+  background: linear-gradient(90deg, rgba(255,87,34,.06) 0%, transparent 40%);
+  box-shadow: inset 0 0 24px rgba(255,87,34,.1), inset 0 0 8px rgba(255,87,34,.06), 0 0 12px rgba(255,87,34,.05);
+  animation: scRowIn .4s cubic-bezier(.16,1,.3,1) both, scHotGlow 3s ease-in-out infinite;
+}
+.sc-row.hot-pick::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #FF5722, #FF9800, #FF5722);
+  background-size: 100% 200%;
+  animation: fireBorder 2s ease-in-out infinite;
+  border-radius: 10px 0 0 10px;
+}
+@keyframes fireBorder {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 0% 100%; }
+}
+@keyframes scHotGlow {
+  0%, 100% { box-shadow: inset 0 0 24px rgba(255,87,34,.1), inset 0 0 8px rgba(255,87,34,.06), 0 0 12px rgba(255,87,34,.05); }
+  50% { box-shadow: inset 0 0 36px rgba(255,87,34,.18), inset 0 0 14px rgba(255,87,34,.1), 0 0 20px rgba(255,87,34,.08); }
 }
 
-/* Ownership ring */
+/* Ownership ring — dynamic size via --ring-size */
 .sc-ring {
-  width: 42px; height: 42px;
+  width: var(--ring-size, 42px); height: var(--ring-size, 42px);
   position: relative;
   display: flex; align-items: center; justify-content: center;
+  transition: transform 200ms var(--spring);
 }
 .sc-ring svg { transform: rotate(-90deg); }
 .sc-ring-pct {
   position: absolute;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px; font-weight: 600;
+  font-size: var(--ring-font, 11px); font-weight: 600;
   color: var(--text);
+}
+.sc-ring.high-own { animation: ringPulse 2.5s ease-in-out infinite; }
+@keyframes ringPulse {
+  0%, 100% { filter: drop-shadow(0 0 4px var(--ring-color, #dc2626)); }
+  50% { filter: drop-shadow(0 0 10px var(--ring-color, #dc2626)) drop-shadow(0 0 18px rgba(220,38,38,.35)); transform: scale(1.04); }
 }
 
 /* Player info cell */
-.sc-player-info { min-width: 0; padding-left: 4px; }
+.sc-player-info { min-width: 0; padding-left: 4px; display: flex; flex-direction: column; gap: 1px; position: relative; }
 .sc-player-name {
-  font-size: 13px; font-weight: 600;
+  font-size: 15px; font-weight: 700;
   color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 .sc-player-meta {
   display: flex; align-items: center; gap: 6px;
   margin-top: 2px;
 }
 .sc-pos-badge {
-  font-size: 9px; font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
-  letter-spacing: .3px;
+  font-size: 9px; font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
 }
-.sc-pos-badge.GK  { background: rgba(255,179,0,.18); color: var(--gk); }
-.sc-pos-badge.DEF { background: rgba(76,175,80,.18); color: var(--def); }
-.sc-pos-badge.MID { background: rgba(66,165,245,.18); color: var(--mid); }
-.sc-pos-badge.FWD { background: rgba(239,83,80,.18); color: var(--fwd); }
+.sc-pos-badge.GK  { background: rgba(255,179,0,.22); color: var(--gk); box-shadow: 0 0 6px rgba(255,179,0,.1); }
+.sc-pos-badge.DEF { background: rgba(76,175,80,.22); color: var(--def); box-shadow: 0 0 6px rgba(76,175,80,.1); }
+.sc-pos-badge.MID { background: rgba(66,165,245,.22); color: var(--mid); box-shadow: 0 0 6px rgba(66,165,245,.1); }
+.sc-pos-badge.FWD { background: rgba(239,83,80,.22); color: var(--fwd); box-shadow: 0 0 6px rgba(239,83,80,.1); }
 .sc-team-name {
   font-size: 10px; color: var(--muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.sc-team-logo {
+  width: 18px; height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
+}
+
+/* Form volume icon — signal strength bars positioned in card gap */
+.sc-form-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5px;
+  opacity: .9;
+  filter: drop-shadow(0 0 3px currentColor);
+}
 
 /* Owner dots */
 .sc-dots {
-  display: flex; gap: 3px; margin-top: 3px; flex-wrap: wrap;
+  display: flex; gap: 3px; margin-top: 2px; flex-wrap: wrap;
 }
 .sc-dot {
   width: 7px; height: 7px;
@@ -1381,21 +1504,32 @@ body::before {
   box-shadow: 0 0 5px currentColor;
 }
 
-/* Stat cells */
+/* Stat cells — hierarchy system */
 .sc-stat {
   text-align: center;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 16px; font-weight: 600;
   color: var(--text);
   line-height: 1;
+  transition: color 150ms ease, text-shadow 150ms ease;
 }
-.sc-stat.zero { color: var(--muted); }
-.sc-stat.hi { color: var(--green-lt); }
+.sc-stat.zero { color: var(--muted); font-weight: 500; }
+.sc-stat.hi { color: var(--green-lt); text-shadow: 0 0 8px rgba(76,175,80,.3); }
+/* PTS hero stat */
+.sc-stat.pts-hero { font-size: 19px; font-weight: 700; letter-spacing: -.02em; }
+.sc-stat.pts-hero.hi { text-shadow: 0 0 12px rgba(76,175,80,.35); }
+/* FORM score glow */
+.sc-stat.form-glow { font-weight: 700; }
 .sc-stat-sub {
   font-family: 'DM Sans', sans-serif;
   font-size: 9px; color: var(--muted);
   margin-top: 2px;
+  letter-spacing: .3px;
 }
+/* Context arrow for above/below average */
+.sc-ctx { font-size: 8px; margin-left: 1px; }
+.sc-ctx.up { color: var(--green-lt); }
+.sc-ctx.down { color: var(--fire); }
 
 /* Scout empty state */
 .scout-empty {
@@ -1406,12 +1540,12 @@ body::before {
   font-size: 14px;
 }
 
-/* Fade-in animation for rows */
+/* Row entrance — dramatic stagger with scale */
 @keyframes scRowIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(-12px) scale(.97); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
 }
-.sc-row { animation: scRowIn .3s ease-out both; }
+.sc-row { animation: scRowIn .4s cubic-bezier(.16,1,.3,1) both; }
 
 /* ─── TOTW TAB ─── */
 .totw-left {
@@ -2028,7 +2162,7 @@ body::before {
     <div class="scout-left">
       <div class="scout-search-wrap">
         <svg class="scout-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="scout-search" id="scoutSearch" placeholder="Caută jucător sau echipă..." />
+        <input class="scout-search" id="scoutSearch" placeholder="Search player or team..." />
       </div>
       <div class="pos-filter" id="posFilter">
         <button class="pos-btn active" data-pos="ALL">ALL</button>
@@ -2038,33 +2172,42 @@ body::before {
         <button class="pos-btn" data-pos="FWD">FWD</button>
       </div>
       <div class="scout-filter-card">
-        <div class="scout-section-lbl">Manageri</div>
+        <div class="scout-section-lbl">Managers</div>
         <div class="mgr-chips" id="mgrChips"></div>
       </div>
       <div class="scout-filter-card">
-        <div class="scout-section-lbl">Echipă</div>
+        <div class="scout-section-lbl">Team</div>
         <div class="mgr-chips" id="teamChips"></div>
       </div>
       <div class="scout-filter-card">
-        <div class="scout-section-lbl">Risc</div>
-        <button class="susp-toggle" id="suspToggle" onclick="toggleSuspFilter()">
+        <div class="scout-section-lbl">Risk</div>
+        <button class="susp-toggle" id="suspToggle" onclick="toggleSuspFilter()" title="Players one yellow card away from suspension">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0"><rect x="2" y="1" width="12" height="14" rx="1.5" fill="#fbbf24" opacity=".9"/><rect x="5" y="4" width="6" height="1.5" rx=".75" fill="#1a1200"/><rect x="5" y="7" width="6" height="1.5" rx=".75" fill="#1a1200"/><rect x="5" y="10" width="4" height="1.5" rx=".75" fill="#1a1200"/></svg>
-          Risc suspendare
+          Suspension risk
         </button>
       </div>
       <div class="scout-filter-card">
-        <div class="scout-section-lbl">Sortare</div>
+        <div class="scout-section-lbl">Sort by</div>
         <div class="sort-btns" id="sortBtns"></div>
       </div>
     </div>
     <!-- Center: Player list -->
     <div class="scout-center">
-      <div class="scout-list-header">
-        <span>OWN%</span>
-        <span>JUCĂTOR</span>
-        <span>G+A</span>
-        <span>CS</span>
-        <span>PTS</span>
+      <div class="scout-view-tabs" id="scoutViewTabs">
+        <button class="scout-view-btn active" data-view="all" onclick="setScoutView('all',this)">ALL</button>
+        <button class="scout-view-btn" data-view="hotLocal" onclick="setScoutView('hotLocal',this)">LOCAL PICKS</button>
+        <button class="scout-view-btn" data-view="hotGlobal" onclick="setScoutView('hotGlobal',this)">GLOBAL PICKS</button>
+        <button class="scout-view-btn" data-view="inForm" onclick="setScoutView('inForm',this)">IN FORM</button>
+        <button class="scout-view-btn" data-view="risc" onclick="setScoutView('risc',this)">AT RISK</button>
+      </div>
+      <div class="scout-list-header" id="scoutListHeader">
+        <span title="Ownership in your league">OWN%</span>
+        <span>PLAYER</span>
+        <span data-col="ga" onclick="toggleHeaderSort('ga',this)" title="Season goals + assists">G+A</span>
+        <span data-col="cs" onclick="toggleHeaderSort('cs',this)" title="Season clean sheets">CS</span>
+        <span data-col="form" onclick="toggleHeaderSort('form',this)" title="Weighted form score (0-10)">FORM</span>
+        <span data-col="selPer" onclick="toggleHeaderSort('selPer',this)" title="Global selection %">SEL%</span>
+        <span data-col="totPts" onclick="toggleHeaderSort('totPts',this)" title="Season total points">PTS</span>
       </div>
       <div class="scout-list" id="scoutList"></div>
     </div>
@@ -2219,11 +2362,21 @@ async function loadApiData(md) {
       assists: p.mdAssists || 0,
       cs: p.mdCleanSheet ? true : false,
       totPts: p.totPts || 0,
+      lastGdPts: p.lastGdPts || 0,
+      totGoals: p.goals || 0,
+      totAssists: p.assists || 0,
+      totCS: p.cleanSheets || 0,
       selPer: p.selPer || 0,
       value: p.value || 0,
+      rating: p.rating || 0,
+      momCount: p.momCount || 0,
       localOwnership: p.localOwnership || 0,
       yellowCards: p.yellowCards || 0,
-      ownedBy: p.ownedBy || []
+      redCards: p.redCards || 0,
+      ownedBy: p.ownedBy || [],
+      mdMins: p.mdMins || 0,
+      mdSaves: p.mdSaves || 0,
+      status: p.status || ''
     }));
 
     worldLeader = data.worldLeader || null;
@@ -2236,10 +2389,13 @@ async function loadApiData(md) {
     if (currentTab === 'totw') renderTOTW();
     if (currentTab === 'scouting') {
       scoutDataCache = null;
+      posAvgCache = null;
       const chipsEl = document.getElementById('mgrChips');
       if (chipsEl) chipsEl.dataset.init = '';
       const teamChipsEl = document.getElementById('teamChips');
       if (teamChipsEl) teamChipsEl.dataset.init = '';
+      const sortEl = document.getElementById('sortBtns');
+      if (sortEl) sortEl.dataset.init = '';
       renderScouting();
     }
   } catch(e) {
@@ -2289,6 +2445,10 @@ let totwMode = 'liga';
 let scoutDataCache = null;
 let scoutTeamFilter = new Set();
 let scoutSuspFilter = false;
+let scoutViewTab = 'all';
+let posAvgCache = null;
+let headerSortCol = null;
+let headerSortDir = 0; // 0=none, 1=desc, -1=asc
 const TOTAL_MDS = 17;
 let mdCache = {};
 
@@ -2640,43 +2800,143 @@ document.addEventListener('click', e => {
 // ═══════════════════════════════════════════
 // ─── SCOUTING DATA ───
 // ═══════════════════════════════════════════
+// ─── SCOUTING: HELPERS ───
+function computeForm(p) {
+  // Weighted composite using last 2 MDs + rating, normalized to 0-10
+  const raw = (p.rating || 0) * 2 + (p.pts || 0) * 2 + (p.lastGdPts || 0) * 1.5;
+  // Normalize: typical max raw ~55 (rating 5*2 + pts 18*2 + lastGd 12*1.5)
+  return Math.min(10, Math.round((raw / 5) * 10) / 10);
+}
+
+function buildPosAvgs() {
+  if (posAvgCache) return posAvgCache;
+  const buckets = {};
+  allPlayers.forEach(p => {
+    if (!p.posCode || !p.totPts) return;
+    if (!buckets[p.posCode]) buckets[p.posCode] = { ga: [], cs: [], pts: [], form: [], selPer: [] };
+    const b = buckets[p.posCode];
+    b.ga.push((p.totGoals || 0) + (p.totAssists || 0));
+    b.cs.push(p.totCS || 0);
+    b.pts.push(p.totPts || 0);
+    b.form.push(computeForm(p));
+    b.selPer.push(p.selPer || 0);
+  });
+  posAvgCache = {};
+  for (const [pos, b] of Object.entries(buckets)) {
+    const avg = arr => arr.length ? arr.reduce((a, v) => a + v, 0) / arr.length : 0;
+    posAvgCache[pos] = { ga: avg(b.ga), cs: avg(b.cs), pts: avg(b.pts), form: avg(b.form), selPer: avg(b.selPer) };
+  }
+  return posAvgCache;
+}
+
+function ctxArrow(val, avg) {
+  if (!avg || avg === 0) return '';
+  if (val > avg * 1.15) return '<span class="sc-ctx up">\u25B2</span>';
+  if (val < avg * 0.85) return '<span class="sc-ctx down">\u25BC</span>';
+  return '';
+}
+
+function formColor(f) {
+  if (f >= 7) return '#4CAF50';
+  if (f >= 4) return '#eab308';
+  return '#ef5350';
+}
+
+function formBarHeight(f) {
+  return Math.max(4, Math.round((f / 10) * 20));
+}
+
+function formVolumeSVG(form) {
+  const tier = form >= 7 ? 2 : form >= 4 ? 1 : 0;
+  const color = formColor(form);
+  const dim = color + '1a'; // 10% opacity hex
+  return `<span class="sc-form-icon" title="Form: ${form}"><svg width="18" height="16" viewBox="0 0 18 16">
+    <rect x="0" y="11" width="4" height="5" rx="1" fill="${tier >= 0 ? color : dim}"/>
+    <rect x="6" y="6" width="4" height="10" rx="1" fill="${tier >= 1 ? color : dim}"/>
+    <rect x="12" y="1" width="4" height="15" rx="1" fill="${tier >= 2 ? color : dim}"/>
+  </svg></span>`;
+}
+
+function ycSVG() {
+  return '<svg width="12" height="15" viewBox="0 0 12 15" style="flex-shrink:0"><rect x=".5" y=".5" width="11" height="14" rx="1.5" fill="#fbbf24"/><rect x=".5" y=".5" width="11" height="14" rx="1.5" stroke="#d4a017" stroke-width=".5" fill="none"/></svg>';
+}
+
+function toggleHeaderSort(col, el) {
+  if (headerSortCol === col) {
+    // Cycle: desc(1) → asc(-1) → none(0)
+    if (headerSortDir === 1) headerSortDir = -1;
+    else { headerSortCol = null; headerSortDir = 0; }
+  } else {
+    headerSortCol = col;
+    headerSortDir = 1;
+  }
+  // Update header UI
+  document.querySelectorAll('.scout-list-header span[data-col]').forEach(s => {
+    s.classList.remove('sort-active');
+    s.textContent = s.textContent.replace(/ [▼▲]/, '');
+  });
+  if (headerSortCol && el) {
+    el.classList.add('sort-active');
+    el.textContent += headerSortDir === 1 ? ' ▼' : ' ▲';
+  }
+  // Sync sidebar sort
+  scoutSortCol = headerSortCol || 'ownerPct';
+  scoutSortDir = headerSortDir || 1;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active', 'asc'));
+  const matchBtn = document.querySelector(`.sort-btn[data-col="${headerSortCol}"]`);
+  if (matchBtn) {
+    matchBtn.classList.add('active');
+    if (headerSortDir === -1) matchBtn.classList.add('asc');
+  }
+  renderScouting();
+}
+
 function buildScoutingData() {
   if (scoutDataCache) return scoutDataCache;
-  // Build yellow card lookup from allPlayers
-  const ycMap = {};
-  allPlayers.forEach(p => { ycMap[p.name + '|' + p.teamCode] = p.yellowCards || 0; });
+  const totalMgrs = MANAGERS.length || 1;
+  const currentMD = MD || 12;
 
-  const playerMap = {};
-  const totalMgrs = MANAGERS.length;
+  // Build ownership map from rosters
+  const ownershipMap = {};
   MANAGERS.forEach(mgr => {
     const roster = ROSTERS[mgr.guid];
     if (!roster) return;
     const all = [...roster.starters, ...(roster.bench || [])];
     all.forEach(p => {
       const key = p.name + '|' + p.teamCode;
-      if (!playerMap[key]) {
-        playerMap[key] = {
-          name: p.name, posCode: p.posCode, teamCode: p.teamCode,
-          pts: p.pts || 0, goals: p.goals || 0, assists: p.assists || 0,
-          cs: p.cs ? 1 : 0, owners: [], isStarter: {},
-          yellowCards: ycMap[key] || 0
-        };
-      }
-      const entry = playerMap[key];
-      if (!entry.owners.includes(mgr.guid)) entry.owners.push(mgr.guid);
-      if ((p.pts || 0) > entry.pts) {
-        entry.pts = p.pts; entry.goals = p.goals || 0;
-        entry.assists = p.assists || 0; entry.cs = p.cs ? 1 : 0;
-      }
-      if (roster.starters.includes(p)) entry.isStarter[mgr.guid] = true;
+      if (!ownershipMap[key]) ownershipMap[key] = { owners: [], isStarter: {} };
+      if (!ownershipMap[key].owners.includes(mgr.guid)) ownershipMap[key].owners.push(mgr.guid);
+      if (roster.starters.includes(p)) ownershipMap[key].isStarter[mgr.guid] = true;
     });
   });
-  scoutDataCache = Object.values(playerMap).map(p => ({
-    ...p,
-    ownerCount: p.owners.length,
-    ownerPct: Math.round(p.owners.length / totalMgrs * 100),
-    ga: (p.goals || 0) + (p.assists || 0)
-  }));
+
+  scoutDataCache = allPlayers.filter(p => p.name && p.posCode).map(p => {
+    const key = p.name + '|' + p.teamCode;
+    const own = ownershipMap[key] || { owners: [], isStarter: {} };
+    const ga = (p.totGoals || 0) + (p.totAssists || 0);
+    const cs = p.totCS || 0;
+    const form = computeForm(p);
+    const seasonAvg = p.totPts && currentMD > 0 ? p.totPts / currentMD : 0;
+    const ownerPct = Math.round(own.owners.length / totalMgrs * 100);
+    const isHotLocal = own.owners.length <= 1 && form >= 6;
+    const isHotGlobal = (p.selPer || 0) <= 10 && form >= 6;
+    const isInForm = (p.pts > seasonAvg * 1.5 && p.pts > 0) || form >= 7;
+
+    return {
+      name: p.name, posCode: p.posCode, teamCode: p.teamCode, team: p.team,
+      pts: p.pts, totPts: p.totPts, lastGdPts: p.lastGdPts,
+      goals: p.totGoals || 0, assists: p.totAssists || 0,
+      cs, ga,
+      value: p.value || 0, rating: p.rating || 0,
+      mdMins: p.mdMins || 0, mdSaves: p.mdSaves || 0,
+      yellowCards: p.yellowCards || 0, redCards: p.redCards || 0,
+      selPer: p.selPer || 0, momCount: p.momCount || 0,
+      owners: own.owners, isStarter: own.isStarter,
+      ownerCount: own.owners.length,
+      ownerPct, form, seasonAvg,
+      isHotLocal, isHotGlobal, isInForm
+    };
+  });
   return scoutDataCache;
 }
 
@@ -2688,7 +2948,25 @@ function ringColor(pct) {
   return '#4a5580';
 }
 
+function ringSize(pct) {
+  if (pct >= 80) return { size: 50, font: 12, r: 20, sw: 3.5 };
+  if (pct >= 40) return { size: 42, font: 11, r: 17, sw: 3 };
+  return { size: 38, font: 10, r: 15, sw: 3 };
+}
+
+function posColor(pos) {
+  const map = { GK: 'var(--gk)', DEF: 'var(--def)', MID: 'var(--mid)', FWD: 'var(--fwd)' };
+  return map[pos] || 'transparent';
+}
+
 // ─── RENDER SCOUTING ───
+function setScoutView(tab, el) {
+  scoutViewTab = tab;
+  document.querySelectorAll('.scout-view-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderScouting();
+}
+
 function toggleSuspFilter() {
   scoutSuspFilter = !scoutSuspFilter;
   const btn = document.getElementById('suspToggle');
@@ -2712,7 +2990,7 @@ function renderScouting() {
     ).join('');
   }
 
-  // Team chips — built from current scouting data, sorted alphabetically
+  // Team chips
   const teamChipsEl = document.getElementById('teamChips');
   if (teamChipsEl && !teamChipsEl.dataset.init) {
     teamChipsEl.dataset.init = '1';
@@ -2729,9 +3007,11 @@ function renderScouting() {
     sortEl.dataset.init = '1';
     const sorts = [
       { col: 'ownerPct', label: 'Local %' },
-      { col: 'pts', label: 'Puncte MD' },
-      { col: 'ga', label: 'G + A' },
-      { col: 'cs', label: 'Clean Sheets' }
+      { col: 'totPts', label: 'Total PTS' },
+      { col: 'ga', label: 'G+A' },
+      { col: 'cs', label: 'Clean Sheets' },
+      { col: 'form', label: 'Form' },
+      { col: 'selPer', label: 'Global%' }
     ];
     sortEl.innerHTML = sorts.map(s =>
       `<button class="sort-btn${s.col === scoutSortCol ? ' active' : ''}" data-col="${s.col}" onclick="toggleSort('${s.col}',this)">
@@ -2740,47 +3020,69 @@ function renderScouting() {
     ).join('');
   }
 
-  // Filter & sort data
+  // Build position averages for context arrows
+  const avgs = buildPosAvgs();
+
+  // Filter data by smart view tab first
   let data = buildScoutingData();
+
+  if (scoutViewTab === 'hotLocal') data = data.filter(p => p.isHotLocal);
+  else if (scoutViewTab === 'hotGlobal') data = data.filter(p => p.isHotGlobal);
+  else if (scoutViewTab === 'inForm') data = data.filter(p => p.isInForm);
+  else if (scoutViewTab === 'risc') data = data.filter(p => p.yellowCards >= 2);
+
+  // Then apply sidebar filters
   const q = scoutQuery.toLowerCase();
-  if (q) data = data.filter(p => p.name.toLowerCase().includes(q) || p.teamCode.toLowerCase().includes(q));
+  if (q) data = data.filter(p => p.name.toLowerCase().includes(q) || p.teamCode.toLowerCase().includes(q) || (p.team || '').toLowerCase().includes(q));
   if (scoutPosFilter !== 'ALL') data = data.filter(p => p.posCode === scoutPosFilter);
   if (scoutMgrFilter.size > 0) data = data.filter(p => p.owners.some(o => scoutMgrFilter.has(o)));
   if (scoutTeamFilter.size > 0) data = data.filter(p => scoutTeamFilter.has(p.teamCode));
   if (scoutSuspFilter) data = data.filter(p => p.yellowCards >= 2);
 
-  data.sort((a, b) => {
-    const av = a[scoutSortCol] || 0, bv = b[scoutSortCol] || 0;
-    return (bv - av) * scoutSortDir;
-  });
+  // Sort: smart view tabs default by form desc, header sort overrides, else sidebar sort
+  if (scoutViewTab === 'hotLocal' || scoutViewTab === 'hotGlobal' || scoutViewTab === 'inForm') {
+    if (headerSortCol && headerSortDir !== 0) {
+      data.sort((a, b) => ((b[headerSortCol] || 0) - (a[headerSortCol] || 0)) * headerSortDir);
+    } else {
+      data.sort((a, b) => (b.form || 0) - (a.form || 0));
+    }
+  } else if (headerSortCol && headerSortDir !== 0) {
+    data.sort((a, b) => ((b[headerSortCol] || 0) - (a[headerSortCol] || 0)) * headerSortDir);
+  } else {
+    data.sort((a, b) => {
+      const av = a[scoutSortCol] || 0, bv = b[scoutSortCol] || 0;
+      return (bv - av) * scoutSortDir;
+    });
+  }
 
   const listEl = document.getElementById('scoutList');
   if (!listEl) return;
 
   if (data.length === 0) {
-    listEl.innerHTML = '<div class="scout-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Niciun juc\u0103tor g\u0103sit</span></div>';
+    listEl.innerHTML = '<div class="scout-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>No players match</span><span style="font-size:12px;opacity:.5">Try a different search or adjust your filters</span></div>';
     return;
   }
 
   listEl.innerHTML = data.slice(0, 100).map((p, idx) => {
     const pct = p.ownerPct;
     const rc = ringColor(pct);
-    const circ = 2 * Math.PI * 17;
+    const rs = ringSize(pct);
+    const circ = 2 * Math.PI * rs.r;
     const offset = circ - (pct / 100) * circ;
     const isMine = p.owners.includes(CURRENT_USER);
-    const dots = p.owners.map(o => {
-      const mgr = MANAGERS.find(m => m.guid === o);
-      const c = mgr ? mgr.color : '#666';
-      return `<div class="sc-dot${o === CURRENT_USER ? ' me' : ''}" style="background:${c};color:${c}"></div>`;
-    }).join('');
+    const isHot = p.isHotLocal || p.isHotGlobal;
+    const posAvg = avgs[p.posCode] || {};
+    const fc = formColor(p.form);
+    const vb = rs.size / 2;
+    const tcSafe = (p.teamCode || '').replace(/'/g, "\\'");
 
-    return `<div class="sc-row${isMine ? ' mine' : ''}" style="animation-delay:${Math.min(idx * 20, 400)}ms" tabindex="0">
-      <div class="sc-ring">
-        <svg width="42" height="42" viewBox="0 0 38 38">
-          <circle cx="19" cy="19" r="17" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="3"/>
-          <circle cx="19" cy="19" r="17" fill="none" stroke="${rc}" stroke-width="3"
+    return `<div class="sc-row${isMine ? ' mine' : ''}${isHot ? ' hot-pick' : ''}" style="animation-delay:${Math.min(idx * 40, 800)}ms;--pos-color:${posColor(p.posCode)}" tabindex="0">
+      <div class="sc-ring${pct >= 80 ? ' high-own' : ''}" style="--ring-size:${rs.size}px;--ring-font:${rs.font}px;--ring-color:${rc}">
+        <svg width="${rs.size}" height="${rs.size}" viewBox="0 0 ${vb * 2} ${vb * 2}">
+          <circle cx="${vb}" cy="${vb}" r="${rs.r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${rs.sw}"/>
+          <circle cx="${vb}" cy="${vb}" r="${rs.r}" fill="none" stroke="${rc}" stroke-width="${rs.sw}"
             stroke-dasharray="${circ}" stroke-dashoffset="${offset}"
-            stroke-linecap="round" style="filter:drop-shadow(0 0 3px ${rc})"/>
+            stroke-linecap="round" style="filter:drop-shadow(0 0 4px ${rc}) drop-shadow(0 0 8px ${rc}40)"/>
         </svg>
         <span class="sc-ring-pct">${pct}%</span>
       </div>
@@ -2788,14 +3090,19 @@ function renderScouting() {
         <div class="sc-player-name">${p.name}</div>
         <div class="sc-player-meta">
           <span class="sc-pos-badge ${p.posCode}">${p.posCode}</span>
-          <span class="sc-team-name">${p.teamCode}</span>
-          ${p.yellowCards >= 2 ? `<span class="yc-badge ${p.yellowCards >= 3 ? 'danger' : 'risk'}">🟨 ${p.yellowCards}</span>` : ''}
+          <img class="sc-team-logo" src="/static/logos/${p.teamCode}.png" alt="${p.teamCode}" title="${p.team || p.teamCode}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'sc-team-name',textContent:'${tcSafe}'}))">
+          ${p.yellowCards >= 2 ? `<span class="yc-badge ${p.yellowCards >= 3 ? 'danger' : 'risk'}">${ycSVG()} ${p.yellowCards}</span>` : ''}
         </div>
-        <div class="sc-dots">${dots}</div>
+        ${formVolumeSVG(p.form)}
       </div>
-      <div class="sc-stat${p.ga === 0 ? ' zero' : p.ga >= 2 ? ' hi' : ''}">${p.ga}<div class="sc-stat-sub">G+A</div></div>
-      <div class="sc-stat${p.cs === 0 ? ' zero' : ''}">${p.cs}<div class="sc-stat-sub">CS</div></div>
-      <div class="sc-stat${p.pts === 0 ? ' zero' : p.pts >= 10 ? ' hi' : ''}">${p.pts}<div class="sc-stat-sub">PTS</div></div>
+      <div class="sc-stat${p.ga === 0 ? ' zero' : p.ga >= 3 ? ' hi' : ''}">${p.ga}${ctxArrow(p.ga, posAvg.ga)}</div>
+      <div class="sc-stat${p.cs === 0 ? ' zero' : ' hi'}">${p.cs}${ctxArrow(p.cs, posAvg.cs)}</div>
+      <div class="sc-stat form-glow" style="color:${fc};text-shadow:0 0 10px ${fc}40">${p.form}${ctxArrow(p.form, posAvg.form)}</div>
+      <div class="sc-stat${(p.selPer || 0) === 0 ? ' zero' : ''}" style="font-size:13px">${p.selPer ? p.selPer + '%' : '-'}${ctxArrow(p.selPer, posAvg.selPer)}</div>
+      <div class="sc-stat pts-hero${p.totPts === 0 ? ' zero' : p.totPts >= 40 ? ' hi' : ''}">
+        ${p.totPts}${ctxArrow(p.totPts, posAvg.pts)}
+        <div class="sc-stat-sub"${p.pts === 0 ? ' style="opacity:.4"' : ''}>MD ${p.pts}</div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -2812,6 +3119,12 @@ function toggleSort(col, el) {
   document.querySelectorAll('.sort-btn').forEach(b => { b.classList.remove('active', 'asc'); });
   el.classList.add('active');
   if (scoutSortDir === -1) el.classList.add('asc');
+  // Clear header sort when using sidebar
+  headerSortCol = null; headerSortDir = 0;
+  document.querySelectorAll('.scout-list-header span[data-col]').forEach(s => {
+    s.classList.remove('sort-active');
+    s.textContent = s.textContent.replace(/ [▼▲]/, '');
+  });
   renderScouting();
 }
 

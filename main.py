@@ -629,15 +629,18 @@ def build_data(matchday=11):
         # Override curGDPts with live scores if available
         if pid in live_pts:
             enriched_p["curGDPts"] = live_pts[pid]
+        lss = live_scoring_stats.get(pid, {})
         all_players.append(
             {
                 **enriched_p,
                 "localOwnership": len(owners),
                 "localPer": round(len(owners) / len(FRIENDS_IDS) * 100),
                 "ownedBy": owners,
-                "mdGoals": live_events.get(pid, {}).get("goals") or live_scoring_stats.get(pid, {}).get("goals") or md_stat(pid, "goals", public_players, prev_players),
-                "mdAssists": live_events.get(pid, {}).get("assists") or live_scoring_stats.get(pid, {}).get("assists") or md_stat(pid, "assists", public_players, prev_players),
-                "mdCleanSheet": (1 if pid in live_clean_sheet_pids else 0) or live_scoring_stats.get(pid, {}).get("cs") or md_stat(pid, "cleanSheets", public_players, prev_players),
+                "mdGoals": live_events.get(pid, {}).get("goals") or lss.get("goals") or md_stat(pid, "goals", public_players, prev_players),
+                "mdAssists": live_events.get(pid, {}).get("assists") or lss.get("assists") or md_stat(pid, "assists", public_players, prev_players),
+                "mdCleanSheet": (1 if pid in live_clean_sheet_pids else 0) or lss.get("cs") or md_stat(pid, "cleanSheets", public_players, prev_players),
+                "mdMins": lss.get("mins", 0),
+                "mdSaves": lss.get("saves", 0),
             }
         )
     all_players.sort(key=lambda x: x["totPts"], reverse=True)
