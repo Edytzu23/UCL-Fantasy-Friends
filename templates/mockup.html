@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>PitchPulse — Dashboard</title>
+<title>PLM Fantasy</title>
+<link rel="icon" type="image/png" href="/static/brand-logo.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Barlow+Condensed:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -1531,7 +1532,36 @@ body::before {
 .sc-ctx.up { color: var(--green-lt); }
 .sc-ctx.down { color: var(--fire); }
 
-/* Scout empty state */
+/* Empty states */
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 10px;
+  padding: 48px 24px;
+}
+.empty-state-icon {
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.empty-state-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sub);
+}
+.empty-state-desc {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.5;
+  max-width: 220px;
+}
 .scout-empty {
   display: flex; align-items: center; justify-content: center;
   flex-direction: column; gap: 12px;
@@ -2064,6 +2094,139 @@ body::before {
 .skeleton-header { height: 80px; margin-bottom: 12px; border-radius: 12px; }
 .skeleton-pitch { height: 400px; border-radius: 16px; }
 .skeleton-chip { height: 32px; width: 100px; border-radius: 16px; display: inline-block; margin-right: 8px; }
+
+/* ─── ONBOARDING TOUR ─── */
+.tour-tip {
+  position: fixed;
+  z-index: 9999;
+  background: var(--surf);
+  border: 1px solid rgba(0,240,255,.15);
+  border-radius: 12px;
+  padding: 16px 20px;
+  max-width: 300px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6), 0 0 20px rgba(0,240,255,.06);
+  font-family: 'DM Sans', sans-serif;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .25s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+}
+.tour-tip.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.tour-tip-step {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--neon);
+  margin-bottom: 6px;
+}
+.tour-tip-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.tour-tip-body {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--sub);
+}
+.tour-tip-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  gap: 8px;
+}
+.tour-tip-skip {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  transition: color .15s;
+}
+.tour-tip-skip:hover { color: var(--text); }
+.tour-tip-skip:focus-visible { outline: 2px solid var(--neon); outline-offset: 2px; }
+.tour-tip-next {
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--fire);
+  border: none;
+  border-radius: 8px;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  box-shadow: 0 2px 10px rgba(255,87,34,.25);
+}
+.tour-tip-next:hover { background: var(--fire-hover, #E64A19); }
+.tour-tip-next:active { transform: scale(.96); }
+.tour-tip-next:focus-visible { outline: 2px solid var(--neon); outline-offset: 2px; }
+.tour-tip-arrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--surf);
+  border: 1px solid rgba(0,240,255,.15);
+  transform: rotate(45deg);
+}
+.tour-tip-arrow.top {
+  bottom: -6px;
+  border-top: none;
+  border-left: none;
+}
+.tour-tip-arrow.bottom {
+  top: -6px;
+  border-bottom: none;
+  border-right: none;
+}
+.tour-tip-dots {
+  display: flex;
+  gap: 5px;
+}
+.tour-tip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  opacity: .4;
+  transition: opacity .2s, background .2s;
+}
+.tour-tip-dot.active {
+  background: var(--neon);
+  opacity: 1;
+}
+
+/* ─── TOUR SPOTLIGHT OVERLAY ─── */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0,0,0,.65);
+  transition: clip-path .35s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+}
+.tour-highlight {
+  position: relative;
+  z-index: 9999;
+  border-radius: 8px;
+  box-shadow: 0 0 0 4px rgba(0,240,255,.25), 0 0 20px rgba(0,240,255,.15);
+  transition: box-shadow .3s ease;
+}
 </style>
 </head>
 <body>
@@ -3059,7 +3222,7 @@ function renderScouting() {
   if (!listEl) return;
 
   if (data.length === 0) {
-    listEl.innerHTML = '<div class="scout-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>No players match</span><span style="font-size:12px;opacity:.5">Try a different search or adjust your filters</span></div>';
+    listEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="empty-state-title">Niciun jucator gasit</div><div class="empty-state-desc">Incearca alt nume sau schimba filtrele de pozitie.</div></div>';
     return;
   }
 
@@ -3244,7 +3407,7 @@ function renderTOTW() {
   const bestHtml = bestXI.squad.length ? buildPitchHtml(bestXI.squad, bestXI.d, bestXI.m, bestXI.f, 'Cel Mai Bun XI') : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Se \u00eencarc\u0103...</div>';
 
   // ── #1 Liga Noastra — actual team of the league's top-scoring manager this MD
-  let league1Html = '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Date indisponibile</div>';
+  let league1Html = '<div class="empty-state" style="padding:32px 16px"><div class="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="empty-state-title">Date indisponibile</div><div class="empty-state-desc">Datele pentru aceasta sectiune nu sunt inca disponibile.</div></div>';
   let league1Pts = 0;
   const sortedMgrs = [...MANAGERS].sort((a, b) => b.gdPoints - a.gdPoints);
   const topMgr = sortedMgrs[0];
@@ -3256,11 +3419,11 @@ function renderTOTW() {
     const l1Label = `#1 Liga · <span style="font-size:10px;opacity:.65">${topMgr.username} · ${topMgr.gdPoints} pts</span>`;
     league1Html = l1XI.squad.length
       ? buildPitchHtml(l1XI.squad, l1XI.d, l1XI.m, l1XI.f, l1Label)
-      : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Date indisponibile</div>';
+      : '<div class="empty-state" style="padding:32px 16px"><div class="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="empty-state-title">Date indisponibile</div><div class="empty-state-desc">Datele pentru aceasta sectiune nu sunt inca disponibile.</div></div>';
   }
 
   // ── #1 Global — actual team of the globally ranked #1 player this MD
-  let worldHtml = '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Date indisponibile</div>';
+  let worldHtml = '<div class="empty-state" style="padding:32px 16px"><div class="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="empty-state-title">Date indisponibile</div><div class="empty-state-desc">Datele pentru aceasta sectiune nu sunt inca disponibile.</div></div>';
   let worldPts = 0;
   if (worldLeader && worldLeader.players && worldLeader.players.length) {
     const wlPlayers = worldLeader.players
@@ -3277,7 +3440,7 @@ function renderTOTW() {
     const wlLabel = `#1 Global · <span style="font-size:10px;opacity:.65">${worldLeader.fullName} · ${worldLeader.teamName}</span>`;
     worldHtml = worldXI.squad.length
       ? buildPitchHtml(worldXI.squad, worldXI.d, worldXI.m, worldXI.f, wlLabel)
-      : '<div style="color:var(--muted);padding:40px;text-align:center;font-size:12px;">Date indisponibile</div>';
+      : '<div class="empty-state" style="padding:32px 16px"><div class="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="empty-state-title">Date indisponibile</div><div class="empty-state-desc">Datele pentru aceasta sectiune nu sunt inca disponibile.</div></div>';
   }
 
   // Stats header
@@ -3571,7 +3734,7 @@ async function showMatchModal(idx) {
     }
     let tlHtml = '';
     if (tlEvents.length === 0) {
-      tlHtml = '<div class="tl-empty">Nu sunt evenimente disponibile</div>';
+      tlHtml = '<div class="empty-state" style="padding:24px 16px"><div class="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="empty-state-title">Niciun eveniment</div><div class="empty-state-desc">Golurile si assisturile vor aparea aici in timpul meciului.</div></div>';
     } else {
       if (firstHalf.length) { tlHtml += '<div class="tl-half-label">Prima Repriză</div>' + firstHalf.map(tlRow).join(''); }
       if (secondHalf.length) { tlHtml += '<div class="tl-half-label">A Doua Repriză</div>' + secondHalf.map(tlRow).join(''); }
@@ -4365,6 +4528,157 @@ _patchPitchCards();
 
   </div>
 </div>
+
+<!-- ─── ONBOARDING TOUR ─── -->
+<div class="tour-tip" id="tourTip">
+  <div class="tour-tip-arrow" id="tourArrow"></div>
+  <div class="tour-tip-step" id="tourStep"></div>
+  <div class="tour-tip-title" id="tourTitle"></div>
+  <div class="tour-tip-body" id="tourBody"></div>
+  <div class="tour-tip-actions">
+    <button class="tour-tip-skip" id="tourSkip" onclick="tourEnd()">Skip</button>
+    <div class="tour-tip-dots" id="tourDots"></div>
+    <button class="tour-tip-next" id="tourNext" onclick="tourNext()">Next</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  if (localStorage.getItem('pp_tour_done')) return;
+
+  const STEPS = [
+    {
+      target: '[data-tab="clasament"]',
+      title: 'Clasament',
+      body: 'Clasamentul etapei actuale unde poti sa vezi si echipele prietenilor si ce transferuri au facut, toate updatate live. In stanga ai si 3 clasamente diferite daca vrei sa vezi managerul etapei, clasament total sau cine a fost cel mai aproape de PS5.',
+      pos: 'bottom'
+    },
+    {
+      target: '[data-tab="scouting"]',
+      title: 'Scouting',
+      body: 'Cauta jucatori, compara stats si gaseste urmatorul transfer.',
+      pos: 'bottom'
+    },
+    {
+      target: '[data-tab="totw"]',
+      title: 'TOTW',
+      body: 'Aici poti sa vezi cei mai buni jucatori din etapa actuala selectata impreuna cu #1 global care a castigat un PS5.',
+      pos: 'bottom'
+    },
+    {
+      target: '.nav-fixtures',
+      title: 'Meciuri',
+      body: 'Scoruri actualizate live cu mai multe detalii daca apesi pe el.',
+      pos: 'bottom'
+    },
+    {
+      target: '.md-toggle',
+      title: 'Matchday',
+      body: 'MD curent + istoric complet. Navigheaza intre matchday-uri.',
+      pos: 'bottom'
+    },
+    {
+      target: '#navUserSel',
+      title: 'Schimba Antrenorul',
+      body: 'Schimba cine esti fara sa te intorci la pagina initiala.',
+      pos: 'bottom'
+    }
+  ];
+
+  let step = 0;
+  const tip = document.getElementById('tourTip');
+  const arrow = document.getElementById('tourArrow');
+
+  // Spotlight overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'tour-overlay';
+  document.body.appendChild(overlay);
+
+  let prevEl = null;
+
+  function spotlightOn(el) {
+    if (prevEl) prevEl.classList.remove('tour-highlight');
+    el.classList.add('tour-highlight');
+    prevEl = el;
+
+    const r = el.getBoundingClientRect();
+    const pad = 6;
+    const x1 = r.left - pad, y1 = r.top - pad;
+    const x2 = r.right + pad, y2 = r.bottom + pad;
+    const W = window.innerWidth, H = window.innerHeight;
+    // Polygon with hole (evenodd) to dim everything except target
+    overlay.style.clipPath = `polygon(evenodd, 0 0, ${W}px 0, ${W}px ${H}px, 0 ${H}px, 0 0, ${x1}px ${y1}px, ${x1}px ${y2}px, ${x2}px ${y2}px, ${x2}px ${y1}px, ${x1}px ${y1}px)`;
+  }
+
+  function spotlightOff() {
+    if (prevEl) prevEl.classList.remove('tour-highlight');
+    overlay.style.clipPath = '';
+  }
+
+  function tourShow(i) {
+    step = i;
+    const s = STEPS[i];
+    const el = document.querySelector(s.target);
+    if (!el) { tourNext(); return; }
+
+    spotlightOn(el);
+
+    document.getElementById('tourStep').textContent = `${i + 1} / ${STEPS.length}`;
+    document.getElementById('tourTitle').textContent = s.title;
+    document.getElementById('tourBody').textContent = s.body;
+    document.getElementById('tourNext').textContent = i === STEPS.length - 1 ? 'Got it' : 'Next';
+
+    // dots
+    const dots = document.getElementById('tourDots');
+    dots.innerHTML = STEPS.map((_, j) =>
+      `<div class="tour-tip-dot${j === i ? ' active' : ''}"></div>`
+    ).join('');
+
+    // position
+    const rect = el.getBoundingClientRect();
+    tip.classList.remove('visible');
+
+    requestAnimationFrame(() => {
+      const tipW = tip.offsetWidth;
+      let left = rect.left + rect.width / 2 - tipW / 2;
+      left = Math.max(12, Math.min(left, window.innerWidth - tipW - 12));
+
+      if (s.pos === 'bottom') {
+        tip.style.top = (rect.bottom + 12) + 'px';
+        tip.style.left = left + 'px';
+        arrow.className = 'tour-tip-arrow bottom';
+        arrow.style.left = Math.max(16, Math.min(rect.left + rect.width / 2 - left - 5, tipW - 24)) + 'px';
+      } else {
+        tip.style.top = (rect.top - tip.offsetHeight - 12) + 'px';
+        tip.style.left = left + 'px';
+        arrow.className = 'tour-tip-arrow top';
+        arrow.style.left = Math.max(16, Math.min(rect.left + rect.width / 2 - left - 5, tipW - 24)) + 'px';
+      }
+
+      requestAnimationFrame(() => tip.classList.add('visible'));
+    });
+  }
+
+  window.tourNext = function() {
+    tip.classList.remove('visible');
+    if (step + 1 >= STEPS.length) {
+      tourEnd();
+    } else {
+      setTimeout(() => tourShow(step + 1), 200);
+    }
+  };
+
+  window.tourEnd = function() {
+    tip.classList.remove('visible');
+    spotlightOff();
+    localStorage.setItem('pp_tour_done', 'true');
+    setTimeout(() => { tip.remove(); overlay.remove(); }, 300);
+  };
+
+  // Start tour after data loads (1.5s delay)
+  setTimeout(() => tourShow(0), 1500);
+})();
+</script>
 
 </body>
 </html>

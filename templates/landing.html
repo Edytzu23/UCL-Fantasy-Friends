@@ -349,12 +349,48 @@ body::after {
 
 /* Disabled card (Coco) */
 .user-card.disabled {
-  pointer-events: none;
-  cursor: not-allowed;
+  pointer-events: auto;
+  cursor: default;
 }
 .user-card.disabled .user-card-body {
   opacity: .25;
   filter: grayscale(1);
+  pointer-events: none;
+}
+.user-card.disabled .coco-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  opacity: 0;
+  background: var(--card);
+  color: var(--muted);
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,240,255,.12);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 6px 20px rgba(0,0,0,.5);
+  z-index: 10;
+}
+.user-card.disabled .coco-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--card);
+}
+.user-card.disabled:hover .coco-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Stagger animation delays per row */
@@ -499,6 +535,7 @@ body::after {
     <!-- DEF row -->
     <div class="pitch-row row-def">
       <div class="user-card disabled" data-pos="DEF" style="--pos-color: var(--def);">
+        <span class="coco-tooltip">Project Mbappe</span>
         <div class="user-card-body">
           <div class="user-avatar">CO</div>
           <div class="user-name">Coco</div>
