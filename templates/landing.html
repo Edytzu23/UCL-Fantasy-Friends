@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>PitchPulse — Cine ești?</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Barlow+Condensed:wght@400;600;700;800&family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Barlow+Condensed:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root {
@@ -27,6 +27,42 @@
   --def: #4CAF50;
   --mid: #42A5F5;
   --fwd: #EF5350;
+
+  /* ── Font families ── */
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', 'DM Sans', monospace;
+
+  /* ── Type scale (rem) ── */
+  --type-display:   2.625rem;
+  --type-title-1:   1.75rem;
+  --type-title-2:   1.375rem;
+  --type-headline:  1.125rem;
+  --type-body:      0.9375rem;
+  --type-subhead:   0.8125rem;
+  --type-footnote:  0.6875rem;
+  --type-caption:   0.5625rem;
+
+  /* ── Letter-spacing ── */
+  --ls-tight:   -0.02em;
+  --ls-none:     0;
+  --ls-subtle:   0.02em;
+  --ls-wide:     0.06em;
+  --ls-spread:   0.1em;
+
+  /* ── Line-height ── */
+  --lh-none:   1;
+  --lh-tight:  1.2;
+  --lh-snug:   1.5;
+  --lh-body:   1.6;
+
+  /* ── Font weights ── */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semi:    600;
+  --weight-bold:    700;
+  --weight-heavy:   800;
+  --weight-black:   900;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,8 +70,8 @@ html, body { height: 100%; }
 body {
   background: var(--bg-outer);
   color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  line-height: 1.5;
+  font-family: var(--font-body);
+  line-height: var(--lh-snug);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   overflow-y: auto;
@@ -111,10 +147,10 @@ body::after {
 
 /* Title */
 .landing-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-weight: var(--weight-heavy);
   font-size: clamp(40px, 8vw, 64px);
-  letter-spacing: -0.03em;
+  letter-spacing: var(--ls-tight);
   text-transform: uppercase;
   text-align: center;
   margin-bottom: 32px;
@@ -301,32 +337,32 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  font-size: 15px;
+  font-family: var(--font-display);
+  font-weight: var(--weight-semi);
+  font-size: var(--type-body);
   color: #0a0c14;
-  letter-spacing: .5px;
+  letter-spacing: var(--ls-subtle);
   box-shadow: 0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.15);
 }
 
 /* Name */
 .user-name {
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 700;
-  font-size: 13px;
+  font-family: var(--font-body);
+  font-weight: var(--weight-bold);
+  font-size: var(--type-subhead);
   text-align: center;
-  line-height: 1.2;
+  line-height: var(--lh-tight);
   color: #fff;
 }
 
 /* Nickname */
 .user-nickname {
-  font-family: 'Source Sans 3', sans-serif;
-  font-size: 9px;
+  font-family: var(--font-body);
+  font-size: var(--type-caption);
   font-style: italic;
   color: var(--sub);
   text-align: center;
-  line-height: 1.2;
+  line-height: var(--lh-tight);
   max-width: 90px;
   white-space: nowrap;
   overflow: hidden;
@@ -335,10 +371,10 @@ body::after {
 
 /* Position badge */
 .user-pos {
-  font-family: 'Oswald', sans-serif;
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 1.5px;
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--ls-spread);
   text-transform: uppercase;
   color: var(--pos-color);
   background: rgba(0,0,0,.3);
@@ -365,10 +401,10 @@ body::after {
   opacity: 0;
   background: var(--card);
   color: var(--muted);
-  font-family: 'Oswald', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+  font-family: var(--font-display);
+  font-size: var(--type-footnote);
+  font-weight: var(--weight-semi);
+  letter-spacing: var(--ls-spread);
   text-transform: uppercase;
   padding: 6px 14px;
   border-radius: 8px;
@@ -426,14 +462,14 @@ body::after {
 
 /* Subtitle hint */
 .landing-hint {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  font-family: var(--font-body);
+  font-size: var(--type-subhead);
   color: var(--muted);
   margin-top: 20px;
   text-align: center;
   opacity: 0;
   animation: fadeSlideIn .4s ease .9s forwards;
-  letter-spacing: .3px;
+  letter-spacing: var(--ls-subtle);
 }
 
 /* Responsive */
@@ -450,10 +486,10 @@ body::after {
     padding: 8px 4px 7px;
     gap: 4px;
   }
-  .user-avatar { width: 32px; height: 32px; font-size: 12px; }
-  .user-name { font-size: 10px; }
+  .user-avatar { width: 32px; height: 32px; font-size: var(--type-subhead); }
+  .user-name { font-size: var(--type-footnote); }
   .user-nickname { display: none; }
-  .user-pos { font-size: 7px; padding: 1px 5px; }
+  .user-pos { font-size: var(--type-caption); padding: 1px 5px; }
   .pitch-cc { width: 50px; height: 50px; }
   .pitch-gb { width: 80px; height: 20px; }
 }
@@ -461,8 +497,8 @@ body::after {
 @media (max-width: 380px) {
   .user-card { width: 68px; }
   .user-card-body { width: 64px; padding: 6px 3px 5px; }
-  .user-avatar { width: 28px; height: 28px; font-size: 11px; }
-  .user-name { font-size: 9px; }
+  .user-avatar { width: 28px; height: 28px; font-size: var(--type-footnote); }
+  .user-name { font-size: var(--type-caption); }
 }
 </style>
 </head>
