@@ -10,6 +10,10 @@ import threading
 import time
 import os
 import concurrent.futures
+from scouting import (
+    get_team_scouting, get_scouting_matchup, get_all_matchups,
+    fetch_ucl_bracket, load_scouting_cache_local,
+)
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -19,6 +23,8 @@ async def lifespan(app):
     load_live_schedule()
     # Load old matchdays from GitHub cache (no UEFA API calls)
     load_all_cached_mds()
+    # Load scouting cache if available
+    load_scouting_cache_local()
     # Only fetch current matchday live from UEFA
     threading.Thread(target=lambda: refresh_cache(get_current_matchday()), daemon=True).start()
     threading.Thread(target=scheduler_loop, daemon=True).start()
@@ -1272,6 +1278,41 @@ def manual_refresh(md: int = 11):
     if data:
         return JSONResponse({"status": "ok", "lastUpdated": data["lastUpdated"]})
     return JSONResponse({"error": "Refresh failed"}, status_code=500)
+
+
+# ── Scouting endpoints ──────────────────────────────────────────────
+
+@app.get("/api/scouting/matchup")
+def scouting_matchup(home: str, away: str):
+    """Pre-match scouting stats for a specific matchup."""
+    data = get_scouting_matchup(home.upper(), away.upper())
+    if "error" in data:
+        return JSONResponse(data, status_code=404)
+    return JSONResponse(data)
+
+
+@app.get("/api/scouting/all")
+def scouting_all(round: str = "QF"):
+    """All matchup scouting data for a round."""
+    return JSONResponse(get_all_matchups(round))
+
+
+@app.get("/api/scouting/team/{team_code}")
+def scouting_team(team_code: str):
+    """Single team scouting data."""
+    data = get_team_scouting(team_code.upper())
+    if "error" in data:
+        return JSONResponse(data, status_code=404)
+    return JSONResponse(data)
+
+
+@app.get("/api/scouting/bracket")
+def scouting_bracket():
+    """Full UCL knockout bracket with dates and scores."""
+    data = fetch_ucl_bracket()
+    if "error" in data:
+        return JSONResponse(data, status_code=500)
+    return JSONResponse(data)
 
 
 def _is_mobile(request: Request) -> bool:

@@ -63,6 +63,13 @@ http.createServer((req, res) => {
     return;
   }
 
+  // Proxy: scouting endpoints → local uvicorn (run main.py on port 8000)
+  if (url.startsWith('/api/scouting/')) {
+    const backendUrl = `http://localhost:8000${rawUrl}`;
+    proxyFetch(backendUrl, res, 0);
+    return;
+  }
+
   // Serve cached API data for local dev
   if (url === '/api/data') {
     const qs = new URLSearchParams(rawUrl.split('?')[1] || '');
