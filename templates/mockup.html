@@ -5458,11 +5458,20 @@ function switchMatchTab(tabEl, tabName) {
 }
 
 // ─── INIT ───
-document.getElementById('mdLabel').textContent = `MD ${MD}`;
-renderNavFixtures(); // shows "Se încarcă..." placeholder
-loadAllMDs();        // load current MD first, then preload all others into cache
-loadFixturesFromAPI(); // fetch UEFA fixtures
-startLivePolling();  // check for live matches and auto-refresh
+(async () => {
+  try {
+    const res = await fetch('/api/live-schedule');
+    const sched = await res.json();
+    if (sched.matchday > 0) MD = sched.matchday;
+  } catch(e) {
+    console.warn('[MD] Could not fetch live schedule, using default MD');
+  }
+  document.getElementById('mdLabel').textContent = `MD ${MD}`;
+  renderNavFixtures(); // shows "Se încarcă..." placeholder
+  loadAllMDs();        // load current MD first, then preload all others into cache
+  loadFixturesFromAPI(); // fetch UEFA fixtures
+  startLivePolling();  // check for live matches and auto-refresh
+})();
 
 
 // ── STATS MD DRAWER ─────────────────────────

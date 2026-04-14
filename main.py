@@ -1059,6 +1059,53 @@ def get_live_schedule():
         return JSONResponse(live_schedule)
 
 
+@app.get("/api/cron/tick")
+async def cron_tick(request: Request):
+    """Called every minute by an external cron (e.g. cron-job.org). Replaces scheduler_loop() for Vercel serverless."""
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if cron_secret:
+        auth = request.headers.get("authorization", "")
+        if auth != f"Bearer {cron_secret}":
+            return JSONResponse({"error": "unauthorized"}, status_code=401)
+
+    now = datetime.now()
+    hm = (now.hour, now.minute)
+    actions = []
+
+    # Fixed-time cache refreshes
+    if hm in [(21, 45), (23, 15), (9, 0)]:
+        md = get_current_matchday()
+        refresh_cache(md)
+        actions.append(f"refresh_cache MD{md}")
+
+    # Checkpoint firing
+    with live_schedule_lock:
+        sched = json.loads(json.dumps(live_schedule))
+
+    now_str = now.strftime("%H:%M")
+    for cp in sched.get("checkpoints", []):
+        if cp["time"] == now_str and not cp.get("fired"):
+            md = sched["matchday"]
+            label = cp["label"]
+            try:
+                save_live_checkpoint(md, label)
+                if label == "FINALMD":
+                    advance_to_next_md()
+                    actions.append(f"advanced to MD{md + 1}")
+                actions.append(f"fired {label} for MD{md}")
+            except Exception as e:
+                actions.append(f"error firing {label}: {e}")
+            break
+
+    # Periodic refresh during active match windows
+    if is_match_window():
+        md = get_current_matchday()
+        refresh_cache(md)
+        actions.append(f"periodic_refresh MD{md}")
+
+    return JSONResponse({"ok": True, "time": now_str, "actions": actions})
+
+
 @app.post("/api/live-schedule")
 def set_live_schedule(req: dict):
     global live_schedule
