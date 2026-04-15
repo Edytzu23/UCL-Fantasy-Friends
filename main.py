@@ -867,6 +867,8 @@ def github_get_file(path):
         return content, data["sha"]
     return None, None
 
+_last_gh_error = {"code": None, "text": None}
+
 def github_put_file(path, content_str, sha=None, message=None):
     """Create or update a file on GitHub. Returns True on success."""
     import base64
@@ -881,6 +883,11 @@ def github_put_file(path, content_str, sha=None, message=None):
     r = requests.put(url, headers=_gh_headers(), json=payload)
     if r.status_code not in (200, 201):
         print(f"[GitHub] PUT failed {r.status_code}: {r.text[:500]}")
+        _last_gh_error["code"] = r.status_code
+        _last_gh_error["text"] = r.text[:500]
+    else:
+        _last_gh_error["code"] = None
+        _last_gh_error["text"] = None
     return r.status_code in (200, 201)
 
 
@@ -1212,7 +1219,15 @@ def apply_live_schedule(md: int):
     with live_schedule_lock:
         live_schedule = new_sched
     saved = save_live_schedule()
-    return JSONResponse({"status": "ok" if saved else "save_failed", "saved": bool(saved), "schedule": new_sched, "plan": plan})
+    return JSONResponse({
+        "status": "ok" if saved else "save_failed",
+        "saved": bool(saved),
+        "schedule": new_sched,
+        "plan": plan,
+        "gh_token_present": bool(GITHUB_TOKEN),
+        "gh_token_len": len(GITHUB_TOKEN) if GITHUB_TOKEN else 0,
+        "last_gh_error": _last_gh_error,
+    })
 
 
 @app.get("/api/live-snapshot/load")
