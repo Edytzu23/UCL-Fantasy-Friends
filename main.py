@@ -25,9 +25,10 @@ async def lifespan(app):
     load_all_cached_mds()
     # Load scouting cache if available
     load_scouting_cache_local()
-    # Only fetch current matchday live from UEFA
-    threading.Thread(target=lambda: refresh_cache(get_current_matchday()), daemon=True).start()
-    threading.Thread(target=scheduler_loop, daemon=True).start()
+    # No background threads — Vercel freezes the lambda after each request.
+    # Fresh data is driven by /api/cron/tick (external cron, minutely) which
+    # writes to GitHub; /api/data reads the GitHub blob. All lambda instances
+    # see the same data within the memo TTL.
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -114,13 +115,14 @@ def load_all_cached_mds():
             return
         files = [f["name"] for f in r.json() if f["name"].startswith("md") and f["name"].endswith(".json")]
         loaded = 0
+        now = time.time()
         for fname in files:
             try:
                 md = int(fname.replace("md", "").replace(".json", ""))
                 data = load_md_cache(md)
                 if data:
                     with cache_lock:
-                        cache[md] = data
+                        cache[md] = {"ts": now, "data": data}
                     loaded += 1
             except (ValueError, Exception):
                 pass
@@ -138,6 +140,54 @@ LIVE_SCORES_TTL = 30         # seconds
 CHECKPOINT_LABELS = ["HTM1", "FTM1", "HTM2", "FTM2", "FINALMD"]
 live_schedule = {"matchday": 0, "checkpoints": []}
 live_schedule_lock = threading.Lock()
+
+# ── KNOCKOUT MATCHDAY PLAN ─────────────────────────────────────────────────
+# Pre-seeded schedule for the remaining UCL matchdays so the cron can auto-
+# advance without any manual input. All kickoffs in Romanian local time.
+# - 2-day MDs get 5 checkpoints (HTM/FTM per day + FINALMD the morning after).
+# - 1-day MDs (final) get 3 checkpoints (HTM1, FTM1, FINALMD).
+UPCOMING_MATCHDAYS = {
+    14: {"dates": ["2026-04-14", "2026-04-15"], "kickoff": "22:00"},  # QF leg 2
+    15: {"dates": ["2026-04-28", "2026-04-29"], "kickoff": "22:00"},  # SF leg 1
+    16: {"dates": ["2026-05-05", "2026-05-06"], "kickoff": "22:00"},  # SF leg 2
+    17: {"dates": ["2026-05-30"],               "kickoff": "19:00"},  # Final
+}
+FINALMD_TIME = "09:00"
+
+
+def _add_minutes(hhmm, mins):
+    """Return HH:MM string for kickoff + mins (wraps past midnight if needed)."""
+    h, m = map(int, hhmm.split(":"))
+    base = datetime(2000, 1, 1, h, m) + timedelta(minutes=mins)
+    return base.strftime("%H:%M")
+
+
+def build_checkpoints_from_plan(plan, today_str=None):
+    """Derive checkpoint list from a plan entry {dates, kickoff}.
+
+    Past-date checkpoints are marked fired so the cron won't retroactively
+    snapshot them. `today_str` is overridable for tests; defaults to now.
+    """
+    ht = _add_minutes(plan["kickoff"], 45)
+    ft = _add_minutes(plan["kickoff"], 105)
+    dates = plan["dates"]
+    today = today_str or datetime.now().strftime("%Y-%m-%d")
+    day1_past = len(dates) >= 1 and dates[0] < today
+    day2_past = len(dates) >= 2 and dates[1] < today
+    if len(dates) >= 2:
+        return [
+            {"time": ht, "label": "HTM1", "fired": day1_past},
+            {"time": ft, "label": "FTM1", "fired": day1_past},
+            {"time": ht, "label": "HTM2", "fired": day2_past},
+            {"time": ft, "label": "FTM2", "fired": day2_past},
+            {"time": FINALMD_TIME, "label": "FINALMD", "fired": False},
+        ]
+    # Single-day MD (the final)
+    return [
+        {"time": ht, "label": "HTM1", "fired": day1_past},
+        {"time": ft, "label": "FTM1", "fired": day1_past},
+        {"time": FINALMD_TIME, "label": "FINALMD", "fired": False},
+    ]
 
 
 PUBLIC_HEADERS = {
@@ -707,14 +757,21 @@ def get_current_matchday():
 
 
 def refresh_cache(matchday=11):
+    """Build fresh MD data from UEFA APIs and persist it to GitHub.
+
+    On Vercel this is the ONLY writer of cache/md{XX}.json. /api/data reads
+    from GitHub (with a short per-lambda memo) so every lambda instance sees
+    the same data. The GitHub write is synchronous — daemon threads don't
+    survive the lambda freeze.
+    """
     try:
         public_players_cache.pop(matchday, None)  # clear stale player data
         data = build_data(matchday)
+        # Synchronously persist to GitHub — this is the shared source of truth
+        save_md_cache(matchday, data)
+        # Update local memo so same-lambda follow-ups skip the GitHub round-trip
         with cache_lock:
-            cache[matchday] = data
-        # Persist to GitHub so Render loads old MDs instantly next deploy
-        _md, _d = matchday, data
-        threading.Thread(target=lambda: save_md_cache(_md, _d), daemon=True).start()
+            cache[matchday] = {"ts": time.time(), "data": data}
         print(f"[{datetime.now().strftime('%H:%M:%S')}] Cache updated for MD{matchday}")
         return data
     except Exception as e:
@@ -723,7 +780,13 @@ def refresh_cache(matchday=11):
 
 
 def is_match_window():
-    """Check if current time falls within a live match window."""
+    """Check if current time falls within a live match window.
+
+    Only HTM/FTM checkpoints define the window — FINALMD is a morning-after
+    trigger (09:00) that would otherwise stretch the window across the whole
+    day. Falls back to True if there are any unfired non-FINALMD checkpoints
+    and no match-typed checkpoints (shouldn't happen in practice).
+    """
     with live_schedule_lock:
         sched = json.loads(json.dumps(live_schedule))
     cps = sched.get("checkpoints", [])
@@ -732,64 +795,30 @@ def is_match_window():
     unfired = [cp for cp in cps if not cp.get("fired")]
     if not unfired:
         return False
+    match_cps = [cp for cp in cps if cp.get("label", "").startswith(("HTM", "FTM"))]
+    if not match_cps:
+        return False
     now = datetime.now()
     try:
         times = []
-        for cp in cps:
+        for cp in match_cps:
             h, m = map(int, cp["time"].split(":"))
             t = now.replace(hour=h, minute=m, second=0, microsecond=0)
             times.append(t)
         window_start = min(times) - timedelta(minutes=30)
         window_end = max(times) + timedelta(minutes=20)
+        # Handle the FT-past-midnight case: if FT wraps (e.g. 00:05), the raw
+        # window may be inverted for part of the day. Accept either side.
+        if window_end < window_start:
+            return now >= window_start or now <= window_end
         return window_start <= now <= window_end
     except Exception:
         return False
 
 
-def scheduler_loop():
-    """Run auto-refresh at 21:45, 23:15, 09:00 + live checkpoint triggers + periodic during matches."""
-    last_periodic = 0
-    PERIODIC_INTERVAL = 300  # 5 minutes
-
-    while True:
-        now = datetime.now()
-        hm = (now.hour, now.minute)
-        if hm in [(21, 45), (23, 15), (9, 0)]:
-            md = get_current_matchday()
-            refresh_cache(md)
-            last_periodic = time.time()
-            time.sleep(90)  # don't double-trigger within same minute
-
-        # Live checkpoint triggers
-        with live_schedule_lock:
-            sched = json.loads(json.dumps(live_schedule))
-        if sched.get("checkpoints"):
-            now_str = now.strftime("%H:%M")
-            for cp in sched["checkpoints"]:
-                if cp["time"] == now_str and not cp.get("fired"):
-                    md = sched["matchday"]
-                    label = cp["label"]
-                    print(f"[AutoSnap] Firing '{label}' for MD{md} at {now_str}")
-                    try:
-                        save_live_checkpoint(md, label)
-                        if label == "FINALMD":
-                            advance_to_next_md()
-                    except Exception as e:
-                        print(f"[AutoSnap] Error: {e}")
-                    last_periodic = time.time()
-                    time.sleep(90)
-                    break
-
-        # Periodic refresh during match windows
-        if is_match_window() and (time.time() - last_periodic) >= PERIODIC_INTERVAL:
-            md = sched.get("matchday") or (max(cache.keys()) if cache else 10)
-            print(f"[AutoRefresh] Periodic refresh for MD{md} (match window active)")
-            refresh_cache(md)
-            last_periodic = time.time()
-
-        time.sleep(30)
-
-
+# scheduler_loop() was removed — Vercel lambdas can't keep background threads
+# alive. Its responsibilities moved to /api/cron/tick (invoked minutely by an
+# external cron), which handles checkpoint firing and match-window refreshes.
 
 
 # ── GITHUB SNAPSHOT CONFIG ──────────────────────────────────────────────────
@@ -908,17 +937,30 @@ def save_live_checkpoint(md, label):
 
 
 def advance_to_next_md():
-    """After FINALMD fires, advance schedule to next matchday."""
+    """After FINALMD fires, advance schedule to the next matchday.
+
+    If UPCOMING_MATCHDAYS has an entry for the next MD, build fresh checkpoints
+    from the plan (correct kickoff times for that specific matchday). Otherwise
+    fall back to reusing the previous times with fired flags reset.
+    """
     global live_schedule
     with live_schedule_lock:
-        current_md = live_schedule.get("matchday", 10)
+        current_md = live_schedule.get("matchday", 0)
         next_md = current_md + 1
-        # Keep same times, reset fired flags
-        for cp in live_schedule.get("checkpoints", []):
-            cp["fired"] = False
-        live_schedule["matchday"] = next_md
+
+    plan = UPCOMING_MATCHDAYS.get(next_md)
+    if plan:
+        cps = build_checkpoints_from_plan(plan)
+        with live_schedule_lock:
+            live_schedule = {"matchday": next_md, "checkpoints": cps}
+        print(f"[LiveSched] Advanced MD{current_md} → MD{next_md} (from plan)")
+    else:
+        with live_schedule_lock:
+            for cp in live_schedule.get("checkpoints", []):
+                cp["fired"] = False
+            live_schedule["matchday"] = next_md
+        print(f"[LiveSched] Advanced MD{current_md} → MD{next_md} (legacy, no plan)")
     save_live_schedule()
-    print(f"[LiveSched] Advanced from MD{current_md} to MD{next_md}")
 
 
 def build_snapshot(md, data):
@@ -975,9 +1017,10 @@ def save_snapshot(md: int = 11):
     """Save a snapshot for the given MD to GitHub."""
     if not GITHUB_TOKEN:
         return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
-    # Get current data
+    # Get current data — memo first, then fresh build (which also writes GitHub)
     with cache_lock:
-        data = cache.get(md)
+        entry = cache.get(md)
+    data = entry["data"] if (entry and isinstance(entry, dict) and "data" in entry) else None
     if not data:
         data = refresh_cache(md)
     if not data:
@@ -1121,6 +1164,30 @@ def set_live_schedule(req: dict):
     return JSONResponse({"status": "ok", "schedule": new_sched})
 
 
+@app.post("/api/live-schedule/apply")
+def apply_live_schedule(md: int):
+    """Apply the hardcoded UPCOMING_MATCHDAYS plan for a specific MD.
+
+    Writes fresh checkpoints derived from the plan's kickoff times, marks
+    past-date checkpoints as already fired, and persists to GitHub. Used to
+    (re)seed a matchday on demand — auto-advance at FINALMD does this
+    automatically for subsequent MDs.
+    """
+    global live_schedule
+    plan = UPCOMING_MATCHDAYS.get(md)
+    if not plan:
+        return JSONResponse(
+            {"error": f"No plan for MD{md}", "known": sorted(UPCOMING_MATCHDAYS.keys())},
+            status_code=404,
+        )
+    cps = build_checkpoints_from_plan(plan)
+    new_sched = {"matchday": md, "checkpoints": cps}
+    with live_schedule_lock:
+        live_schedule = new_sched
+    save_live_schedule()
+    return JSONResponse({"status": "ok", "schedule": new_sched, "plan": plan})
+
+
 @app.get("/api/live-snapshot/load")
 def load_live_snapshot(md: int):
     if not GITHUB_TOKEN:
@@ -1247,23 +1314,34 @@ def match_detail(match_id: int):
     })
 
 
+DATA_MEMO_TTL = 20  # seconds — only applies to the current MD
+
+
 @app.get("/api/data")
 def get_data(md: int = None):
     if md is None:
         md = get_current_matchday()
-    # Check in-memory cache first
-    with cache_lock:
-        if md in cache:
-            return JSONResponse(cache[md])
-    # For old matchdays, try GitHub cache (no UEFA API calls needed)
     current_md = get_current_matchday()
-    if md < current_md:
-        cached = load_md_cache(md)
-        if cached:
-            with cache_lock:
-                cache[md] = cached
-            return JSONResponse(cached)
-    # Current/unknown matchday — fetch live from UEFA
+    is_current = (md == current_md)
+    now = time.time()
+
+    # Local memo check: historical MDs cached forever, current MD for DATA_MEMO_TTL
+    with cache_lock:
+        entry = cache.get(md)
+    if entry and isinstance(entry, dict) and "data" in entry:
+        if not is_current or (now - entry.get("ts", 0) < DATA_MEMO_TTL):
+            return JSONResponse(entry["data"])
+
+    # GitHub is the shared source of truth — any lambda that hits /api/cron/tick
+    # during a match window writes fresh data there. Read it back.
+    data = load_md_cache(md)
+    if data:
+        with cache_lock:
+            cache[md] = {"ts": now, "data": data}
+        return JSONResponse(data)
+
+    # GitHub has nothing for this MD yet (e.g. brand-new MD before first cron
+    # tick). Build it now, which also persists to GitHub for everyone else.
     data = refresh_cache(md)
     if data:
         return JSONResponse(data)
@@ -1274,7 +1352,8 @@ def get_data(md: int = None):
 def get_status():
     md = get_current_matchday()
     with cache_lock:
-        data = cache.get(md)
+        entry = cache.get(md)
+    data = entry["data"] if (entry and isinstance(entry, dict) and "data" in entry) else None
     last_updated = data["lastUpdated"] if data else None
     live_window = is_match_window()
 
