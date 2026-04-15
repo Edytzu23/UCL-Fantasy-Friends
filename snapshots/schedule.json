@@ -19,7 +19,7 @@
     {
       "time": "23:45",
       "label": "FTM2",
-      "fired": false
+      "fired": true
     },
     {
       "time": "09:00",
