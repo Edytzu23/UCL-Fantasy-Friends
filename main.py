@@ -816,6 +816,26 @@ def is_match_window():
         return False
 
 
+def is_md_active():
+    """True when a matchday is in progress — at least one HTM/FTM has fired
+    (or is scheduled for today/past) and FINALMD hasn't fired yet. Used to
+    drive periodic refreshes across multi-day knockout rounds where there's
+    a gap between leg 1 and leg 2 but the MD is still "live"."""
+    with live_schedule_lock:
+        sched = json.loads(json.dumps(live_schedule))
+    cps = sched.get("checkpoints", [])
+    if not cps:
+        return False
+    finalmd = next((cp for cp in cps if cp.get("label") == "FINALMD"), None)
+    if finalmd and finalmd.get("fired"):
+        return False
+    match_cps = [cp for cp in cps if cp.get("label", "").startswith(("HTM", "FTM"))]
+    if not match_cps:
+        return False
+    # Active if any match checkpoint has already fired (MD has started)
+    return any(cp.get("fired") for cp in match_cps)
+
+
 # scheduler_loop() was removed — Vercel lambdas can't keep background threads
 # alive. Its responsibilities moved to /api/cron/tick (invoked minutely by an
 # external cron), which handles checkpoint firing and match-window refreshes.
@@ -1140,11 +1160,18 @@ async def cron_tick(request: Request):
                 actions.append(f"error firing {label}: {e}")
             break
 
-    # Periodic refresh during active match windows
+    # Periodic refresh during active match windows (every minute)
     if is_match_window():
         md = get_current_matchday()
         refresh_cache(md)
         actions.append(f"periodic_refresh MD{md}")
+    # Otherwise, if the MD is in progress but outside a live window
+    # (e.g. between leg 1 and leg 2 of a knockout round), refresh every
+    # 30 minutes so stats stay warm without hammering UEFA.
+    elif is_md_active() and now.minute in (0, 30):
+        md = get_current_matchday()
+        refresh_cache(md)
+        actions.append(f"md_active_refresh MD{md}")
 
     return JSONResponse({"ok": True, "time": now_str, "actions": actions})
 
