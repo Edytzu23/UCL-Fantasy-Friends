@@ -214,8 +214,10 @@ def fetch_public_players(matchday):
             "teamCode": p["cCode"],
             "posCode": SKILL_TO_POS.get(p["skill"], "MID"),
             "totPts": p.get("totPts", 0) or 0,
-            # curGDPts=live, lastGdPoints=finalized; use whichever is higher
-            "curGDPts": max(p.get("curGDPts", 0) or 0, p.get("lastGdPoints", 0) or 0),
+            # curGDPts is the live score for the current MD. Do NOT fall back
+            # to lastGdPoints (previous MD's final) — at MD boundary that leaks
+            # last MD's points for players who haven't kicked off yet.
+            "curGDPts": p.get("curGDPts", 0) or 0,
             "lastGdPts": p.get("lastGdPoints", 0) or 0,
             "goals": p.get("gS", 0) or 0,
             "assists": p.get("assist", 0) or 0,
