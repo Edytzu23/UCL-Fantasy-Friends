@@ -1155,10 +1155,21 @@ async def cron_tick(request: Request):
         sched = json.loads(json.dumps(live_schedule))
 
     now_str = now.strftime("%H:%M")
-    for cp in sched.get("checkpoints", []):
+    cps = sched.get("checkpoints", [])
+    # FINALMD is a morning-after checkpoint — only let it fire once every
+    # HTM/FTM checkpoint has already fired. Otherwise a daily 09:00 tick on
+    # day 2 of a 2-day MD would advance the schedule before kickoff.
+    match_cps_all_fired = all(
+        cp.get("fired") for cp in cps
+        if cp.get("label", "").startswith(("HTM", "FTM"))
+    ) and any(cp.get("label", "").startswith(("HTM", "FTM")) for cp in cps)
+    for cp in cps:
         if cp["time"] == now_str and not cp.get("fired"):
             md = sched["matchday"]
             label = cp["label"]
+            if label == "FINALMD" and not match_cps_all_fired:
+                actions.append(f"skipped FINALMD for MD{md}: HTM/FTM not all fired")
+                break
             try:
                 save_live_checkpoint(md, label)
                 if label == "FINALMD":
