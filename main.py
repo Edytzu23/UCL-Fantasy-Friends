@@ -1211,8 +1211,8 @@ def apply_live_schedule(md: int):
     new_sched = {"matchday": md, "checkpoints": cps}
     with live_schedule_lock:
         live_schedule = new_sched
-    save_live_schedule()
-    return JSONResponse({"status": "ok", "schedule": new_sched, "plan": plan})
+    saved = save_live_schedule()
+    return JSONResponse({"status": "ok" if saved else "save_failed", "saved": bool(saved), "schedule": new_sched, "plan": plan})
 
 
 @app.get("/api/live-snapshot/load")
