@@ -70,6 +70,14 @@ http.createServer((req, res) => {
     return;
   }
 
+  // Proxy: xPts engine endpoints → uvicorn on port 8002
+  if (url.startsWith('/api/xpts/')) {
+    const xptsPath = rawUrl.replace('/api/xpts', '');
+    const backendUrl = `http://localhost:8002${xptsPath}`;
+    proxyFetch(backendUrl, res, 0);
+    return;
+  }
+
   // Serve cached API data for local dev
   if (url === '/api/data') {
     const qs = new URLSearchParams(rawUrl.split('?')[1] || '');
