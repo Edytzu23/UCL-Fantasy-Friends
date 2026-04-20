@@ -64,3 +64,19 @@ Never create a component longer than 150 lines. If it exceeds this, split it int
 - Do not stop after one screenshot pass
 - Do not use `transition-all`
 - Do not use default Tailwind blue/indigo as primary color
+
+---
+
+## 1. Think Before Coding
+"Don't assume. Don't hide confusion. Surface tradeoffs." State assumptions explicitly, present multiple interpretations without silent selection, and surface confusion rather than proceeding.
+
+## 2. Simplicity First
+"Minimum code that solves the problem. Nothing speculative." Avoid unrequested features, single-use abstractions, unasked flexibility, and error handling for impossible scenarios.
+
+## 3. Surgical Changes
+"Touch only what you must. Clean up only your own mess." When modifying code, match existing style, avoid improving unrelated sections, and remove only imports/functions YOUR changes made unnecessary.
+
+## 4. Goal-Driven Execution
+"Define success criteria. Loop until verified." Transform tasks into measurable outcomes with verification steps rather than vague targets like "make it work."
+
+**Success indicators:** Fewer unnecessary diff changes, fewer rewrites from overcomplication, and clarifying questions posed before implementation begins.

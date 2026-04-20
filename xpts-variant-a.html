@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>xPts — Command Deck (Variant A)</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0c14; --bg-outer: #060810; --surf: #0f1120;
+  --card: #141828; --card2: #1a1f35;
+  --border: rgba(0,240,255,.08);
+  --border-hi: rgba(0,240,255,.22);
+  --fire: #FF5722; --fire-dim: rgba(255,87,34,.15);
+  --neon: #00f0ff; --neon-dim: rgba(0,240,255,.15);
+  --text: #e0eaff; --muted: #4a5580; --sub: #7a88b0;
+  --gk: #FFB300; --def: #4CAF50; --mid: #42A5F5; --fwd: #EF5350;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg-outer);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 12px;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; opacity: .03; pointer-events: none; z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+.frame {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 40% 20% at 15% 0%, rgba(0,240,255,.04), transparent),
+    radial-gradient(ellipse 40% 30% at 85% 100%, rgba(255,87,34,.03), transparent);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  height: calc(100vh - 24px);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(0,0,0,.5), 0 0 0 1px rgba(0,240,255,.05);
+}
+
+/* ─── NAV ─── */
+.nav {
+  height: 56px; padding: 0 22px;
+  background: var(--surf);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 18px;
+  border-radius: 20px 20px 0 0;
+  position: relative;
+}
+.nav::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon) 30%, rgba(0,240,255,.9) 50%, var(--neon) 70%, transparent);
+  border-radius: 20px 20px 0 0;
+}
+.brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; text-transform: uppercase; letter-spacing: .5px; font-size: 22px;
+  display: flex; align-items: baseline; gap: 6px;
+}
+.brand em { font-style: normal; color: var(--fire); }
+.nav-tabs { display: flex; gap: 4px; margin-left: 24px; }
+.nav-tab {
+  padding: 7px 18px; border-radius: 20px;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px; font-size: 13px;
+  color: var(--muted); background: transparent; border: 1px solid transparent;
+  cursor: pointer; transition: color .2s, background .2s;
+}
+.nav-tab:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.nav-tab.active {
+  color: #fff; background: var(--fire); border-color: var(--fire);
+  box-shadow: 0 2px 16px rgba(255,87,34,.35);
+}
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.nav-meta {
+  font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted);
+}
+.nav-meta strong { color: var(--neon); font-weight: 600; }
+
+/* ─── FILTER RAIL ─── */
+.rail {
+  height: 52px; padding: 0 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 18px;
+  background: linear-gradient(180deg, rgba(15,17,32,.6), transparent);
+}
+.rail-grp { display: flex; align-items: center; gap: 6px; }
+.rail-lbl {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  text-transform: uppercase; font-size: 10px; letter-spacing: 1.5px;
+  color: var(--muted); margin-right: 4px;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px 5px 9px; border-radius: 999px;
+  background: transparent; border: 1px solid rgba(255,255,255,.08);
+  color: var(--muted); font-family: 'Oswald', sans-serif; font-weight: 600;
+  font-size: 12px; text-transform: uppercase; letter-spacing: .5px;
+  cursor: pointer; transition: color .15s, border-color .15s, background .15s;
+}
+.chip:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
+.chip .kbd {
+  font-family: 'Oswald', sans-serif; font-size: 9px; font-weight: 700;
+  padding: 1px 5px; border-radius: 4px;
+  background: rgba(255,255,255,.05); color: var(--muted);
+  border: 1px solid rgba(255,255,255,.06);
+}
+.chip.active { color: #fff; border-color: transparent; }
+.chip.active.fire { background: var(--fire); box-shadow: 0 1px 10px rgba(255,87,34,.3); }
+.chip.active.pos-all { background: rgba(255,255,255,.1); color: var(--text); border-color: rgba(255,255,255,.22); }
+.chip.active.pos-gk  { background: rgba(255,179,0,.15); border-color: rgba(255,179,0,.45); color: var(--gk); }
+.chip.active.pos-def { background: rgba(76,175,80,.15); border-color: rgba(76,175,80,.45); color: var(--def); }
+.chip.active.pos-mid { background: rgba(66,165,245,.15); border-color: rgba(66,165,245,.45); color: var(--mid); }
+.chip.active.pos-fwd { background: rgba(239,83,80,.15); border-color: rgba(239,83,80,.45); color: var(--fwd); }
+
+.rail-sep { width: 1px; height: 22px; background: var(--border); }
+
+.search {
+  margin-left: auto; display: flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 999px; padding: 6px 14px; width: 260px;
+}
+.search:focus-within { border-color: var(--border-hi); }
+.search input {
+  flex: 1; background: transparent; border: 0; outline: 0;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+}
+.search input::placeholder { color: var(--muted); }
+.search .kbd { font-size: 9px; padding: 2px 5px; border-radius: 4px;
+  background: rgba(255,255,255,.05); color: var(--muted); font-family: 'Oswald'; font-weight: 700; }
+
+/* ─── MAIN ─── */
+.main { flex: 1; display: flex; overflow: hidden; }
+
+/* RANK RAIL */
+.rank-rail {
+  width: 56px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  padding: 14px 0;
+  overflow-y: hidden;
+  background: linear-gradient(180deg, rgba(10,12,20,.6), var(--bg));
+  display: flex; flex-direction: column; align-items: center;
+}
+.rank-tick {
+  width: 100%; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Clash Display', sans-serif; font-weight: 600; font-size: 16px;
+  color: var(--muted); position: relative;
+}
+.rank-tick.top-10 { color: rgba(255,87,34,.55); text-shadow: 0 0 10px rgba(255,87,34,.25); }
+.rank-tick.top-3  { color: var(--fire); font-size: 19px; text-shadow: 0 0 14px rgba(255,87,34,.5); }
+.rank-tick.active::before {
+  content: ''; position: absolute; left: 0; top: 10%; bottom: 10%;
+  width: 3px; background: var(--neon); box-shadow: 0 0 12px var(--neon);
+}
+.rank-tick.expanded {
+  height: auto; padding: 12px 0;
+  background: linear-gradient(90deg, rgba(0,240,255,.08), transparent);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+
+/* BOARD */
+.board {
+  flex: 1; overflow-y: auto; padding: 6px 0;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.08) transparent;
+}
+.board::-webkit-scrollbar { width: 4px; }
+.board::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 3px; }
+
+.row {
+  display: grid;
+  grid-template-columns: 2.5fr 0.9fr 0.9fr 0.7fr 0.7fr 0.7fr 0.7fr;
+  align-items: center;
+  height: 40px;
+  padding: 0 22px 0 16px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,.02);
+  transition: background .12s;
+}
+.row:hover { background: rgba(0,240,255,.025); }
+.row.expanded {
+  background: linear-gradient(90deg, rgba(0,240,255,.05), transparent 70%);
+  border-left: 2px solid var(--neon);
+  padding-left: 14px;
+  height: auto;
+}
+.row.expanded + .detail { display: block; }
+
+.col-player { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.pos-badge {
+  width: 22px; height: 22px; flex-shrink: 0;
+  border-radius: 6px;
+  font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  letter-spacing: .3px;
+}
+.pos-badge.gk  { background: rgba(255,179,0,.15);  color: var(--gk);  border: 1px solid rgba(255,179,0,.3); }
+.pos-badge.def { background: rgba(76,175,80,.15);  color: var(--def); border: 1px solid rgba(76,175,80,.3); }
+.pos-badge.mid { background: rgba(66,165,245,.15); color: var(--mid); border: 1px solid rgba(66,165,245,.3); }
+.pos-badge.fwd { background: rgba(239,83,80,.15);  color: var(--fwd); border: 1px solid rgba(239,83,80,.3); }
+
+.name {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .3px; font-size: 14px;
+  color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fixture {
+  font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 10px;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+}
+.fixture .ha { color: var(--neon); }
+
+.col-xpts {
+  font-family: 'Clash Display', sans-serif; font-weight: 600;
+  font-size: 19px; color: var(--text); text-align: right;
+}
+.col-xpts .dim { color: var(--muted); font-size: 12px; }
+
+.col-sub {
+  font-family: 'Oswald', sans-serif; font-weight: 500;
+  font-size: 12px; color: var(--sub); text-align: right;
+  letter-spacing: .5px;
+}
+.col-sub.hi { color: var(--fire); }
+.col-sub.ok { color: var(--def); }
+
+/* DETAIL PANEL (inline expansion) */
+.detail {
+  display: none;
+  padding: 18px 22px 22px 16px;
+  border-bottom: 1px solid var(--border);
+  border-left: 2px solid var(--neon);
+  background:
+    linear-gradient(90deg, rgba(0,240,255,.03), transparent 60%),
+    var(--bg);
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1.2fr;
+  gap: 22px;
+}
+.d-block { display: flex; flex-direction: column; gap: 8px; }
+.d-lbl {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  text-transform: uppercase; font-size: 10px; letter-spacing: 1.8px;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.d-lbl::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* Components — stacked rows */
+.comp-row {
+  display: grid; grid-template-columns: 1fr 36px 48px; gap: 8px;
+  align-items: center; height: 20px;
+}
+.comp-name {
+  font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 11px;
+  text-transform: uppercase; letter-spacing: .4px; color: var(--sub);
+}
+.comp-bar {
+  height: 3px; background: rgba(255,255,255,.05); border-radius: 2px; overflow: hidden;
+}
+.comp-bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--fire), rgba(255,87,34,.5));
+  border-radius: 2px;
+}
+.comp-bar-fill.neg { background: linear-gradient(90deg, rgba(239,83,80,.6), rgba(239,83,80,.3)); }
+.comp-val {
+  font-family: 'Clash Display', sans-serif; font-weight: 500; font-size: 13px;
+  text-align: right; color: var(--text);
+}
+.comp-val.neg { color: var(--fwd); }
+
+/* Probabilities */
+.prob-row { display: flex; flex-direction: column; gap: 10px; }
+.prob-item {}
+.prob-item-hdr {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 4px;
+}
+.prob-item-lbl {
+  font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 11px;
+  text-transform: uppercase; letter-spacing: .6px; color: var(--sub);
+}
+.prob-item-val {
+  font-family: 'Clash Display', sans-serif; font-weight: 600; font-size: 15px;
+}
+.prob-bar {
+  height: 4px; background: rgba(255,255,255,.05); border-radius: 3px; overflow: hidden; position: relative;
+}
+.prob-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon), rgba(0,240,255,.4));
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(0,240,255,.4);
+}
+
+/* Factors */
+.fac-list { display: flex; flex-direction: column; gap: 6px; }
+.fac-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 10px;
+  background: rgba(255,255,255,.02);
+  border-left: 2px solid var(--muted);
+  border-radius: 2px;
+}
+.fac-item.boost { border-left-color: var(--def); }
+.fac-item.nerf  { border-left-color: var(--fwd); }
+.fac-name {
+  font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 11px;
+  text-transform: uppercase; letter-spacing: .4px; color: var(--sub);
+}
+.fac-val {
+  font-family: 'Clash Display', sans-serif; font-weight: 600; font-size: 13px;
+  color: var(--text);
+}
+.fac-item.boost .fac-val { color: var(--def); }
+.fac-item.nerf  .fac-val { color: var(--fwd); }
+
+/* Provenance */
+.prov-hdr {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+}
+.prov-src-badge {
+  font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 3px 8px; border-radius: 4px;
+  background: rgba(0,240,255,.1); color: var(--neon);
+  border: 1px solid rgba(0,240,255,.25);
+}
+.prov-qual {
+  font-family: 'Clash Display', sans-serif; font-weight: 600; font-size: 13px;
+  color: var(--def);
+}
+.prov-opp {
+  font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--sub);
+  line-height: 1.5;
+}
+.prov-opp strong { color: var(--text); font-weight: 600; }
+
+.prov-tbl {
+  width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px;
+}
+.prov-tbl th {
+  font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 9px;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); text-align: right; padding: 3px 4px;
+  border-bottom: 1px solid var(--border);
+}
+.prov-tbl th:first-child { text-align: left; }
+.prov-tbl td {
+  font-family: 'Clash Display', sans-serif; font-weight: 500; font-size: 11px;
+  text-align: right; padding: 3px 4px;
+  color: var(--sub);
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.prov-tbl td:first-child {
+  text-align: left;
+  font-family: 'Oswald'; font-weight: 500; font-size: 10px;
+  text-transform: uppercase; letter-spacing: .5px; color: var(--muted);
+}
+.prov-tbl td.primary { color: var(--text); font-weight: 600; }
+
+/* Footer */
+.foot {
+  height: 36px; padding: 0 22px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 24px;
+  font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted);
+  background: var(--surf); border-radius: 0 0 20px 20px;
+  flex-shrink: 0;
+}
+.foot strong { color: var(--neon); font-weight: 600; }
+.foot .variant-tag {
+  margin-left: auto;
+  font-family: 'Clash Display', sans-serif; font-weight: 600; font-size: 11px;
+  color: var(--fire); letter-spacing: 2px;
+}
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <nav class="nav">
+    <div class="brand">Pitch<em>Pulse</em></div>
+    <div class="nav-tabs">
+      <button class="nav-tab">Dashboard</button>
+      <button class="nav-tab">Mini-leagues</button>
+      <button class="nav-tab active">xPts Engine</button>
+      <button class="nav-tab">Brackets</button>
+    </div>
+    <div class="nav-right">
+      <div class="nav-meta">MD 15 · KICKOFF IN <strong>2D 17H</strong></div>
+    </div>
+  </nav>
+
+  <div class="rail">
+    <div class="rail-grp">
+      <span class="rail-lbl">Competition</span>
+      <button class="chip active fire"><span class="kbd">C</span> UCL</button>
+      <button class="chip">WC 2026</button>
+    </div>
+    <div class="rail-sep"></div>
+    <div class="rail-grp">
+      <span class="rail-lbl">Position</span>
+      <button class="chip active pos-all"><span class="kbd">1</span> All</button>
+      <button class="chip"><span class="kbd">2</span> GK</button>
+      <button class="chip"><span class="kbd">3</span> DEF</button>
+      <button class="chip"><span class="kbd">4</span> MID</button>
+      <button class="chip"><span class="kbd">5</span> FWD</button>
+    </div>
+    <div class="rail-sep"></div>
+    <div class="rail-grp">
+      <span class="rail-lbl">Form</span>
+      <button class="chip active fire">Season</button>
+      <button class="chip">Last 5</button>
+    </div>
+    <div class="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--muted)">
+        <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+      <input placeholder="Search player…" />
+      <span class="kbd">⌘K</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="rank-rail" id="rankRail"></div>
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="foot">
+    <span><strong>210</strong> predictions</span>
+    <span><strong>5</strong> fixtures</span>
+    <span>Avg xPts <strong>3.82</strong></span>
+    <span>Data quality <strong>1.0</strong></span>
+    <span>Last sync <strong>09:12</strong></span>
+    <span class="variant-tag">VARIANT A — COMMAND DECK</span>
+  </div>
+</div>
+
+<script>
+const players = [
+  { r: 1, n: 'Kylian Mbappé', t: 'RMA', p: 'FWD', o: 'MCI', h: true, xp: 7.42, raw: 5.68, g: 2.84, a: 0.72, cs: 0.12 },
+  { r: 2, n: 'Erling Haaland', t: 'MCI', p: 'FWD', o: 'RMA', h: false, xp: 7.28, raw: 6.07, g: 2.90, a: 0.40, cs: 0.15 },
+  { r: 3, n: 'Ousmane Dembélé', t: 'PSG', p: 'FWD', o: 'BAY', h: true, xp: 6.74, raw: 5.22, g: 2.12, a: 0.88, cs: 0.22 },
+  { r: 4, n: 'Harry Kane', t: 'BAY', p: 'FWD', o: 'PSG', h: false, xp: 6.65, raw: 5.14, g: 2.48, a: 0.56, cs: 0.18 },
+  { r: 5, n: 'Lamine Yamal', t: 'BAR', p: 'FWD', o: 'ARS', h: true, xp: 6.12, raw: 4.80, g: 1.82, a: 1.05, cs: 0.20 },
+  { r: 6, n: 'Mohamed Salah', t: 'LIV', p: 'MID', o: 'BVB', h: true, xp: 5.88, raw: 4.62, g: 1.48, a: 1.12, cs: 0.28 },
+  { r: 7, n: 'Florian Wirtz', t: 'B04', p: 'MID', o: 'INT', h: false, xp: 5.72, raw: 4.40, g: 1.20, a: 1.22, cs: 0.22 },
+  { r: 8, n: 'Vinicius Jr', t: 'RMA', p: 'FWD', o: 'MCI', h: true, xp: 5.64, raw: 4.35, g: 1.80, a: 0.88, cs: 0.12 },
+  { r: 9, n: 'Bukayo Saka', t: 'ARS', p: 'MID', o: 'BAR', h: false, xp: 5.40, raw: 4.15, g: 1.22, a: 1.08, cs: 0.24 },
+  { r:10, n: 'Jude Bellingham', t: 'RMA', p: 'MID', o: 'MCI', h: true, xp: 4.82, raw: 3.75, g: 1.05, a: 0.82, cs: 0.12 },
+  { r:11, n: 'Declan Rice', t: 'ARS', p: 'MID', o: 'BAR', h: false, xp: 4.62, raw: 3.68, g: 0.42, a: 0.58, cs: 0.24 },
+  { r:12, n: 'Virgil van Dijk', t: 'LIV', p: 'DEF', o: 'BVB', h: true, xp: 4.20, raw: 3.40, g: 0.12, a: 0.18, cs: 1.68 },
+  { r:13, n: 'Rúben Dias', t: 'MCI', p: 'DEF', o: 'RMA', h: false, xp: 4.02, raw: 3.22, g: 0.08, a: 0.10, cs: 1.52 },
+  { r:14, n: 'Alisson Becker', t: 'LIV', p: 'GK', o: 'BVB', h: true, xp: 3.98, raw: 3.15, g: 0, a: 0, cs: 1.68 },
+  { r:15, n: 'Thibaut Courtois', t: 'RMA', p: 'GK', o: 'MCI', h: true, xp: 3.74, raw: 2.95, g: 0, a: 0, cs: 1.42 },
+];
+
+const haalandDetail = {
+  components: [
+    { name: 'Goals', val: 2.90, rel: 1.0 },
+    { name: 'Minutes', val: 1.80, rel: .62 },
+    { name: 'Bonus', val: 0.62, rel: .21 },
+    { name: 'Assists', val: 0.40, rel: .14 },
+    { name: 'Recoveries', val: 0.24, rel: .08 },
+    { name: 'CS / Goals Conceded', val: 0.15, rel: .05 },
+    { name: 'Penalty (taker)', val: 0.14, rel: .05 },
+    { name: 'Outside box', val: 0.08, rel: .03 },
+    { name: 'Discipline', val: -0.08, rel: .03, neg: true },
+    { name: 'Goals Conceded', val: -0.18, rel: .06, neg: true },
+  ],
+  probs: [
+    { lbl: 'Plays', val: 98 },
+    { lbl: '60+ min', val: 92 },
+    { lbl: 'Clean sheet', val: 28 },
+  ],
+  factors: [
+    { name: 'Competition', val: '1.12×', cls: 'boost' },
+    { name: 'Opponent (RMA)', val: '0.88×', cls: 'nerf' },
+    { name: 'Form (season)', val: '1.00×', cls: '' },
+  ],
+  prov: {
+    src: 'MRG',
+    quality: 1.0,
+    opp: 'RMA · <strong>1.87 xGA/match</strong> · CS rate <strong>22%</strong> · Pen taker <strong>yes</strong> (priority 1)',
+    rows: [
+      { label: 'Matches', fm: 31, der: '—', mrg: 31 },
+      { label: 'Minutes', fm: 2598, der: '—', mrg: 2598 },
+      { label: 'Goals', fm: 23, der: '—', mrg: 23 },
+      { label: 'xG', fm: 22.4, der: '—', mrg: 22.4 },
+      { label: 'npxG', fm: 20.1, der: '—', mrg: 20.1 },
+      { label: 'xA', fm: 2.1, der: '—', mrg: 2.1 },
+      { label: 'Saves', fm: 0, der: 0, mrg: 0 },
+      { label: 'Recoveries', fm: '—', der: 7, mrg: 7 },
+      { label: 'YC', fm: 2, der: '—', mrg: 2 },
+    ]
+  }
+};
+
+function rankRail() {
+  const rail = document.getElementById('rankRail');
+  rail.innerHTML = players.map(p => {
+    const cls = p.r === 2 ? 'rank-tick active top-3 expanded' :
+                p.r <= 3 ? 'rank-tick top-3' :
+                p.r <= 10 ? 'rank-tick top-10' : 'rank-tick';
+    return `<div class="${cls}">${p.r}</div>`;
+  }).join('');
+}
+
+function row(p, sel) {
+  return `<div class="row ${sel ? 'expanded' : ''}" data-r="${p.r}">
+    <div class="col-player">
+      <div class="pos-badge ${p.p.toLowerCase()}">${p.p}</div>
+      <div style="min-width:0">
+        <div class="name">${p.n}</div>
+        <div class="fixture">${p.t} ${p.h ? '<span class="ha">vs</span>' : '<span>@</span>'} ${p.o}</div>
+      </div>
+    </div>
+    <div class="col-xpts">${p.xp.toFixed(2)}<span class="dim"> xPts</span></div>
+    <div class="col-sub">${p.raw.toFixed(2)}</div>
+    <div class="col-sub ${p.g > 2 ? 'hi' : ''}">${p.g.toFixed(2)}</div>
+    <div class="col-sub">${p.a.toFixed(2)}</div>
+    <div class="col-sub ${p.cs > 1 ? 'ok' : ''}">${p.cs.toFixed(2)}</div>
+    <div class="col-sub">${(p.xp - p.raw).toFixed(2)}</div>
+  </div>`;
+}
+
+function detail(p) {
+  const d = haalandDetail;
+  const comp = d.components.map(c => `
+    <div class="comp-row">
+      <div class="comp-name">${c.name}</div>
+      <div class="comp-bar"><div class="comp-bar-fill ${c.neg ? 'neg' : ''}" style="width:${c.rel*100}%"></div></div>
+      <div class="comp-val ${c.neg ? 'neg' : ''}">${c.val > 0 ? '+' : ''}${c.val.toFixed(2)}</div>
+    </div>`).join('');
+
+  const probs = d.probs.map(pr => `
+    <div class="prob-item">
+      <div class="prob-item-hdr">
+        <span class="prob-item-lbl">${pr.lbl}</span>
+        <span class="prob-item-val">${pr.val}<span style="color:var(--muted);font-size:11px">%</span></span>
+      </div>
+      <div class="prob-bar"><div class="prob-bar-fill" style="width:${pr.val}%"></div></div>
+    </div>`).join('');
+
+  const facs = d.factors.map(f => `
+    <div class="fac-item ${f.cls}">
+      <span class="fac-name">${f.name}</span>
+      <span class="fac-val">${f.val}</span>
+    </div>`).join('');
+
+  const provRows = d.prov.rows.map(r => `
+    <tr>
+      <td>${r.label}</td>
+      <td>${r.fm}</td>
+      <td>${r.der}</td>
+      <td class="primary">${r.mrg}</td>
+    </tr>`).join('');
+
+  return `<div class="detail">
+    <div class="detail-grid">
+      <div class="d-block">
+        <div class="d-lbl">Components</div>
+        ${comp}
+      </div>
+      <div class="d-block">
+        <div class="d-lbl">Probability</div>
+        <div class="prob-row">${probs}</div>
+        <div class="d-lbl" style="margin-top:10px">Adjustments</div>
+        <div class="fac-list">${facs}</div>
+      </div>
+      <div class="d-block">
+        <div class="d-lbl">Context</div>
+        <div class="prov-opp">${d.prov.opp}</div>
+        <div class="d-lbl" style="margin-top:14px">Probability detail</div>
+        <div style="font-family:'DM Sans';font-size:11px;color:var(--sub);line-height:1.6">
+          Haaland started all <strong style="color:var(--text)">31</strong> league matches.
+          Recent 5: <strong style="color:var(--text)">5g/1a/450m</strong>.
+          Form multiplier neutral.
+        </div>
+      </div>
+      <div class="d-block">
+        <div class="d-lbl">Data Ledger</div>
+        <div class="prov-hdr">
+          <span class="prov-src-badge">primary · ${d.prov.src}</span>
+          <span class="prov-qual">quality ${d.prov.quality.toFixed(2)}</span>
+        </div>
+        <table class="prov-tbl">
+          <thead><tr>
+            <th>Stat</th><th>FM</th><th>DER</th><th>MRG</th>
+          </tr></thead>
+          <tbody>${provRows}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function render() {
+  const board = document.getElementById('board');
+  const selected = 2; // Haaland expanded by default
+  board.innerHTML = players.map(p => {
+    return row(p, p.r === selected) + (p.r === selected ? detail(p) : '');
+  }).join('');
+
+  // Click handler (visual swap only)
+  board.querySelectorAll('.row').forEach(el => {
+    el.addEventListener('click', () => {
+      const r = parseInt(el.dataset.r);
+      // just a demo — in production this would re-render
+      document.querySelectorAll('.row.expanded').forEach(x => x.classList.remove('expanded'));
+      document.querySelectorAll('.detail').forEach(x => x.remove());
+      el.classList.add('expanded');
+      const player = players.find(x => x.r === r);
+      el.insertAdjacentHTML('afterend', detail(player));
+    });
+  });
+}
+
+rankRail();
+render();
+</script>
+</body>
+</html>

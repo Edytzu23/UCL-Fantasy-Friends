@@ -1357,8 +1357,8 @@ async function loadProvenance(p) {
     { key: 'recoveries', label: 'Recov.', dp: 0 },
     { key: 'yellow_cards', label: 'YC',   dp: 0 },
   ];
-  const orderedSrcs = ['fotmob', 'understat', 'derived', 'merged'].filter(k => srcs[k]);
-  const shortSrc = { fotmob: 'FM', understat: 'UND', derived: 'DER', merged: 'MRG' };
+  const orderedSrcs = ['fotmob', 'derived', 'merged'].filter(k => srcs[k]);
+  const shortSrc = { fotmob: 'FM', derived: 'DER', merged: 'MRG' };
 
   function cellCls(v, primary, key) {
     if (v === null || v === undefined) return 'dash';
