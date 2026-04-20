@@ -539,11 +539,12 @@ def build_data(matchday=11):
 
     # Fetch previous MD team rosters to detect transfers
     prev_team_ids = {}  # guid -> set of player IDs
+    prev_managers_raw = []
     if matchday > 1:
         try:
             prev_managers_raw = fetch_team_data(matchday - 1)
             for mgr in prev_managers_raw:
-                prev_team_ids[mgr["guid"]] = {int(rp["id"]) for rp in mgr["rawPlayers"]}
+                prev_team_ids[mgr["guid"]] = {int(rp["id"]) for rp in mgr["rawPlayers"] if rp.get("id") is not None}
         except Exception as e:
             print(f"Could not fetch MD{matchday-1} teams for transfer diff: {e}")
 
@@ -593,12 +594,26 @@ def build_data(matchday=11):
 
     managers_raw = fetch_team_data(matchday)
 
+    # Pre-deadline fallback: UEFA returns a single null-id placeholder until
+    # the MD deadline locks teams in. Substitute MD-1 rosters so clasament
+    # still shows team composition; MD-level points stay 0 from the live feed.
+    if prev_managers_raw:
+        prev_by_guid = {m["guid"]: m for m in prev_managers_raw}
+        for mgr in managers_raw:
+            valid = [rp for rp in mgr.get("rawPlayers", []) if rp.get("id") is not None]
+            if not valid:
+                prev = prev_by_guid.get(mgr["guid"])
+                if prev and prev.get("rawPlayers"):
+                    mgr["rawPlayers"] = prev["rawPlayers"]
+                    if not mgr.get("captainId"):
+                        mgr["captainId"] = prev.get("captainId")
+
     player_ownership = {}  # pid -> list of usernames
 
     managers = []
     for mgr in managers_raw:
         enriched = []
-        current_ids = {int(rp["id"]) for rp in mgr["rawPlayers"]}
+        current_ids = {int(rp["id"]) for rp in mgr["rawPlayers"] if rp.get("id") is not None}
         prev_ids = prev_team_ids.get(mgr["guid"], set())
         transferred_in = current_ids - prev_ids if prev_ids else set()
         transferred_out_ids = prev_ids - current_ids if prev_ids else set()
@@ -615,6 +630,8 @@ def build_data(matchday=11):
                     "mdPoints": pub.get("curGDPts", 0),
                 })
         for rp in mgr["rawPlayers"]:
+            if rp.get("id") is None:
+                continue
             pid = int(rp["id"])
             pub = public_players.get(pid, {})
             mdpts = live_pts.get(pid) or pub.get("curGDPts", 0)
@@ -710,6 +727,8 @@ def build_data(matchday=11):
         if wl_raw:
             wl_players = []
             for rp in wl_raw["rawPlayers"]:
+                if rp.get("id") is None:
+                    continue
                 pid = int(rp["id"])
                 pub = public_players.get(pid, {})
                 mdpts = live_pts.get(pid) or pub.get("curGDPts", 0)
