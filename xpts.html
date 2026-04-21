@@ -18,6 +18,7 @@
   --pink: #ff2d78;
   --text: #f5ece0; --muted: #7a6a58; --sub: #a89785;
   --gk: #FFB300; --def: #4CAF50; --mid: #42A5F5; --fwd: #EF5350;
+  --neon: #00f0ff;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
@@ -60,18 +61,13 @@ a { color: inherit; text-decoration: none; }
 }
 .nav::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--fire) 20%, var(--gold) 50%, var(--fire) 80%, transparent);
+  background: linear-gradient(90deg, transparent, var(--neon) 30%, rgba(0,240,255,.8) 50%, var(--neon) 70%, transparent);
   border-radius: 20px 20px 0 0;
 }
-.brand {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800; text-transform: uppercase; letter-spacing: .5px; font-size: 22px;
-  display: flex; align-items: baseline; gap: 6px;
-}
-.brand em { font-style: normal; color: var(--fire); }
+.nav-logo { display: flex; align-items: center; flex-shrink: 0; }
 .nav-tabs { display: flex; gap: 4px; margin-left: 24px; }
 .nav-tab {
-  padding: 7px 18px; border-radius: 20px;
+  padding: 8px 16px; border-radius: 20px;
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
   text-transform: uppercase; letter-spacing: .5px; font-size: 13px;
   color: var(--muted); background: transparent; border: 1px solid transparent; cursor: pointer;
@@ -139,6 +135,10 @@ a { color: inherit; text-decoration: none; }
 .pos-chip.active[data-p="DEF"] { background: rgba(76,175,80,.15); border-color: rgba(76,175,80,.4); color: var(--def); }
 .pos-chip.active[data-p="MID"] { background: rgba(66,165,245,.15); border-color: rgba(66,165,245,.4); color: var(--mid); }
 .pos-chip.active[data-p="FWD"] { background: rgba(239,83,80,.15); border-color: rgba(239,83,80,.4); color: var(--fwd); }
+.pos-chip[data-p="GK"]  { color: rgba(255,179,0,.55);  border-color: rgba(255,179,0,.2); }
+.pos-chip[data-p="DEF"] { color: rgba(76,175,80,.55);  border-color: rgba(76,175,80,.2); }
+.pos-chip[data-p="MID"] { color: rgba(66,165,245,.55); border-color: rgba(66,165,245,.2); }
+.pos-chip[data-p="FWD"] { color: rgba(239,83,80,.55);  border-color: rgba(239,83,80,.2); }
 
 .list-search {
   padding: 8px 18px; border-bottom: 1px solid var(--border);
@@ -372,6 +372,47 @@ a { color: inherit; text-decoration: none; }
   color: var(--text);
 }
 
+.hero-bg-logo {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 50%;
+  background-size: 240px; background-repeat: no-repeat; background-position: 70% center;
+  opacity: 0.06; pointer-events: none; z-index: 0;
+  filter: blur(1px) grayscale(0.3);
+}
+.hero-sub-scores {
+  display: flex; gap: 22px; margin-top: 8px;
+}
+.hero-sub-score { display: flex; flex-direction: column; gap: 2px; }
+.hero-sub-score-lbl {
+  font-family: 'Oswald'; font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
+}
+.hero-sub-score-val {
+  font-family: 'Clash Display'; font-weight: 600; font-size: 16px; color: var(--sub);
+}
+.fix-analysis {
+  margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.fix-analysis-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 4px;
+  font-family: 'Oswald'; font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .8px;
+}
+.fix-analysis-tag.hard    { background: rgba(239,83,80,.1);  border: 1px solid rgba(239,83,80,.3);  color: var(--fwd); }
+.fix-analysis-tag.easy    { background: rgba(76,175,80,.1);  border: 1px solid rgba(76,175,80,.3);  color: var(--def); }
+.fix-analysis-tag.neutral { background: rgba(255,255,255,.04); border: 1px solid var(--border); color: var(--sub); }
+.fix-analysis-desc {
+  font-family: 'DM Sans'; font-size: 11px; color: var(--muted); line-height: 1.55;
+}
+.ledger-chevron {
+  margin-left: 8px; color: var(--muted); font-size: 10px;
+  transition: transform .2s; display: inline-block;
+}
+.ledger.collapsed .ledger-chevron { transform: rotate(-90deg); }
+.ledger.collapsed .ledger-grid { display: none; }
+.ledger-head { cursor: pointer; user-select: none; }
+
 .fac-pills {
   display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px;
 }
@@ -411,8 +452,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .comp-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr);
-  gap: 10px 32px;
+  display: flex; flex-direction: column;
 }
 .comp-row {
   display: grid; grid-template-columns: 1fr auto;
@@ -423,23 +463,13 @@ a { color: inherit; text-decoration: none; }
 .comp-row .lbl {
   font-family: 'Oswald'; font-weight: 500; font-size: 12px;
   color: var(--sub); text-transform: uppercase; letter-spacing: .5px;
-  display: flex; align-items: center; gap: 10px;
-}
-.comp-row .lbl::after {
-  content: ''; flex: 1; height: 2px;
-  background: linear-gradient(90deg, rgba(245,158,11,.18), transparent);
-  border-radius: 2px;
-}
-.comp-row .lbl .fill {
-  display: inline-block; height: 2px;
-  background: linear-gradient(90deg, var(--fire), rgba(255,87,34,.5));
-  border-radius: 2px;
 }
 .comp-row .val {
   font-family: 'Clash Display'; font-weight: 600; font-size: 17px;
   color: var(--text);
 }
-.comp-row .val.neg { color: var(--fwd); }
+.comp-row .val.above { color: var(--def); }
+.comp-row .val.below { color: var(--fwd); }
 
 .prob-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
@@ -697,7 +727,9 @@ a { color: inherit; text-decoration: none; }
 <div class="frame">
 
   <nav class="nav">
-    <div class="brand">Pitch<em>Pulse</em></div>
+    <div class="nav-logo">
+      <img src="/static/brand-logo.png" alt="PLM Fantasy League" style="height:40px;width:auto;object-fit:contain;"/>
+    </div>
     <div class="nav-tabs">
       <a class="nav-tab" href="/dashboard#clasament">Clasament</a>
       <a class="nav-tab" href="/dashboard#scouting">Scouting</a>
@@ -766,6 +798,7 @@ const state = {
   fixtureId: null,
   search: '',
   data: [],
+  dataLast5: [],
   fixtures: [],
   selectedId: null,
 };
@@ -806,11 +839,13 @@ async function loadData() {
   list.innerHTML = '<div class="loading"><div class="spinner"></div> Loading predictions…</div>';
 
   try {
-    const [rankings, fixtures] = await Promise.all([
+    const [rankings, rankingsLast5, fixtures] = await Promise.all([
       loadRankings(),
+      loadRankingsLast5(),
       api(`/fixtures?competition_id=${state.comp}&status=scheduled`),
     ]);
     state.data = rankings || [];
+    state.dataLast5 = rankingsLast5 || [];
     state.fixtures = fixtures || [];
     renderList();
     renderSchedule();
@@ -835,6 +870,18 @@ async function loadRankings() {
   if (state.pos) params.set('position', state.pos);
   if (state.fixtureId) params.set('fixture_id', state.fixtureId);
   if (state.form) params.set('form_filter', state.form);
+  return api('/rankings?' + params);
+}
+
+async function loadRankingsLast5() {
+  const params = new URLSearchParams({
+    competition_id: state.comp,
+    scoring_system: state.scoring,
+    limit: 200,
+    form_filter: 'last5',
+  });
+  if (state.pos) params.set('position', state.pos);
+  if (state.fixtureId) params.set('fixture_id', state.fixtureId);
   return api('/rankings?' + params);
 }
 
@@ -962,7 +1009,10 @@ function renderCanvas(p) {
 
   const xp = p.xpts_adjusted || 0;
   const raw = p.xpts_raw || 0;
-  const adj = xp - raw;
+
+  // Last 5 form score
+  const last5Player = (state.dataLast5 || []).find(x => x.player_id === p.player_id);
+  const xpLast5 = last5Player ? (last5Player.xpts_adjusted || 0) : null;
 
   // Components
   const compDefs = [
@@ -982,13 +1032,23 @@ function renderCanvas(p) {
     .map(c => ({ ...c, val: p[c.k] || 0 }))
     .filter(c => c.val !== 0)
     .sort((a, b) => Math.abs(b.val) - Math.abs(a.val));
-  const maxAbs = Math.max(0.01, ...comps.map(c => Math.abs(c.val)));
-  const compHtml = comps.map(c => `
-    <div class="comp-row">
-      <span class="lbl">${c.lbl}<span class="fill" style="width:${(Math.abs(c.val) / maxAbs) * 60}px"></span></span>
-      <span class="val ${c.val < 0 ? 'neg' : ''}">${c.val > 0 ? '+' : ''}${c.val.toFixed(2)}</span>
-    </div>
-  `).join('') || '<div style="color:var(--muted);font-family:Oswald;font-size:11px;">No component breakdown yet.</div>';
+  // Compute averages across all players for color coding
+  const compAvgMap = {};
+  compDefs.forEach(c => {
+    const vals = state.data.map(pl => pl[c.k] || 0).filter(v => v !== 0);
+    compAvgMap[c.k] = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+  });
+
+  const compHtml = comps.map(c => {
+    const avg = compAvgMap[c.k];
+    const threshold = Math.max(0.05, Math.abs(avg) * 0.2);
+    const cc = avg !== 0 ? (c.val > avg + threshold ? 'above' : c.val < avg - threshold ? 'below' : '') : '';
+    return `
+      <div class="comp-row">
+        <span class="lbl">${c.lbl}</span>
+        <span class="val ${cc}">${c.val > 0 ? '+' : ''}${c.val.toFixed(2)}</span>
+      </div>`;
+  }).join('') || '<div style="color:var(--muted);font-family:Oswald;font-size:11px;">No component breakdown yet.</div>';
 
   // Factors
   const compF = p.competition_factor || 1;
@@ -1013,15 +1073,12 @@ function renderCanvas(p) {
     </div>
   `).join('');
 
-  // Fixture quick stats — populated from breakdown after load
-  const fixStats = [
-    { id: 'fs-opp-xga', lbl: `${oppCode || 'OPP'} xGA/g`, val: '…' },
-    { id: 'fs-opp-cs',  lbl: `${oppCode || 'OPP'} CS%`,   val: '…' },
-    { id: 'fs-own-cs',  lbl: `${myTeamCode || 'OWN'} CS%`, val: '…' },
-  ];
+  // Initial match context (updated with full opponent data in renderLedger)
+  const initContext = isHome ? 'Acasă' : 'Deplasare';
 
   document.getElementById('canvas').innerHTML = `
     <div class="hero">
+      <div class="hero-bg-logo" style="background-image:url('${logoUrl(myTeamId)}')"></div>
       <div class="hero-xpts">
         <div>
           <div class="hero-id">
@@ -1036,7 +1093,16 @@ function renderCanvas(p) {
             <div class="hero-xpts-n">${xp.toFixed(2)}</div>
             <div class="hero-xpts-lbl">xPts<br/>adj.</div>
           </div>
-          <div class="hero-raw">Raw <strong>${raw.toFixed(2)}</strong> · Adjustment <strong>${adj >= 0 ? '+' : ''}${adj.toFixed(2)}</strong></div>
+          <div class="hero-sub-scores">
+            <div class="hero-sub-score">
+              <span class="hero-sub-score-lbl">Raw</span>
+              <span class="hero-sub-score-val">${raw.toFixed(2)}</span>
+            </div>
+            <div class="hero-sub-score">
+              <span class="hero-sub-score-lbl">Last 5 adj.</span>
+              <span class="hero-sub-score-val">${xpLast5 != null ? xpLast5.toFixed(2) : '—'}</span>
+            </div>
+          </div>
           <div class="fac-pills">
             ${factorPill('COMP', compF)}
             ${factorPill(`OPP (${escapeHtml(oppCode || '—')})`, oppF)}
@@ -1061,12 +1127,8 @@ function renderCanvas(p) {
             <div class="fix-role">${isHome ? 'Away' : 'Home'}</div>
           </div>
         </div>
-        <div class="fix-foot">
-          ${fixStats.map(s => `
-            <div class="fix-stat">
-              <span class="fix-stat-lbl">${escapeHtml(s.lbl)}</span>
-              <span class="fix-stat-val" id="${s.id}">${escapeHtml(s.val)}</span>
-            </div>`).join('')}
+        <div class="fix-analysis" id="fixAnalysis">
+          <div class="fix-analysis-tag neutral">${escapeHtml(initContext)}</div>
         </div>
       </div>
     </div>
@@ -1089,16 +1151,22 @@ function renderCanvas(p) {
       <div class="prob-grid">${probHtml}</div>
     </div>
 
-    <div class="ledger" id="ledger">
+    <div class="ledger collapsed" id="ledger">
       <div class="ledger-head">
         <div class="ledger-title">Data Ledger</div>
         <span class="ledger-src" id="ledgerSrc">loading…</span>
         <span class="ledger-quality" id="ledgerQuality">—</span>
         <div class="ledger-context">Fetching source provenance…</div>
+        <span class="ledger-chevron">▼</span>
       </div>
       <div class="ledger-grid" id="ledgerGrid"></div>
     </div>
   `;
+
+  // Wire ledger toggle
+  document.querySelector('#ledger .ledger-head').addEventListener('click', () => {
+    document.getElementById('ledger').classList.toggle('collapsed');
+  });
 }
 
 async function loadLedger(p) {
@@ -1184,12 +1252,31 @@ function renderLedger(d, p) {
   const opp = d.opponent || {};
   const csPct = opp.cs_rate != null ? Math.round(opp.cs_rate * 100) : null;
 
-  // Populate fixture-card stats (now that opponent + own_team data is loaded)
-  const own = d.own_team || {};
-  const setStat = (id, v) => { const n = document.getElementById(id); if (n) n.textContent = v; };
-  setStat('fs-opp-xga', opp.xga_per_match != null ? opp.xga_per_match.toFixed(2) : '—');
-  setStat('fs-opp-cs',  opp.cs_rate != null ? Math.round(opp.cs_rate * 100) + '%' : '—');
-  setStat('fs-own-cs',  own.cs_rate != null ? Math.round(own.cs_rate * 100) + '%' : '—');
+  // Generate match analysis tags for hero fixture card
+  const analysisEl = document.getElementById('fixAnalysis');
+  if (analysisEl) {
+    const tags = [];
+    tags.push({ cls: 'neutral', txt: isHome ? 'Acasă' : 'Deplasare' });
+    if (opp.cs_rate != null) {
+      if (opp.cs_rate > 0.35)     tags.push({ cls: 'hard', txt: 'Defensivă solidă' });
+      else if (opp.cs_rate < 0.2) tags.push({ cls: 'easy', txt: 'Defensivă slabă' });
+    }
+    if (opp.xga_per_match != null) {
+      if (opp.xga_per_match < 0.9)  tags.push({ cls: 'hard', txt: 'Concede puțin' });
+      else if (opp.xga_per_match > 1.5) tags.push({ cls: 'easy', txt: 'Concede mult' });
+    }
+    if (d.is_penalty_taker) tags.push({ cls: 'easy', txt: 'Penalty taker' });
+
+    const tagHtml = tags.map(t => `<span class="fix-analysis-tag ${t.cls}">${t.txt}</span>`).join(' ');
+    const descParts = [];
+    if (opp.xga_per_match != null) descParts.push(`${escapeHtml(oppCode || 'Adv.')} concede ${opp.xga_per_match.toFixed(2)} xGA/meci`);
+    if (csPct != null) descParts.push(`CS rate ${csPct}%`);
+
+    analysisEl.innerHTML = `
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">${tagHtml}</div>
+      ${descParts.length ? `<div class="fix-analysis-desc">${descParts.join(' · ')}</div>` : ''}
+    `;
+  }
 
   // Update ledger head
   const srcBadge = document.getElementById('ledgerSrc');
