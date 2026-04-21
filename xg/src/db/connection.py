@@ -17,7 +17,12 @@ READ_ONLY = bool(os.environ.get("VERCEL"))
 def get_connection() -> sqlite3.Connection:
     """Get a SQLite connection. Read-only on Vercel; read-write locally."""
     if READ_ONLY:
-        uri = f"file:{DB_PATH}?mode=ro"
+        # immutable=1 tells SQLite the file won't change — skips all locking
+        # and avoids creating -shm/-wal companion files, which would fail on
+        # Vercel's read-only lambda filesystem (the DB was created with WAL
+        # journal mode locally, and SQLite carries that baggage into read-only
+        # opens unless we opt out explicitly).
+        uri = f"file:{DB_PATH}?mode=ro&immutable=1"
         conn = sqlite3.connect(uri, uri=True)
     else:
         os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
