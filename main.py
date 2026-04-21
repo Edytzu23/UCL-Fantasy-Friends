@@ -607,6 +607,16 @@ def build_data(matchday=11):
 
     managers_raw = fetch_team_data(matchday)
 
+    # "MD started" = UEFA has locked in real rosters (at deadline). While
+    # the MD is still upcoming, every manager's rawPlayers is a single
+    # null-id placeholder. We capture this BEFORE the fallback below rewrites
+    # rawPlayers so /api/data can still distinguish "not started" from "in
+    # progress with zero points".
+    md_started = any(
+        any(rp.get("id") is not None for rp in mgr.get("rawPlayers", []))
+        for mgr in managers_raw
+    )
+
     # Pre-deadline fallback: UEFA returns a single null-id placeholder until
     # the MD deadline locks teams in. Substitute MD-1 rosters so clasament
     # still shows team composition; MD-level points stay 0 from the live feed.
@@ -774,6 +784,7 @@ def build_data(matchday=11):
     return {
         "lastUpdated": datetime.now().isoformat(),
         "matchday": matchday,
+        "mdStarted": md_started,
         "totalManagers": len(FRIENDS_IDS),
         "managers": managers,
         "allPlayers": all_players,
@@ -1406,8 +1417,20 @@ DATA_MEMO_TTL = 20  # seconds — only applies to the current MD
 
 @app.get("/api/data")
 def get_data(md: int = None):
+    # When no md is passed, default to the live MD — unless UEFA hasn't
+    # locked rosters yet (pre-deadline placeholder). In that window we keep
+    # the previous, finalized MD on screen so clasament shows real standings
+    # instead of a zeroed-out snapshot of the upcoming MD.
     if md is None:
         md = get_current_matchday()
+        if md > 1:
+            with cache_lock:
+                live_entry = cache.get(md)
+            live_data = live_entry.get("data") if isinstance(live_entry, dict) else None
+            if live_data is None:
+                live_data = load_md_cache(md)
+            if isinstance(live_data, dict) and live_data.get("mdStarted") is False:
+                md = md - 1
     current_md = get_current_matchday()
     is_current = (md == current_md)
     now = time.time()
