@@ -2,3 +2,7 @@ fastapi==0.111.0
 uvicorn==0.30.1
 requests==2.32.3
 ratelimiter>=1.2.0
+# xPts engine runtime dep — only poisson.stats is used at request time;
+# heavier pipeline deps (pandas, numpy, lxml, etc.) live in xg/requirements.txt
+# and run in GitHub Actions, not in the Vercel lambda.
+scipy>=1.11

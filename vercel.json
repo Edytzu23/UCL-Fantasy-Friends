@@ -1,6 +1,12 @@
 {
   "builds": [
-    { "src": "main.py", "use": "@vercel/python" }
+    {
+      "src": "main.py",
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": "xg/{api,src,db}/**"
+      }
+    }
   ],
   "routes": [
     { "src": "/(.*)", "dest": "main.py" }

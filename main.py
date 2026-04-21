@@ -9,11 +9,19 @@ from datetime import datetime, timedelta
 import threading
 import time
 import os
+import sys
 import concurrent.futures
 from scouting import (
     get_team_scouting, get_scouting_matchup, get_all_matchups,
     fetch_ucl_bracket, load_scouting_cache_local,
 )
+
+# Mount xPts Engine (XG DATABASE) as a subapp under /api/xg.
+# xg/ is a self-contained project with its own src/ tree; adding it to
+# sys.path lets `src.db.connection` etc. resolve without package renames.
+_XG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "xg")
+if _XG_DIR not in sys.path:
+    sys.path.insert(0, _XG_DIR)
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -32,6 +40,11 @@ async def lifespan(app):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+# Mount xPts Engine router under /api/xg. Import happens here (after sys.path
+# is set at the top of the module) so the xg package's `src.*` imports resolve.
+from api.routes import router as xg_router  # noqa: E402 — xg/api/routes.py
+app.include_router(xg_router, prefix="/api/xg")
 
 # Serve static files (logos etc.) — absolute path works on Render
 _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1550,6 +1563,16 @@ def dashboard():
         with open(path, encoding="utf-8") as f:
             return HTMLResponse(f.read())
     return HTMLResponse("<h1>Eroare: templates/mockup.html lipseste din repo!</h1>", status_code=500)
+
+
+@app.get("/xpts")
+def xpts_page():
+    base = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base, "xpts.html")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return HTMLResponse(f.read())
+    return HTMLResponse("<h1>Eroare: xpts.html lipseste din repo!</h1>", status_code=500)
 
 
 @app.get("/old")
