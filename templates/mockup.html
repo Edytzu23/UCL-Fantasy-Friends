@@ -5467,6 +5467,16 @@ function switchMatchTab(tabEl, tabName) {
   } catch(e) {
     console.warn('[MD] Could not fetch live schedule, using default MD');
   }
+  // Backend applies MD-1 fallback when current MD hasn't started yet (pre-deadline).
+  // Call /api/data without ?md so the backend decides the effective display MD.
+  try {
+    const dataRes = await fetch('/api/data');
+    const initialData = await dataRes.json();
+    if (initialData.matchday && !initialData.error) {
+      MD = initialData.matchday;
+      mdCache[MD] = initialData;
+    }
+  } catch(e) { /* silent */ }
   document.getElementById('mdLabel').textContent = `MD ${MD}`;
   renderNavFixtures(); // shows "Se încarcă..." placeholder
   loadAllMDs();        // load current MD first, then preload all others into cache
