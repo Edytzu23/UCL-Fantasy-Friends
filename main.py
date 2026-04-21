@@ -46,6 +46,35 @@ app = FastAPI(lifespan=lifespan)
 from api.routes import router as xg_router  # noqa: E402 — xg/api/routes.py
 app.include_router(xg_router, prefix="/api/xg")
 
+
+@app.get("/api/xg-debug")
+def xg_debug():
+    """Temporary diagnostic: surface xg DB path + file existence so we can
+    see what's actually failing on Vercel. Remove once /api/xg is healthy."""
+    import traceback, sqlite3
+    from src.config import DB_PATH  # type: ignore
+    info = {
+        "xg_dir": _XG_DIR,
+        "xg_dir_exists": os.path.isdir(_XG_DIR),
+        "db_path": DB_PATH,
+        "db_exists": os.path.isfile(DB_PATH),
+        "xg_tree": None,
+        "competitions_query": None,
+        "error": None,
+    }
+    try:
+        if os.path.isdir(_XG_DIR):
+            info["xg_tree"] = sorted(os.listdir(_XG_DIR))
+        from src.db import connection as xgdb  # type: ignore
+        info["read_only"] = xgdb.READ_ONLY
+        conn = xgdb.get_connection()
+        rows = conn.execute("SELECT id, name FROM competitions LIMIT 5").fetchall()
+        info["competitions_query"] = [dict(r) for r in rows]
+        conn.close()
+    except Exception as e:
+        info["error"] = f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
+    return JSONResponse(info)
+
 # Serve static files (logos etc.) — absolute path works on Render
 _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app.mount("/static", StaticFiles(directory=os.path.join(_BASE_DIR, "static")), name="static")
