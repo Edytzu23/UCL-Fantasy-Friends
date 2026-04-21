@@ -214,8 +214,8 @@ a { color: inherit; text-decoration: none; }
 
 /* DOSSIER CANVAS */
 .canvas {
-  overflow-y: auto; padding: 0;
-  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.08) transparent;
+  overflow: hidden; padding: 0;
+  display: flex; flex-direction: column;
 }
 .canvas::-webkit-scrollbar { width: 4px; }
 .canvas::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 3px; }
@@ -235,10 +235,9 @@ a { color: inherit; text-decoration: none; }
 
 /* HERO */
 .hero {
-  padding: 28px 32px 24px;
+  flex: 1; min-height: 0;
   border-bottom: 1px solid var(--border);
-  display: grid; grid-template-columns: 1fr 1.3fr;
-  gap: 32px; align-items: stretch;
+  display: grid; grid-template-columns: 1fr 1.4fr;
   background:
     radial-gradient(ellipse 60% 80% at 0% 0%, rgba(239,83,80,.08), transparent 60%),
     linear-gradient(180deg, rgba(255,87,34,.03), transparent);
@@ -251,10 +250,29 @@ a { color: inherit; text-decoration: none; }
     repeating-linear-gradient(0deg, rgba(245,158,11,.02) 0 1px, transparent 1px 40px);
   pointer-events: none;
 }
+.hero-col-left {
+  padding: 28px 28px 24px 32px;
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  position: relative; z-index: 1;
+  overflow-y: auto;
+}
+.hero-col-right {
+  padding: 28px 32px 24px 28px;
+  display: flex; flex-direction: column; gap: 20px;
+  position: relative; z-index: 1;
+  overflow-y: auto;
+}
 .hero-xpts {
   display: flex; flex-direction: column; justify-content: space-between;
-  position: relative; z-index: 1;
 }
+.comp-panel {
+  margin-top: 20px; padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.comp-panel .sec-head,
+.prob-panel .sec-head { margin-bottom: 12px; }
+.hero-col-right .prob-grid { grid-template-columns: 1fr; }
 .hero-id {
   display: flex; align-items: center; gap: 10px;
 }
@@ -1079,76 +1097,80 @@ function renderCanvas(p) {
   document.getElementById('canvas').innerHTML = `
     <div class="hero">
       <div class="hero-bg-logo" style="background-image:url('${logoUrl(myTeamId)}')"></div>
-      <div class="hero-xpts">
-        <div>
-          <div class="hero-id">
-            <div class="hero-pos ${pos}">${escapeHtml(p.position || '')}</div>
-            <div class="hero-club">${escapeHtml(myTeam)}</div>
-          </div>
-          <div class="hero-name">${escapeHtml(p.player_name)}</div>
-          <div class="hero-sub">${compLabel} · ${escapeHtml(myTeamCode || '')} ${isHome ? 'vs' : '@'} ${escapeHtml(oppCode || '—')}</div>
-        </div>
-        <div>
-          <div class="hero-xpts-big">
-            <div class="hero-xpts-n">${xp.toFixed(2)}</div>
-            <div class="hero-xpts-lbl">xPts<br/>adj.</div>
-          </div>
-          <div class="hero-sub-scores">
-            <div class="hero-sub-score">
-              <span class="hero-sub-score-lbl">Raw</span>
-              <span class="hero-sub-score-val">${raw.toFixed(2)}</span>
-            </div>
-            <div class="hero-sub-score">
-              <span class="hero-sub-score-lbl">Last 5 adj.</span>
-              <span class="hero-sub-score-val">${xpLast5 != null ? xpLast5.toFixed(2) : '—'}</span>
-            </div>
-          </div>
-          <div class="fac-pills">
-            ${factorPill('COMP', compF)}
-            ${factorPill(`OPP (${escapeHtml(oppCode || '—')})`, oppF)}
-          </div>
-        </div>
-      </div>
-      <div class="fixture-card">
-        <div class="fix-meta">
-          <span class="stage">${escapeHtml(stageTxt)}</span>
-          <span>${escapeHtml(fixDate)}</span>
-        </div>
-        <div class="fix-teams">
-          <div class="fix-team">
-            <div class="fix-crest ${isHome ? 'home' : 'away'}">${logoImg(myTeamId, myTeamCode, '')}</div>
-            <div class="fix-teamname">${escapeHtml(myTeam)}</div>
-            <div class="fix-role">${isHome ? 'Home' : 'Away'} · ${escapeHtml(p.player_name.split(' ').pop())}</div>
-          </div>
-          <div class="fix-vs">vs</div>
-          <div class="fix-team">
-            <div class="fix-crest ${isHome ? 'away' : 'home'}">${logoImg(oppId, oppCode, '')}</div>
-            <div class="fix-teamname">${escapeHtml(oppTeam)}</div>
-            <div class="fix-role">${isHome ? 'Away' : 'Home'}</div>
-          </div>
-        </div>
-        <div class="fix-analysis" id="fixAnalysis">
-          <div class="fix-analysis-tag neutral">${escapeHtml(initContext)}</div>
-        </div>
-      </div>
-    </div>
 
-    <div class="section">
-      <div class="sec-head">
-        <div class="sec-title">Component breakdown</div>
-        <div class="sec-div"></div>
-        <div class="sec-meta">Adjusted total ${xp.toFixed(2)}</div>
+      <div class="hero-col-left">
+        <div class="hero-xpts">
+          <div>
+            <div class="hero-id">
+              <div class="hero-pos ${pos}">${escapeHtml(p.position || '')}</div>
+              <div class="hero-club">${escapeHtml(myTeam)}</div>
+            </div>
+            <div class="hero-name">${escapeHtml(p.player_name)}</div>
+            <div class="hero-sub">${compLabel} · ${escapeHtml(myTeamCode || '')} ${isHome ? 'vs' : '@'} ${escapeHtml(oppCode || '—')}</div>
+          </div>
+          <div>
+            <div class="hero-xpts-big">
+              <div class="hero-xpts-n">${xp.toFixed(2)}</div>
+              <div class="hero-xpts-lbl">xPts<br/>adj.</div>
+            </div>
+            <div class="hero-sub-scores">
+              <div class="hero-sub-score">
+                <span class="hero-sub-score-lbl">Raw</span>
+                <span class="hero-sub-score-val">${raw.toFixed(2)}</span>
+              </div>
+              <div class="hero-sub-score">
+                <span class="hero-sub-score-lbl">Last 5 adj.</span>
+                <span class="hero-sub-score-val">${xpLast5 != null ? xpLast5.toFixed(2) : '—'}</span>
+              </div>
+            </div>
+            <div class="fac-pills">
+              ${factorPill('COMP', compF)}
+              ${factorPill(`OPP (${escapeHtml(oppCode || '—')})`, oppF)}
+            </div>
+          </div>
+        </div>
+        <div class="comp-panel">
+          <div class="sec-head">
+            <div class="sec-title">Component breakdown</div>
+            <div class="sec-div"></div>
+            <div class="sec-meta">Adjusted total ${xp.toFixed(2)}</div>
+          </div>
+          <div class="comp-grid">${compHtml}</div>
+        </div>
       </div>
-      <div class="comp-grid">${compHtml}</div>
-    </div>
 
-    <div class="section">
-      <div class="sec-head">
-        <div class="sec-title">Probability model</div>
-        <div class="sec-div"></div>
-        <div class="sec-meta">Baseline + form</div>
+      <div class="hero-col-right">
+        <div class="fixture-card">
+          <div class="fix-meta">
+            <span class="stage">${escapeHtml(stageTxt)}</span>
+            <span>${escapeHtml(fixDate)}</span>
+          </div>
+          <div class="fix-teams">
+            <div class="fix-team">
+              <div class="fix-crest ${isHome ? 'home' : 'away'}">${logoImg(myTeamId, myTeamCode, '')}</div>
+              <div class="fix-teamname">${escapeHtml(myTeam)}</div>
+              <div class="fix-role">${isHome ? 'Home' : 'Away'} · ${escapeHtml(p.player_name.split(' ').pop())}</div>
+            </div>
+            <div class="fix-vs">vs</div>
+            <div class="fix-team">
+              <div class="fix-crest ${isHome ? 'away' : 'home'}">${logoImg(oppId, oppCode, '')}</div>
+              <div class="fix-teamname">${escapeHtml(oppTeam)}</div>
+              <div class="fix-role">${isHome ? 'Away' : 'Home'}</div>
+            </div>
+          </div>
+          <div class="fix-analysis" id="fixAnalysis">
+            <div class="fix-analysis-tag neutral">${escapeHtml(initContext)}</div>
+          </div>
+        </div>
+        <div class="prob-panel">
+          <div class="sec-head">
+            <div class="sec-title">Probability model</div>
+            <div class="sec-div"></div>
+            <div class="sec-meta">Baseline + form</div>
+          </div>
+          <div class="prob-grid">${probHtml}</div>
+        </div>
       </div>
-      <div class="prob-grid">${probHtml}</div>
     </div>
 
     <div class="ledger collapsed" id="ledger">
