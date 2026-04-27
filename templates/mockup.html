@@ -3269,6 +3269,164 @@ body::before {
 }
 .pm-retry-btn:hover { background: rgba(255,87,34,.18); }
 
+/* ── BEST REPLACEMENTS POPUP ─────────────────────────────────────── */
+.fm-pitch .fm-pc { cursor: pointer; }
+.rep-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,12,20,.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: repFade 180ms ease;
+}
+.rep-overlay[hidden] { display: none; }
+@keyframes repFade { from { opacity: 0; } to { opacity: 1; } }
+.rep-modal {
+  position: relative;
+  width: min(880px, 94vw);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,87,34,.06), transparent 50%),
+    radial-gradient(circle at 80% 100%, rgba(0,240,255,.05), transparent 55%),
+    linear-gradient(180deg, #0f1320, #0a0c14);
+  border: 1px solid rgba(0,240,255,.22);
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px rgba(255,87,34,.12),
+    0 20px 60px rgba(0,0,0,.7),
+    0 0 80px rgba(0,240,255,.08);
+  padding: 20px 22px 22px;
+  animation: repPop 220ms cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes repPop {
+  from { opacity: 0; transform: translateY(8px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.rep-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  color: #cfd3dd;
+  font-size: 18px; line-height: 1;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+.rep-close:hover { background: rgba(255,87,34,.85); color: #fff; border-color: rgba(255,87,34,.9); }
+.rep-close:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+.rep-close:active { transform: scale(.94); }
+.rep-hdr {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 14px;
+  padding-right: 36px;
+}
+.rep-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 2.2px; text-transform: uppercase;
+  color: #FF5722;
+}
+.rep-sub {
+  font-size: 12px;
+  color: #8a90a0;
+  letter-spacing: .4px;
+}
+.rep-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.rep-col-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 1.6px; text-transform: uppercase;
+  color: #00f0ff;
+  padding: 0 0 7px;
+  margin-bottom: 9px;
+  border-bottom: 1px solid rgba(0,240,255,.18);
+}
+.rep-list {
+  display: flex; flex-direction: column;
+  gap: 7px;
+}
+.rep-mc {
+  --posC: #666;
+  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px 8px 11px;
+  background: #11151f;
+  border-radius: 7px;
+  border-left: 3px solid var(--posC);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.5),
+    inset 0 0 0 1px rgba(255,255,255,.03);
+  overflow: hidden;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.rep-mc:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.6),
+    0 0 0 1px color-mix(in srgb, var(--posC) 40%, transparent),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.rep-mc-bg {
+  position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
+  width: 56px; height: 56px;
+  opacity: .09; pointer-events: none;
+}
+.rep-mc-bg img { width: 100%; height: 100%; object-fit: contain; }
+.rep-mc-rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  color: var(--posC);
+  min-width: 14px;
+  opacity: .85;
+}
+.rep-mc-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
+.rep-mc-n {
+  font-size: 12.5px; font-weight: 600;
+  color: #e8eaf0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: .2px;
+}
+.rep-mc-team {
+  font-size: 9.5px; color: #6f7585;
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-top: 1px;
+}
+.rep-mc-meta {
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 1px;
+  position: relative; z-index: 1;
+}
+.rep-mc-xp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700;
+  color: #00f0ff;
+  letter-spacing: .3px;
+}
+.rep-mc-pp {
+  font-size: 9px; color: #6f7585;
+  letter-spacing: .6px;
+}
+.rep-skel, .rep-empty, .rep-err {
+  font-size: 11px;
+  color: #6f7585;
+  text-align: center;
+  padding: 14px 8px;
+  letter-spacing: .4px;
+}
+.rep-skel { animation: repPulse 1.2s ease-in-out infinite; }
+.rep-err { color: rgba(239,83,80,.85); }
+@keyframes repPulse { 0%,100% { opacity: .35; } 50% { opacity: .85; } }
+@media (max-width: 720px) {
+  .rep-cols { grid-template-columns: 1fr; gap: 12px; }
+  .rep-modal { padding: 18px 16px 18px; }
+}
+
 </style>
 </head>
 <body>
@@ -3579,6 +3737,7 @@ async function loadApiData(md) {
         const mapped = {
           id: p.id,
           name: p.name || p.fullName || '',
+          fullName: p.fullName || p.name || '',
           posCode: p.posCode || '',
           teamCode: p.teamCode || '',
           pts: p.mdPoints || 0,
@@ -3896,7 +4055,7 @@ function renderPitch() {
       const pts = p.pts || 0;
       const shortName = p.name.includes(' ') ? p.name.split(' ').pop() : p.name;
       const tier = fireTier(p);
-      return `<div class="fm-pc${p.captain ? ' cap' : ''}${tier ? ' fire-t'+tier : ''}">
+      return `<div class="fm-pc${p.captain ? ' cap' : ''}${tier ? ' fire-t'+tier : ''}" data-pname="${p.name}" data-pfull="${p.fullName || p.name}" data-pos="${p.posCode}" data-team="${p.teamCode}">
         ${fireOuterHtml(tier)}
         ${p.captain ? '<div class="fm-cap-badge">\u00A9</div>' : ''}
         <div class="fm-pc-body">
@@ -3993,6 +4152,116 @@ function renderPitch() {
   // Card entry stagger on pitch cards
   staggerCardEntry(document.getElementById('fmLeft'));
 }
+
+// ─── BEST REPLACEMENTS POPUP ───
+let _repAbort = null;
+
+(function bindRepHandlers() {
+  const fmLeft = document.getElementById('fmLeft');
+  if (!fmLeft) return;
+  fmLeft.addEventListener('click', e => {
+    const card = e.target.closest('.fm-pitch .fm-pc');
+    if (!card) return;
+    openReplacementsModal({
+      name: card.dataset.pname,
+      fullName: card.dataset.pfull,
+      posCode: card.dataset.pos,
+      teamCode: card.dataset.team
+    });
+  });
+})();
+
+async function openReplacementsModal({ name, fullName, posCode, teamCode }) {
+  const ov = document.getElementById('repOverlay');
+  if (!ov) return;
+  ov.hidden = false;
+  document.getElementById('repSub').textContent = name + ' · ' + posCode;
+  ['repMD','repOV','repL5'].forEach(id => {
+    document.getElementById(id).innerHTML = '<div class="rep-skel">Se incarca...</div>';
+  });
+
+  if (_repAbort) _repAbort.abort();
+  _repAbort = new AbortController();
+  const sig = _repAbort.signal;
+
+  const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  const roster = (ROSTERS && selectedMgr && ROSTERS[selectedMgr]) || {};
+  const squadKeys = new Set(
+    [...(roster.starters || []), ...(roster.bench || [])].map(p => norm(p.fullName || p.name))
+  );
+
+  const base = '/api/xg/rankings?competition_id=1&scoring_system=ucl&position=' + encodeURIComponent(posCode) + '&limit=200';
+  const urls = [
+    base,
+    base + '&aggregate=true&form_filter=season',
+    base + '&aggregate=true&form_filter=last5'
+  ];
+  const ids = ['repMD','repOV','repL5'];
+  const results = await Promise.allSettled(
+    urls.map(u => fetch(u, { signal: sig }).then(r => r.ok ? r.json() : Promise.reject(r.status)))
+  );
+  if (sig.aborted) return;
+  results.forEach((r, i) => {
+    const el = document.getElementById(ids[i]);
+    if (!el) return;
+    if (r.status === 'fulfilled') {
+      renderRepCol(el, filterTopReplacements(r.value, squadKeys));
+    } else {
+      el.innerHTML = '<div class="rep-err">Eroare la incarcare</div>';
+    }
+  });
+}
+
+function filterTopReplacements(arr, squadKeys) {
+  const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  return (Array.isArray(arr) ? arr : [])
+    .filter(p => p && p.player_name && !squadKeys.has(norm(p.player_name)))
+    .sort((a, b) => (b.xpts_adjusted || 0) - (a.xpts_adjusted || 0))
+    .slice(0, 5);
+}
+
+function renderRepCol(el, players) {
+  if (!players.length) {
+    el.innerHTML = '<div class="rep-empty">Niciun candidat</div>';
+    return;
+  }
+  const posC = { GK:'#FFB300', DEF:'#4CAF50', MID:'#42A5F5', FWD:'#EF5350' };
+  el.innerHTML = players.map((p, i) => {
+    const short = (p.player_name || '').includes(' ') ? p.player_name.split(' ').pop() : (p.player_name || '');
+    const xp = (p.xpts_adjusted || 0).toFixed(1);
+    const pp = Math.round((p.prob_play || 0) * 100);
+    const tc = (p.team_code || '').toUpperCase();
+    const c = posC[p.position] || '#666';
+    return '<div class="rep-mc" style="--posC:' + c + '">'
+      + '<div class="rep-mc-bg"><img src="/static/logos/' + tc + '.png" alt="" onerror="this.style.display=\'none\'"/></div>'
+      + '<span class="rep-mc-rank">' + (i + 1) + '</span>'
+      + '<div class="rep-mc-info"><div class="rep-mc-n">' + short + '</div>'
+      + '<div class="rep-mc-team">' + tc + '</div></div>'
+      + '<div class="rep-mc-meta"><span class="rep-mc-xp">' + xp + '</span>'
+      + '<span class="rep-mc-pp">' + pp + '% PP</span></div>'
+    + '</div>';
+  }).join('');
+}
+
+function closeReplacementsModal() {
+  const ov = document.getElementById('repOverlay');
+  if (!ov || ov.hidden) return;
+  if (_repAbort) { _repAbort.abort(); _repAbort = null; }
+  ov.hidden = true;
+}
+
+document.addEventListener('click', e => {
+  const ov = document.getElementById('repOverlay');
+  if (!ov || ov.hidden) return;
+  if (e.target === ov || e.target.classList.contains('rep-close')) {
+    closeReplacementsModal();
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const ov = document.getElementById('repOverlay');
+  if (ov && !ov.hidden) closeReplacementsModal();
+});
 
 // ─── INTERACTIONS ───
 function selectMgr(guid) {
@@ -6641,6 +6910,21 @@ function _pmPlayerTable(team) {
   setTimeout(() => tourShow(0), 1500);
 })();
 </script>
+
+<div id="repOverlay" class="rep-overlay" hidden>
+  <div class="rep-modal" role="dialog" aria-modal="true">
+    <button class="rep-close" type="button" aria-label="Inchide">×</button>
+    <div class="rep-hdr">
+      <span class="rep-title">BEST REPLACEMENTS</span>
+      <span class="rep-sub" id="repSub"></span>
+    </div>
+    <div class="rep-cols">
+      <div class="rep-col"><div class="rep-col-h">Top etapa</div><div class="rep-list" id="repMD"></div></div>
+      <div class="rep-col"><div class="rep-col-h">Top overall</div><div class="rep-list" id="repOV"></div></div>
+      <div class="rep-col"><div class="rep-col-h">Top last 5</div><div class="rep-list" id="repL5"></div></div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
