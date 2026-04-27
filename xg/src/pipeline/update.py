@@ -574,7 +574,9 @@ def _last5_form_input(player_id, season_input, season_stats_row):
     """Build last-5 form input dict matching build_player_input() shape.
 
     Strategy:
-      - Pull last 5 matches with minutes >= 15 from player_match_performance
+      - Find the team's last 5 match dates (not the player's last 5 appearances)
+        so substitutes who play limited minutes still get their recent form counted.
+      - Pull the player's stats in those 5 team games (any minutes > 0).
       - Real fields: minutes (for recent_minutes), yellow/red card rates
       - For npxg_per90 / xa_per90 / saves_per90 / recoveries_per90:
         apply a form_multiplier derived from (actual G+A) vs (expected G+A
@@ -583,16 +585,42 @@ def _last5_form_input(player_id, season_input, season_stats_row):
     insufficient data.
     """
     conn = db.get_connection()
-    matches = conn.execute("""
-        SELECT minutes, goals, assists, yellow_cards, red_cards, clean_sheet
-        FROM player_match_performance
-        WHERE player_id = ? AND minutes >= 15
-        ORDER BY match_date DESC
-        LIMIT 5
-    """, (player_id,)).fetchall()
+
+    # Determine team so we can anchor to team's last 5 fixtures
+    team_row = conn.execute("SELECT team_id FROM players WHERE id = ?", (player_id,)).fetchone()
+    team_id = team_row["team_id"] if team_row else None
+
+    if team_id:
+        matches = conn.execute("""
+            WITH team_last5 AS (
+                SELECT DISTINCT pmp.match_date
+                FROM player_match_performance pmp
+                JOIN players p2 ON p2.id = pmp.player_id
+                WHERE p2.team_id = ?
+                ORDER BY pmp.match_date DESC
+                LIMIT 5
+            )
+            SELECT pmp.minutes, pmp.goals, pmp.assists,
+                   pmp.yellow_cards, pmp.red_cards, pmp.clean_sheet
+            FROM player_match_performance pmp
+            WHERE pmp.player_id = ?
+              AND pmp.match_date IN (SELECT match_date FROM team_last5)
+              AND pmp.minutes > 0
+            ORDER BY pmp.match_date DESC
+        """, (team_id, player_id)).fetchall()
+    else:
+        # Fallback when team_id is missing
+        matches = conn.execute("""
+            SELECT minutes, goals, assists, yellow_cards, red_cards, clean_sheet
+            FROM player_match_performance
+            WHERE player_id = ? AND minutes > 0
+            ORDER BY match_date DESC
+            LIMIT 5
+        """, (player_id,)).fetchall()
+
     conn.close()
 
-    if len(matches) < 2:
+    if len(matches) < 1:
         return None, None
 
     total_mins = sum(m["minutes"] for m in matches) or 0
