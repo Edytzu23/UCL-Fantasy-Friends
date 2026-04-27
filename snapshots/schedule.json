@@ -9,7 +9,7 @@
     {
       "time": "23:45",
       "label": "FTM1",
-      "fired": false
+      "fired": true
     },
     {
       "time": "22:45",
