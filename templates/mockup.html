@@ -528,7 +528,34 @@ body::before {
 }
 .cls-pts.pts-etapa { color: var(--fire); }
 .cls-pts.pts-overall { color: #4CAF50; }
-.cls-pts.pts-ps5 { color: var(--text); }
+.cls-pts.pts-ps5 { color: var(--neon); }
+
+/* PS5 best-ever: rank stacked over the MD where it happened (clickable) */
+.cls-pts-ps5 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  cursor: pointer;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  border-radius: 6px;
+  transition: background 160ms var(--ease-out), transform 120ms var(--spring-fast);
+}
+.cls-pts-ps5:hover {
+  background: rgba(0,240,255,.08);
+}
+.cls-pts-ps5:active { transform: scale(.96); }
+.cls-pts-md {
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  font-weight: var(--weight-semi);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: var(--lh-none);
+}
+.cls-pts-ps5:hover .cls-pts-md { color: var(--sub); }
 
 /* ─── CENTER PANEL ─── */
 .center-panel {
@@ -3349,68 +3376,44 @@ body::before {
 }
 .rep-list {
   display: flex; flex-direction: column;
-  gap: 7px;
+  gap: 10px;
+  align-items: center;
 }
-.rep-mc {
-  --posC: #666;
-  position: relative;
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 10px 8px 11px;
-  background: #11151f;
-  border-radius: 7px;
-  border-left: 3px solid var(--posC);
-  box-shadow:
-    0 2px 6px rgba(0,0,0,.5),
-    inset 0 0 0 1px rgba(255,255,255,.03);
-  overflow: hidden;
-  transition: transform 160ms ease, box-shadow 160ms ease;
+/* Rep cards reuse the .fm-pc structure (titulari look) but stack a small
+   prob-play row underneath and show a position chip in the top-left. */
+.fm-pc.fm-pc-rep {
+  width: 100%;
+  cursor: default;
 }
-.rep-mc:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 4px 12px rgba(0,0,0,.6),
-    0 0 0 1px color-mix(in srgb, var(--posC) 40%, transparent),
-    inset 0 0 0 1px rgba(255,255,255,.04);
+.fm-pc.fm-pc-rep .fm-pc-body {
+  width: 100%;
+  padding-top: 28px;
+  box-sizing: border-box;
 }
-.rep-mc-bg {
-  position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
-  width: 56px; height: 56px;
-  opacity: .09; pointer-events: none;
+.fm-pc-rep-rank {
+  position: absolute; top: 6px; right: 8px; z-index: 2;
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--ls-wide);
+  color: var(--muted);
+  line-height: var(--lh-none);
 }
-.rep-mc-bg img { width: 100%; height: 100%; object-fit: contain; }
-.rep-mc-rank {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px; font-weight: 700;
-  color: var(--posC);
-  min-width: 14px;
-  opacity: .85;
-}
-.rep-mc-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
-.rep-mc-n {
-  font-size: 12.5px; font-weight: 600;
-  color: #e8eaf0;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  letter-spacing: .2px;
-}
-.rep-mc-team {
-  font-size: 9.5px; color: #6f7585;
-  letter-spacing: 1px; text-transform: uppercase;
-  margin-top: 1px;
-}
-.rep-mc-meta {
-  display: flex; flex-direction: column; align-items: flex-end;
-  gap: 1px;
+.fm-pc.fm-pc-rep .fm-pc-p { font-size: var(--type-title-1); }
+.fm-pc-rep-pp {
   position: relative; z-index: 1;
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: var(--type-caption);
+  font-weight: var(--weight-semi);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--sub);
+  line-height: var(--lh-none);
 }
-.rep-mc-xp {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px; font-weight: 700;
-  color: #00f0ff;
-  letter-spacing: .3px;
-}
-.rep-mc-pp {
-  font-size: 9px; color: #6f7585;
-  letter-spacing: .6px;
+.fm-pc-rep-pp em {
+  font-style: normal;
+  color: var(--text);
 }
 .rep-skel, .rep-empty, .rep-err {
   font-size: 11px;
@@ -3794,6 +3797,16 @@ async function loadApiData(md) {
 
     worldLeader = data.worldLeader || null;
 
+    // Honor a pending PS5 jump: select the requested manager once the
+    // target MD's data is loaded.
+    if (pendingSelectAfterLoad) {
+      const wanted = pendingSelectAfterLoad;
+      pendingSelectAfterLoad = null;
+      if (MANAGERS.find(m => m.guid === wanted)) {
+        selectedMgr = wanted;
+      }
+    }
+
     // Render everything
     renderClasament();
     renderHeader();
@@ -3831,6 +3844,11 @@ async function silentLoad(md) {
     const r = await fetch(`/api/data?md=${md}`);
     const data = await r.json();
     mdCache[md] = data;
+    // If PS5 view is currently shown, re-render so the best-ever ranks update
+    // as more MDs stream in.
+    if (currentSort === 'ps5' && currentTab === 'clasament') {
+      try { renderClasament(); } catch (_) { /* ignore */ }
+    }
   } catch(e) { /* silent fail */ }
 }
 
@@ -3842,6 +3860,33 @@ async function loadAllMDs() {
     await new Promise(r => setTimeout(r, 300));
   }
 }
+
+// ─── PS5 BEST-EVER (across all matchdays) ───
+// For each manager, find the lowest (best) gdRank achieved across every cached
+// MD, plus which MD that was. Used by the PS5 tab in Clasament.
+function getBestPs5Ranks() {
+  const out = {};  // guid -> { bestRank, atMD }
+  for (let md = 1; md <= TOTAL_MDS; md++) {
+    const data = mdCache[md];
+    if (!data || !Array.isArray(data.managers)) continue;
+    data.managers.forEach(m => {
+      const r = m.gdRank;
+      if (!r || r <= 0) return;
+      if (!out[m.guid] || r < out[m.guid].bestRank) {
+        out[m.guid] = { bestRank: r, atMD: md };
+      }
+    });
+  }
+  return out;
+}
+
+function jumpToPs5(md, guid) {
+  // Clicking a PS5 rank: switch to that MD and select the manager.
+  if (!md || !guid) return;
+  pendingSelectAfterLoad = guid;
+  switchMD(md);
+}
+let pendingSelectAfterLoad = null;
 
 // (ROSTERS populated by loadApiData)
 
@@ -3869,6 +3914,17 @@ function getSorted() {
   const m = [...MANAGERS];
   if (currentSort === 'etapa') m.sort((a,b) => b.gdPoints - a.gdPoints);
   else if (currentSort === 'overall') m.sort((a,b) => b.ovPoints - a.ovPoints);
+  else if (currentSort === 'ps5') {
+    // Best-ever gdRank across all MDs, plus the MD where it happened.
+    const best = getBestPs5Ranks();
+    const enriched = m.map(mgr => ({
+      ...mgr,
+      _bestRank: best[mgr.guid] ? best[mgr.guid].bestRank : (mgr.gdRank || Infinity),
+      _bestMD:   best[mgr.guid] ? best[mgr.guid].atMD    : MD
+    }));
+    enriched.sort((a, b) => (a._bestRank || Infinity) - (b._bestRank || Infinity));
+    return enriched;
+  }
   else m.sort((a,b) => a.gdRank - b.gdRank);
   return m;
 }
@@ -3905,17 +3961,34 @@ function renderClasament(targetId, clickable) {
   const myOvPts = myMgr ? myMgr.ovPoints : 0;
   list.innerHTML = sorted.map((m, i) => {
     const rank = i + 1;
-    const pts = currentSort === 'etapa' ? m.gdPoints : currentSort === 'overall' ? m.ovPoints : m.gdRank;
+    const isPs5 = currentSort === 'ps5';
+    const ps5Best = isPs5 ? (m._bestRank && Number.isFinite(m._bestRank) ? m._bestRank : null) : null;
+    const ps5Md = isPs5 ? (m._bestMD || null) : null;
+    const pts = currentSort === 'etapa' ? m.gdPoints
+              : currentSort === 'overall' ? m.ovPoints
+              : (ps5Best != null ? ps5Best : m.gdRank);
     const isMe = m.guid === CURRENT_USER;
     const isActive = m.guid === selectedMgr;
     const rankClass = rank === 1 ? 'cls-rank rank-gold' : rank === 2 ? 'cls-rank rank-silver' : rank === 3 ? 'cls-rank rank-bronze' : 'cls-rank';
     let diffHtml = '';
-    if (!isMe && currentSort !== 'ps5') {
+    if (!isMe && !isPs5) {
       const myPts = currentSort === 'etapa' ? myMdPts : myOvPts;
       const diff = pts - myPts;
       if (diff > 0) diffHtml = `<span class="rank-diff rank-diff-neg">-${diff}</span>`;
       else if (diff < 0) diffHtml = `<span class="rank-diff rank-diff-pos">+${Math.abs(diff)}</span>`;
       else diffHtml = `<span class="rank-diff rank-diff-eq">=</span>`;
+    }
+    let ptsHtml;
+    if (isPs5) {
+      const rankTxt = ps5Best != null ? '#' + ps5Best.toLocaleString() : '—';
+      const mdTxt = ps5Md ? `MD ${ps5Md}` : '';
+      const click = (clickable && ps5Md) ? ` onclick="event.stopPropagation();jumpToPs5(${ps5Md},'${m.guid}')"` : '';
+      ptsHtml = `<div class="cls-pts-ps5"${click}>
+        <span class="cls-pts pts-ps5">${rankTxt}</span>
+        <span class="cls-pts-md">${mdTxt}</span>
+      </div>`;
+    } else {
+      ptsHtml = `<div class="cls-pts pts-${currentSort}">${pts}</div>`;
     }
     return `<div class="cls-row${isActive ? ' active' : ''}${isMe ? ' me' : ''}" data-guid="${m.guid}"${clickable ? ` onclick="selectMgr('${m.guid}')"` : ''}>
       <div class="${rankClass}">${rank}</div>
@@ -3925,7 +3998,7 @@ function renderClasament(targetId, clickable) {
       </div>
       <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
         ${diffHtml}
-        <div class="cls-pts pts-${currentSort}">${currentSort === 'ps5' ? '#' + pts.toLocaleString() : pts}</div>
+        ${ptsHtml}
       </div>
     </div>`;
   }).join('');
@@ -4225,21 +4298,25 @@ function renderRepCol(el, players) {
     el.innerHTML = '<div class="rep-empty">Niciun candidat</div>';
     return;
   }
-  const posC = { GK:'#FFB300', DEF:'#4CAF50', MID:'#42A5F5', FWD:'#EF5350' };
+  const ptsClsXp = xp => xp >= 8 ? 'blaze' : xp >= 5 ? 'hi' : xp <= 1 ? 'zero' : '';
   el.innerHTML = players.map((p, i) => {
-    const short = (p.player_name || '').includes(' ') ? p.player_name.split(' ').pop() : (p.player_name || '');
-    const xp = (p.xpts_adjusted || 0).toFixed(1);
+    const name = p.player_name || '';
+    const short = name.includes(' ') ? name.split(' ').pop() : name;
+    const xpRaw = p.xpts_adjusted || 0;
+    const xp = xpRaw.toFixed(1);
     const pp = Math.round((p.prob_play || 0) * 100);
     const tc = (p.team_code || '').toUpperCase();
-    const c = posC[p.position] || '#666';
-    return '<div class="rep-mc" style="--posC:' + c + '">'
-      + '<div class="rep-mc-bg"><img src="/static/logos/' + tc + '.png" alt="" onerror="this.style.display=\'none\'"/></div>'
-      + '<span class="rep-mc-rank">' + (i + 1) + '</span>'
-      + '<div class="rep-mc-info"><div class="rep-mc-n">' + short + '</div>'
-      + '<div class="rep-mc-team">' + tc + '</div></div>'
-      + '<div class="rep-mc-meta"><span class="rep-mc-xp">' + xp + '</span>'
-      + '<span class="rep-mc-pp">' + pp + '% PP</span></div>'
-    + '</div>';
+    const pos = p.position || 'MID';
+    return `<div class="fm-pc fm-pc-rep">
+      <div class="fm-pc-body">
+        <span class="fm-br-pos ${pos}" style="position:absolute;top:7px;left:7px;z-index:2;">${pos}</span>
+        <span class="fm-pc-rep-rank">#${i + 1}</span>
+        <div class="fm-pc-bg"><img src="/static/logos/${tc}.png" alt="" onerror="this.style.display='none'"/></div>
+        <div class="fm-pc-n">${short}</div>
+        <div class="fm-pc-p ${ptsClsXp(xpRaw)}">${xp}</div>
+        <div class="fm-pc-rep-pp"><em>${pp}%</em> PP</div>
+      </div>
+    </div>`;
   }).join('');
 }
 

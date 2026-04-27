@@ -34,9 +34,17 @@ def get_rankings(
     """
     conn = db.get_connection()
     try:
+        # When filtering by position, prefer fantasy_position (UCL Fantasy
+        # role) and fall back to the data-source position only when the
+        # Fantasy role hasn't been synced for that player. This keeps
+        # wing-backs etc. classified the way the Fantasy game classifies
+        # them; see xg/scripts/sync_fantasy_positions.py.
+        pos_clause = (
+            "(COALESCE(p.fantasy_position, p.position) = ?)"
+        )
         if aggregate and competition_id and not fixture_id:
             # Aggregate: sum xPts across all upcoming fixtures for the competition
-            pos_filter = " AND p.position = ?" if position else ""
+            pos_filter = f" AND {pos_clause}" if position else ""
             team_filter = " AND p.team_id = ?" if team_id else ""
             extra_params = []
             if position:
@@ -48,7 +56,7 @@ def get_rankings(
                 SELECT
                     p.id          AS player_id,
                     p.name        AS player_name,
-                    p.position,
+                    COALESCE(p.fantasy_position, p.position) AS position,
                     t.id          AS team_id,
                     t.name        AS team_name,
                     t.code        AS team_code,
@@ -88,7 +96,7 @@ def get_rankings(
                 wheres.append("f.status = 'scheduled'")
 
             if position:
-                wheres.append("p.position = ?")
+                wheres.append(pos_clause)
                 params.append(position.upper())
 
             if team_id:
@@ -101,7 +109,7 @@ def get_rankings(
                 SELECT
                     p.id          AS player_id,
                     p.name        AS player_name,
-                    p.position,
+                    COALESCE(p.fantasy_position, p.position) AS position,
                     t.id          AS team_id,
                     t.name        AS team_name,
                     t.code        AS team_code,
@@ -245,7 +253,7 @@ def get_players(
             wheres.append("p.team_id = ?")
             params.append(team_id)
         if position:
-            wheres.append("p.position = ?")
+            wheres.append("COALESCE(p.fantasy_position, p.position) = ?")
             params.append(position.upper())
         if league:
             wheres.append("l.name = ?")
@@ -257,7 +265,7 @@ def get_players(
         where_str = ("WHERE " + " AND ".join(wheres)) if wheres else ""
 
         rows = conn.execute(f"""
-            SELECT p.id, p.name, p.position, p.fotmob_id,
+            SELECT p.id, p.name, COALESCE(p.fantasy_position, p.position) AS position, p.fotmob_id,
                    t.id as team_id, t.name as team_name, t.code as team_code,
                    l.name as league,
                    ps.matches, ps.minutes, ps.goals, ps.assists,

@@ -233,7 +233,7 @@ def fetch_public_players(matchday):
             "curGDPts": p.get("curGDPts", 0) or 0,
             "lastGdPts": p.get("lastGdPoints", 0) or 0,
             "goals": p.get("gS", 0) or 0,
-            "assists": p.get("assist", 0) or 0,
+            "assists": p.get("gA", 0) or 0,
             "cleanSheets": p.get("cS", 0) or 0,
             "selPer": p.get("selPer", 0) or 0,
             "value": p.get("value", 0) or 0,

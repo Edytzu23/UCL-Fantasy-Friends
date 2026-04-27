@@ -47,17 +47,24 @@ CREATE TABLE IF NOT EXISTS competition_teams (
 );
 
 -- ── Players ───────────────────────────────────────────────────────────
+-- `position` is the data-source position (FotMob/FBref). `fantasy_position`
+-- is the UCL Fantasy game's position (synced from the public players feed
+-- via xg/scripts/sync_fantasy_positions.py). Filters surfaced to the
+-- frontend should prefer fantasy_position so wing-backs etc. line up with
+-- how the UCL Fantasy game classifies them.
 CREATE TABLE IF NOT EXISTS players (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT    NOT NULL,
-    team_id     INTEGER REFERENCES teams(id),
-    position    TEXT    CHECK(position IN ('GK', 'DEF', 'MID', 'FWD')),
-    fotmob_id   INTEGER,
-    fbref_id    TEXT,
-    updated_at  TEXT    DEFAULT (datetime('now'))
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    name              TEXT    NOT NULL,
+    team_id           INTEGER REFERENCES teams(id),
+    position          TEXT    CHECK(position IN ('GK', 'DEF', 'MID', 'FWD')),
+    fantasy_position  TEXT    CHECK(fantasy_position IN ('GK', 'DEF', 'MID', 'FWD')),
+    fotmob_id         INTEGER,
+    fbref_id          TEXT,
+    updated_at        TEXT    DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_players_team ON players(team_id);
 CREATE INDEX IF NOT EXISTS idx_players_fotmob ON players(fotmob_id);
+CREATE INDEX IF NOT EXISTS idx_players_fpos ON players(fantasy_position);
 
 -- ── Player Stats (per season per competition source) ──────────────────
 -- One row per player per season per source league.
