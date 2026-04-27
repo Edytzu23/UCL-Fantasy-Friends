@@ -1429,7 +1429,7 @@ def get_data(md: int = None):
             live_data = live_entry.get("data") if isinstance(live_entry, dict) else None
             if live_data is None:
                 live_data = load_md_cache(md)
-            if isinstance(live_data, dict) and live_data.get("mdStarted") is False:
+            if live_data is None or (isinstance(live_data, dict) and live_data.get("mdStarted") is False):
                 md = md - 1
     current_md = get_current_matchday()
     is_current = (md == current_md)
