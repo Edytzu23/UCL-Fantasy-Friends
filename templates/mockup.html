@@ -325,10 +325,16 @@ body::before {
   border: 1px solid var(--border);
   border-radius: var(--rsm);
   padding: 4px;
-  min-width: 140px;
+  min-width: 160px;
+  max-height: 60vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.12) transparent;
   box-shadow: 0 12px 40px rgba(0,0,0,.5);
   z-index: 200;
 }
+.md-dropdown::-webkit-scrollbar { width: 4px; }
+.md-dropdown::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
 .md-dropdown.open { display: block; }
 .md-drop-item {
   padding: 7px 12px;
@@ -338,8 +344,14 @@ body::before {
   border-radius: 6px;
   cursor: pointer;
   transition: background .15s, color .15s;
+  white-space: nowrap;
 }
 .md-drop-item:hover { background: rgba(255,255,255,.06); color: var(--text); }
+.md-drop-item.active {
+  background: rgba(255,87,34,.12);
+  color: var(--fire);
+  font-weight: var(--weight-bold);
+}
 
 .nav-icon-btn {
   width: 44px; height: 44px;
@@ -3460,20 +3472,7 @@ body::before {
       <div class="md-current"><span class="dot"></span> <span id="mdLabel">MD 12 (MD Curent)</span></div>
       <div class="md-istoric" onclick="toggleDropdown()">
         Istoric MD
-        <div class="md-dropdown" id="mdDropdown">
-          <div class="md-drop-item" onclick="switchMD(12)">MD 12</div>
-          <div class="md-drop-item" onclick="switchMD(11)">MD 11</div>
-          <div class="md-drop-item" onclick="switchMD(10)">MD 10</div>
-          <div class="md-drop-item" onclick="switchMD(9)">MD 9</div>
-          <div class="md-drop-item" onclick="switchMD(8)">MD 8</div>
-          <div class="md-drop-item" onclick="switchMD(7)">MD 7</div>
-          <div class="md-drop-item" onclick="switchMD(6)">MD 6</div>
-          <div class="md-drop-item" onclick="switchMD(5)">MD 5</div>
-          <div class="md-drop-item" onclick="switchMD(4)">MD 4</div>
-          <div class="md-drop-item" onclick="switchMD(3)">MD 3</div>
-          <div class="md-drop-item" onclick="switchMD(2)">MD 2</div>
-          <div class="md-drop-item" onclick="switchMD(1)">MD 1</div>
-        </div>
+        <div class="md-dropdown" id="mdDropdown"></div>
       </div>
     </div>
     <div id="liveIndicator" style="display:none;"><span class="live-dot"></span>LIVE</div>
@@ -3661,6 +3660,11 @@ body::before {
 <script>
 // ─── DATA ───
 let MD = 12;
+// LIVE_MD = the actual current matchday (the live one). MD tracks whichever
+// MD the user is currently viewing (which can be any past MD via switchMD).
+// The "Istoric MD" dropdown is sized off LIVE_MD so it auto-grows as the
+// season advances — no hardcoded list to maintain.
+let LIVE_MD = 12;
 let MANAGERS = [];
 let ROSTERS = {};
 let CURRENT_USER = null;
@@ -3836,6 +3840,21 @@ function switchMD(newMd) {
   statsDrawerLoaded = false;
   loadApiData(newMd);
   loadFixturesFromAPI();
+  renderMdDropdown();  // re-render so the .current highlight follows MD
+}
+
+// Build the "Istoric MD" dropdown dynamically. Items are 1..LIVE_MD descending
+// (clamped to TOTAL_MDS). The currently-viewed MD gets the .current marker.
+function renderMdDropdown() {
+  const dd = document.getElementById('mdDropdown');
+  if (!dd) return;
+  const top = Math.max(1, Math.min(LIVE_MD || MD || 1, TOTAL_MDS));
+  let html = '';
+  for (let i = top; i >= 1; i--) {
+    const isActive = i === MD;
+    html += `<div class="md-drop-item${isActive ? ' active' : ''}" onclick="switchMD(${i})">MD ${i}${i === LIVE_MD ? ' · curent' : ''}</div>`;
+  }
+  dd.innerHTML = html;
 }
 
 async function silentLoad(md) {
@@ -5809,7 +5828,7 @@ function switchMatchTab(tabEl, tabName) {
   try {
     const res = await fetch('/api/live-schedule');
     const sched = await res.json();
-    if (sched.matchday > 0) MD = sched.matchday;
+    if (sched.matchday > 0) { MD = sched.matchday; LIVE_MD = sched.matchday; }
   } catch(e) {
     console.warn('[MD] Could not fetch live schedule, using default MD');
   }
@@ -5820,10 +5839,12 @@ function switchMatchTab(tabEl, tabName) {
     const initialData = await dataRes.json();
     if (initialData.matchday && !initialData.error) {
       MD = initialData.matchday;
+      LIVE_MD = Math.max(LIVE_MD, initialData.matchday);
       mdCache[MD] = initialData;
     }
   } catch(e) { /* silent */ }
   document.getElementById('mdLabel').textContent = `MD ${MD}`;
+  renderMdDropdown();
   renderNavFixtures(); // shows "Se încarcă..." placeholder
   loadAllMDs();        // load current MD first, then preload all others into cache
   loadFixturesFromAPI(); // fetch UEFA fixtures
