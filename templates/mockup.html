@@ -3489,22 +3489,22 @@ body::before {
     rgba(15,18,30,.55);
   border: 1px solid color-mix(in srgb, var(--mgr-color) 35%, rgba(255,255,255,.06));
   border-bottom: none;
-  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   text-align: center;
   box-shadow: 0 12px 30px rgba(0,0,0,.5);
 }
 .trf-plinth--1st {
-  height: 270px;
+  height: 220px;
   border-color: rgba(255,87,34,.55);
   background:
     linear-gradient(180deg, rgba(255,87,34,.18) 0%, color-mix(in srgb, var(--mgr-color) 18%, transparent) 50%, rgba(15,18,30,.4) 100%),
     rgba(15,18,30,.55);
   animation: trfFire 3s ease-in-out infinite;
 }
-.trf-plinth--2nd { height: 220px; border-color: rgba(0,240,255,.45); }
-.trf-plinth--3rd { height: 190px; border-color: rgba(184,115,51,.5); }
+.trf-plinth--2nd { height: 185px; border-color: rgba(0,240,255,.45); }
+.trf-plinth--3rd { height: 160px; border-color: rgba(184,115,51,.5); }
 .trf-plinth--empty {
-  width: 200px; height: 190px;
+  width: 200px; height: 160px;
   border: 1px dashed rgba(255,255,255,.08);
   border-bottom: none; border-radius: 14px 14px 0 0;
   opacity: .5;
@@ -3564,11 +3564,11 @@ body::before {
 }
 .trf-plinth-pts {
   font-family: var(--font-display);
-  font-size: var(--type-title-1);
+  font-size: 2.4rem;
   font-weight: var(--weight-heavy);
   letter-spacing: var(--ls-tight);
+  font-variant-numeric: tabular-nums;
   color: #fff;
-  margin-top: auto;
   text-shadow: 0 2px 8px rgba(0,0,0,.5);
 }
 .trf-plinth--1st .trf-plinth-pts { color: #FFE082; text-shadow: 0 0 14px rgba(255,87,34,.45); }
@@ -3616,11 +3616,11 @@ body::before {
 .trf-card {
   --cat-accent: var(--text);
   background:
-    linear-gradient(180deg, rgba(15,18,30,.7), rgba(10,12,20,.55)),
-    rgba(15,18,30,.5);
+    linear-gradient(180deg, rgba(40,46,66,.55), rgba(28,32,48,.45)),
+    rgba(28,32,48,.4);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
   border-radius: 12px;
   padding: 14px 16px 12px;
   position: relative;
@@ -3660,7 +3660,8 @@ body::before {
 .trf-card-sub {
   font-family: var(--font-body);
   font-size: var(--type-caption);
-  color: var(--muted);
+  color: rgba(255,255,255,.85);
+  font-weight: 500;
   letter-spacing: 0.02em;
   margin-top: 2px;
 }
@@ -6016,6 +6017,7 @@ const TRF_CATEGORIES = [
   { id:'capPts',    title:'Mâna Regelui',                  sub:'Total puncte aduse de căpitani',          kind:'pts',    accent:'fire', cap:true },
   { id:'benchLost', title:'Aurul Băncii',                  sub:'Puncte rămase pe bancă',                  kind:'pts',    accent:'gold', bench:true },
   { id:'bestMd',    title:'Lovitura de Maestru',           sub:'Cel mai mare scor într-un singur MD',     kind:'best',   accent:'fire' },
+  { id:'bombardier',title:'Bombardierul',                  sub:'Cel mai bun jucător titular (puncte acumulate)', kind:'best', accent:'fire' },
 ];
 
 function _trfPlayerDelta(p, cat) {
@@ -6025,6 +6027,7 @@ function _trfPlayerDelta(p, cat) {
   if (cat.id === 'assists') return p.mdAssists || 0;
   if (cat.id === 'cs')      return p.mdCleanSheet ? 1 : 0;
   if (cat.id === 'mvps')    return p.momFlag ? 1 : 0;
+  if (cat.id === 'saves')   return p.posCode === 'GK' ? (p.mdSaves || 0) : 0;
   if (cat.id === 'capPts')  return p.isCaptain ? (p.mdPoints || 0) : 0; // raw, undoubled
   if (cat.id === 'benchLost') return p.mdPoints || 0; // caller restricts to bench
   // pts buckets:
@@ -6043,6 +6046,7 @@ function _trfCounts(p, cat) {
     if (cat.id === 'assists') return p.mdAssists || 0;
     if (cat.id === 'cs')      return p.mdCleanSheet ? 1 : 0;
     if (cat.id === 'mvps')    return p.momFlag ? 1 : 0;
+    if (cat.id === 'saves')   return p.posCode === 'GK' ? (p.mdSaves || 0) : 0;
   }
   return _trfPlayerDelta(p, cat); // for pts: contribution in pts
 }
@@ -6052,8 +6056,11 @@ function computeTrofeuStats() {
   const ensure = g => byGuid[g] = byGuid[g] || {
     goals:0, assists:0, cs:0, mvps:0,
     atk:0, mid:0, def:0,
+    saves:0,
     capPts:0, benchLost:0,
     bestMdScore:-Infinity, bestMdNum:null,
+    playerTotals:{}, // { [pid]: { name, total } }
+    bombardierVal:0, bombardierMeta:null,
   };
   MANAGERS.forEach(m => ensure(m.guid));
 
@@ -6062,6 +6069,15 @@ function computeTrofeuStats() {
   for (let md = 1; md <= TOTAL_MDS; md++) {
     const data = mdCache[md];
     if (!data || !Array.isArray(data.managers)) continue;
+
+    // Per-MD lookup: pid → mdSaves (only present on data.allPlayers, not on manager players)
+    const savesByPid = {};
+    if (Array.isArray(data.allPlayers)) {
+      data.allPlayers.forEach(p => {
+        if (p && p.id != null && (p.mdSaves || 0) > 0) savesByPid[p.id] = p.mdSaves;
+      });
+    }
+
     data.managers.forEach(mgr => {
       const b = ensure(mgr.guid);
       let mdTotal = 0;
@@ -6072,6 +6088,7 @@ function computeTrofeuStats() {
           b.assists  += p.mdAssists || 0;
           if (p.mdCleanSheet) b.cs += 1;
           if (p.momFlag)      b.mvps += 1;
+          if (p.posCode === 'GK') b.saves += savesByPid[p.id] || 0;
           const cap = p.isCaptain ? 2 : 1;
           const pts = (p.mdPoints || 0) * cap;
           if (p.posCode === 'FWD') b.atk += pts;
@@ -6079,6 +6096,13 @@ function computeTrofeuStats() {
           else if (p.posCode === 'DEF' || p.posCode === 'GK') b.def += pts;
           if (p.isCaptain) b.capPts += (p.mdPoints || 0);
           mdTotal += pts;
+
+          // Bombardierul: accumulate raw mdPoints (no captain doubling) per player
+          const pid = p.id || p.name;
+          if (pid != null) {
+            if (!b.playerTotals[pid]) b.playerTotals[pid] = { name: p.name || '?', total: 0 };
+            b.playerTotals[pid].total += (p.mdPoints || 0);
+          }
         } else {
           b.benchLost += (p.mdPoints || 0);
         }
@@ -6096,10 +6120,25 @@ function computeTrofeuStats() {
     if (b.bestMdScore === -Infinity) b.bestMdScore = 0;
   });
 
+  // Bombardierul: derive top player per manager from playerTotals
+  const bombardierMeta = {}; // guid -> { playerName, playerId }
+  Object.entries(byGuid).forEach(([guid, b]) => {
+    let topPid = null, topTotal = -1, topName = '';
+    Object.entries(b.playerTotals).forEach(([pid, info]) => {
+      if (info.total > topTotal) { topTotal = info.total; topPid = pid; topName = info.name; }
+    });
+    if (topPid != null && topTotal > 0) {
+      b.bombardierVal = topTotal;
+      bombardierMeta[guid] = { playerName: topName, playerId: topPid };
+    }
+  });
+
   // Build sorted boards (one per category id)
   const board = (key) => MANAGERS
     .map(m => ({ guid: m.guid, m, val: byGuid[m.guid]?.[key] ?? 0,
-                 meta: key === 'bestMdScore' ? bestMdMeta[m.guid] : null }))
+                 meta: key === 'bestMdScore' ? bestMdMeta[m.guid]
+                       : key === 'bombardierVal' ? bombardierMeta[m.guid]
+                       : null }))
     .sort((a, b) => b.val - a.val);
 
   return {
@@ -6112,9 +6151,11 @@ function computeTrofeuStats() {
       atk:       board('atk'),
       mid:       board('mid'),
       def:       board('def'),
+      saves:     board('saves'),
       capPts:    board('capPts'),
       benchLost: board('benchLost'),
       bestMd:    board('bestMdScore'),
+      bombardier:board('bombardierVal'),
     }
   };
 }
@@ -6128,16 +6169,48 @@ function computeTrofeuBreakdown(guid, catId) {
   const out = [];
   let running = 0;
 
+  // Bombardierul needs the top-player id resolved up front
+  let bombardierPid = null, bombardierName = '';
+  if (catId === 'bombardier') {
+    const stats = computeTrofeuStats();
+    const entry = (stats.boards.bombardier || []).find(e => e.guid === guid);
+    if (entry && entry.meta) {
+      bombardierPid = entry.meta.playerId;
+      bombardierName = entry.meta.playerName;
+    }
+  }
+
   for (let md = 1; md <= TOTAL_MDS; md++) {
     const data = mdCache[md];
     if (!data || !Array.isArray(data.managers)) continue;
     const mgr = data.managers.find(m => m.guid === guid);
     if (!mgr) continue;
 
+    // Per-MD lookup for fields not present on manager players (mdSaves)
+    const savesByPid = {};
+    if (Array.isArray(data.allPlayers)) {
+      data.allPlayers.forEach(p => {
+        if (p && p.id != null && (p.mdSaves || 0) > 0) savesByPid[p.id] = p.mdSaves;
+      });
+    }
+
     let delta = 0;
     const contribMap = {};
 
-    if (catId === 'bestMd') {
+    if (catId === 'bombardier' && bombardierPid != null) {
+      // Per-MD points contribution from the manager's top season player
+      (mgr.players || []).forEach(p => {
+        if (p.isStarter === false) return;
+        const pid = p.id || p.name;
+        if (String(pid) !== String(bombardierPid)) return;
+        const pts = p.mdPoints || 0;
+        if (pts > 0 || pts < 0) {
+          delta += pts;
+          contribMap[bombardierName] = (contribMap[bombardierName] || 0) + pts;
+        }
+      });
+      running += delta;
+    } else if (catId === 'bestMd') {
       // Best MD: each MD's row shows the manager's total starter pts that MD
       // (informational), running stays the running max
       let mdTotal = 0;
@@ -6157,7 +6230,12 @@ function computeTrofeuBreakdown(guid, catId) {
         } else {
           if (!isStarter) return;
         }
-        const c = _trfCounts(p, cat);
+        let c;
+        if (catId === 'saves') {
+          c = p.posCode === 'GK' ? (savesByPid[p.id] || 0) : 0;
+        } else {
+          c = _trfCounts(p, cat);
+        }
         if (c > 0) {
           delta += c;
           const k = p.name || p.fullName || '?';
@@ -6167,7 +6245,7 @@ function computeTrofeuBreakdown(guid, catId) {
       running += delta;
     }
 
-    if (delta > 0 || catId === 'bestMd') {
+    if (delta > 0 || catId === 'bestMd' || (catId === 'bombardier' && delta !== 0)) {
       out.push({
         md, delta, running,
         contributors: Object.entries(contribMap)
@@ -6189,10 +6267,14 @@ const _TRF_ICONS = (() => {
   const coins = '<svg viewBox="0 0 22 22" fill="none"><ellipse cx="8" cy="8" rx="6" ry="3" stroke="currentColor" stroke-width="1.3"/><ellipse cx="14" cy="14" rx="6" ry="3" stroke="currentColor" stroke-width="1.3"/></svg>';
   const bolt  = '<svg viewBox="0 0 16 22" fill="none"><path d="M9 1L1 13H7L5 21L15 9H9L11 1H9Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
   const bar   = '<svg viewBox="0 0 22 22" fill="none"><rect x="3" y="9" width="3" height="11" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="5" width="3" height="15" stroke="currentColor" stroke-width="1.3"/><rect x="15" y="2" width="3" height="18" stroke="currentColor" stroke-width="1.3"/></svg>';
+  const glove = '<svg viewBox="0 0 22 22" fill="none"><path d="M5 11V5Q5 3 7 3Q9 3 9 5V9M9 9V4Q9 2 11 2Q13 2 13 4V9M13 9V4Q13 2 15 2Q17 2 17 4V11M17 11V6Q17 4 18.5 4Q20 4 20 6V13Q20 19 14 20H8Q4 20 4 16Q4 13 5 11Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+  const target = '<svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="currentColor" stroke-width="1.3"/><circle cx="11" cy="11" r="5.5" stroke="currentColor" stroke-width="1.2"/><circle cx="11" cy="11" r="2" fill="currentColor"/></svg>';
   return {
     goals: ball, assists: boot, cs: shield, mvps: star,
     atk: bar, mid: bar, def: shield,
+    saves: glove,
     capPts: crown, benchLost: coins, bestMd: bolt,
+    bombardier: target,
   };
 })();
 
@@ -6204,7 +6286,7 @@ const _TRF_ACCENT = {
 
 function _trfFmtVal(catId, val) {
   if (val == null) return '—';
-  if (catId === 'goals' || catId === 'assists' || catId === 'cs' || catId === 'mvps') {
+  if (catId === 'goals' || catId === 'assists' || catId === 'cs' || catId === 'mvps' || catId === 'saves') {
     return Math.round(val).toString();
   }
   return Math.round(val).toString();
@@ -6228,11 +6310,8 @@ function renderTrofeu() {
     return `<div class="trf-plinth ${cls}" style="--mgr-color:${m.color || '#888'}">
       ${crown}
       <div class="trf-plinth-place">${place === 1 ? '1' : place === 2 ? '2' : '3'}</div>
-      <div class="trf-plinth-avatar" style="background:${m.color || '#888'}">${initials(nick(m.username))}</div>
       <div class="trf-plinth-nick">${nick(m.username)}</div>
-      <div class="trf-plinth-team">${m.teamName || ''}</div>
       <div class="trf-plinth-pts">${(m.ovPoints || 0).toLocaleString()}</div>
-      <div class="trf-plinth-pts-lbl">PUNCTE</div>
     </div>`;
   };
 
@@ -6257,8 +6336,12 @@ function renderTrofeu() {
       const rankCls = i === 0 ? 'trf-row--1' : i === 1 ? 'trf-row--2' : i === 2 ? 'trf-row--3' : '';
       const activeCls = m.guid === selectedMgr ? ' trf-row--active' : '';
       const valTxt = _trfFmtVal(cat.id, entry.val);
-      const subText = (cat.id === 'bestMd' && entry.meta && entry.meta.md)
-        ? `<span class="trf-row-meta">MD ${entry.meta.md}</span>` : '';
+      let subText = '';
+      if (cat.id === 'bestMd' && entry.meta && entry.meta.md) {
+        subText = `<span class="trf-row-meta">MD ${entry.meta.md}</span>`;
+      } else if (cat.id === 'bombardier' && entry.meta && entry.meta.playerName) {
+        subText = `<span class="trf-row-meta">${entry.meta.playerName}</span>`;
+      }
       const onclick = cat.id === 'bestMd' && entry.meta && entry.meta.md
         ? `jumpToPs5(${entry.meta.md}, '${m.guid}')`
         : `openTrofeuDetail('${m.guid}', '${cat.id}')`;
