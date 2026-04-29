@@ -3698,6 +3698,10 @@ body::before {
 }
 .trf-row:hover { background: rgba(255,255,255,.04); }
 .trf-row:active { transform: scale(.985); }
+.trf-row--active {
+  background: rgba(255,255,255,.07);
+  box-shadow: inset 3px 0 0 var(--mgr-color, #888);
+}
 .trf-rank {
   font-family: var(--font-display);
   font-size: var(--type-subhead);
@@ -4860,6 +4864,7 @@ function selectMgr(guid) {
   renderClasament();
   renderHeader();
   renderPitch();
+  if (currentTab === 'trofeu') { try { renderTrofeu(); } catch(_) {} }
 }
 
 function populateUserDropdown() {
@@ -6250,13 +6255,14 @@ function renderTrofeu() {
     const rows = board.map((entry, i) => {
       const m = entry.m;
       const rankCls = i === 0 ? 'trf-row--1' : i === 1 ? 'trf-row--2' : i === 2 ? 'trf-row--3' : '';
+      const activeCls = m.guid === selectedMgr ? ' trf-row--active' : '';
       const valTxt = _trfFmtVal(cat.id, entry.val);
       const subText = (cat.id === 'bestMd' && entry.meta && entry.meta.md)
         ? `<span class="trf-row-meta">MD ${entry.meta.md}</span>` : '';
       const onclick = cat.id === 'bestMd' && entry.meta && entry.meta.md
         ? `jumpToPs5(${entry.meta.md}, '${m.guid}')`
         : `openTrofeuDetail('${m.guid}', '${cat.id}')`;
-      return `<div class="trf-row ${rankCls}" onclick="${onclick}" style="--mgr-color:${m.color || '#888'}">
+      return `<div class="trf-row ${rankCls}${activeCls}" onclick="${onclick}" style="--mgr-color:${m.color || '#888'}">
         <div class="trf-rank">${i + 1}</div>
         <div class="trf-row-bar"></div>
         <div class="trf-row-name">${nick(m.username)}</div>
