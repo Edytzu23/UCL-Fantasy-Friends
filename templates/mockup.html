@@ -3737,6 +3737,13 @@ body::before {
   color: var(--muted);
   text-transform: uppercase;
 }
+.trf-row-meta--team {
+  display: inline-flex; align-items: center; gap: 6px;
+  letter-spacing: 0.06em;
+}
+.trf-row-meta--team img {
+  width: 18px; height: 18px; object-fit: contain;
+}
 .trf-row-val {
   font-family: var(--font-display);
   font-size: var(--type-headline);
@@ -6018,6 +6025,7 @@ const TRF_CATEGORIES = [
   { id:'benchLost', title:'Aurul Băncii',                  sub:'Puncte rămase pe bancă',                  kind:'pts',    accent:'gold', bench:true },
   { id:'bestMd',    title:'Lovitura de Maestru',           sub:'Cel mai mare scor într-un singur MD',     kind:'best',   accent:'fire' },
   { id:'bombardier',title:'Bombardierul',                  sub:'Cel mai bun jucător titular (puncte acumulate)', kind:'best', accent:'fire' },
+  { id:'bestTeam',  title:'Clubul Preferat',               sub:'Cel mai prolific club din echipă (puncte titulari)', kind:'best', accent:'neon' },
 ];
 
 function _trfPlayerDelta(p, cat) {
@@ -6061,6 +6069,8 @@ function computeTrofeuStats() {
     bestMdScore:-Infinity, bestMdNum:null,
     playerTotals:{}, // { [pid]: { name, total } }
     bombardierVal:0, bombardierMeta:null,
+    teamTotals:{}, // { [teamCode]: { team, total } }
+    bestTeamVal:0, bestTeamMeta:null,
   };
   MANAGERS.forEach(m => ensure(m.guid));
 
@@ -6103,6 +6113,13 @@ function computeTrofeuStats() {
             if (!b.playerTotals[pid]) b.playerTotals[pid] = { name: p.name || '?', total: 0 };
             b.playerTotals[pid].total += (p.mdPoints || 0);
           }
+
+          // Echipa Aleasă: accumulate raw mdPoints per club (teamCode)
+          const tc = p.teamCode || '';
+          if (tc) {
+            if (!b.teamTotals[tc]) b.teamTotals[tc] = { team: p.team || tc, total: 0 };
+            b.teamTotals[tc].total += (p.mdPoints || 0);
+          }
         } else {
           b.benchLost += (p.mdPoints || 0);
         }
@@ -6133,11 +6150,25 @@ function computeTrofeuStats() {
     }
   });
 
+  // Echipa Aleasă: derive top team per manager from teamTotals
+  const bestTeamMeta = {}; // guid -> { teamCode, teamName }
+  Object.entries(byGuid).forEach(([guid, b]) => {
+    let topTc = null, topTotal = -1, topName = '';
+    Object.entries(b.teamTotals).forEach(([tc, info]) => {
+      if (info.total > topTotal) { topTotal = info.total; topTc = tc; topName = info.team; }
+    });
+    if (topTc != null && topTotal > 0) {
+      b.bestTeamVal = topTotal;
+      bestTeamMeta[guid] = { teamCode: topTc, teamName: topName };
+    }
+  });
+
   // Build sorted boards (one per category id)
   const board = (key) => MANAGERS
     .map(m => ({ guid: m.guid, m, val: byGuid[m.guid]?.[key] ?? 0,
                  meta: key === 'bestMdScore' ? bestMdMeta[m.guid]
                        : key === 'bombardierVal' ? bombardierMeta[m.guid]
+                       : key === 'bestTeamVal' ? bestTeamMeta[m.guid]
                        : null }))
     .sort((a, b) => b.val - a.val);
 
@@ -6156,6 +6187,7 @@ function computeTrofeuStats() {
       benchLost: board('benchLost'),
       bestMd:    board('bestMdScore'),
       bombardier:board('bombardierVal'),
+      bestTeam:  board('bestTeamVal'),
     }
   };
 }
@@ -6177,6 +6209,16 @@ function computeTrofeuBreakdown(guid, catId) {
     if (entry && entry.meta) {
       bombardierPid = entry.meta.playerId;
       bombardierName = entry.meta.playerName;
+    }
+  }
+  // Clubul Preferat needs the top teamCode resolved up front
+  let bestTeamCode = null, bestTeamName = '';
+  if (catId === 'bestTeam') {
+    const stats = computeTrofeuStats();
+    const entry = (stats.boards.bestTeam || []).find(e => e.guid === guid);
+    if (entry && entry.meta) {
+      bestTeamCode = entry.meta.teamCode;
+      bestTeamName = entry.meta.teamName;
     }
   }
 
@@ -6207,6 +6249,19 @@ function computeTrofeuBreakdown(guid, catId) {
         if (pts > 0 || pts < 0) {
           delta += pts;
           contribMap[bombardierName] = (contribMap[bombardierName] || 0) + pts;
+        }
+      });
+      running += delta;
+    } else if (catId === 'bestTeam' && bestTeamCode) {
+      // Per-MD points from owned starters belonging to the manager's top club
+      (mgr.players || []).forEach(p => {
+        if (p.isStarter === false) return;
+        if ((p.teamCode || '') !== bestTeamCode) return;
+        const pts = p.mdPoints || 0;
+        if (pts !== 0) {
+          delta += pts;
+          const k = p.name || '?';
+          contribMap[k] = (contribMap[k] || 0) + pts;
         }
       });
       running += delta;
@@ -6245,7 +6300,7 @@ function computeTrofeuBreakdown(guid, catId) {
       running += delta;
     }
 
-    if (delta > 0 || catId === 'bestMd' || (catId === 'bombardier' && delta !== 0)) {
+    if (delta > 0 || catId === 'bestMd' || ((catId === 'bombardier' || catId === 'bestTeam') && delta !== 0)) {
       out.push({
         md, delta, running,
         contributors: Object.entries(contribMap)
@@ -6269,12 +6324,14 @@ const _TRF_ICONS = (() => {
   const bar   = '<svg viewBox="0 0 22 22" fill="none"><rect x="3" y="9" width="3" height="11" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="5" width="3" height="15" stroke="currentColor" stroke-width="1.3"/><rect x="15" y="2" width="3" height="18" stroke="currentColor" stroke-width="1.3"/></svg>';
   const glove = '<svg viewBox="0 0 22 22" fill="none"><path d="M5 11V5Q5 3 7 3Q9 3 9 5V9M9 9V4Q9 2 11 2Q13 2 13 4V9M13 9V4Q13 2 15 2Q17 2 17 4V11M17 11V6Q17 4 18.5 4Q20 4 20 6V13Q20 19 14 20H8Q4 20 4 16Q4 13 5 11Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
   const target = '<svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="currentColor" stroke-width="1.3"/><circle cx="11" cy="11" r="5.5" stroke="currentColor" stroke-width="1.2"/><circle cx="11" cy="11" r="2" fill="currentColor"/></svg>';
+  const jersey = '<svg viewBox="0 0 22 22" fill="none"><path d="M3 5L7 2H15L19 5L17 9L15 8V19H7V8L5 9Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
   return {
     goals: ball, assists: boot, cs: shield, mvps: star,
     atk: bar, mid: bar, def: shield,
     saves: glove,
     capPts: crown, benchLost: coins, bestMd: bolt,
     bombardier: target,
+    bestTeam: jersey,
   };
 })();
 
@@ -6341,6 +6398,10 @@ function renderTrofeu() {
         subText = `<span class="trf-row-meta">MD ${entry.meta.md}</span>`;
       } else if (cat.id === 'bombardier' && entry.meta && entry.meta.playerName) {
         subText = `<span class="trf-row-meta">${entry.meta.playerName}</span>`;
+      } else if (cat.id === 'bestTeam' && entry.meta && entry.meta.teamCode) {
+        const tc = entry.meta.teamCode;
+        const tn = entry.meta.teamName || tc;
+        subText = `<span class="trf-row-meta trf-row-meta--team" title="${tn}"><img src="/static/logos/${tc}.png" alt="${tc}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${tc}'}))"/>${tc}</span>`;
       }
       const onclick = cat.id === 'bestMd' && entry.meta && entry.meta.md
         ? `jumpToPs5(${entry.meta.md}, '${m.guid}')`
