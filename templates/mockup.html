@@ -6093,7 +6093,21 @@ function computeTrofeuStats() {
 
     data.managers.forEach(mgr => {
       const b = ensure(mgr.guid);
-      let mdTotal = 0;
+
+      // Detect schema: in some cached MDs, captain.mdPoints is already 2× the
+      // raw player score (sum of starter mdPoints == gdPoints). In others,
+      // mdPoints is raw and the manager's score = sum + captain.mdPoints.
+      // Use mgr.gdPoints (authoritative) to figure out which.
+      const starters = (mgr.players || []).filter(p => p.isStarter !== false);
+      const sumRaw = starters.reduce((s, p) => s + (p.mdPoints || 0), 0);
+      const cap = starters.find(p => p.isCaptain);
+      const gd = mgr.gdPoints || 0;
+      const captainMult =
+        cap && gd && Math.abs((sumRaw + cap.mdPoints) - gd) < Math.abs(sumRaw - gd) ? 2 : 1;
+      const captainBonus = (cap && captainMult === 2) ? (cap.mdPoints || 0) : 0;
+
+      const mdTotal = gd || (sumRaw + captainBonus);
+
       (mgr.players || []).forEach(p => {
         const isStarter = p.isStarter !== false;
         if (isStarter) {
@@ -6102,26 +6116,26 @@ function computeTrofeuStats() {
           if (p.mdCleanSheet) b.cs += 1;
           if (p.momFlag)      b.mvps += 1;
           if (p.posCode === 'GK') b.saves += savesByPid[p.id] || 0;
-          // mdPoints already includes captain double for the captain
-          const pts = p.mdPoints || 0;
+          // Effective contribution: captain raw → ×2, captain pre-doubled → ×1, others ×1
+          const mult = (p.isCaptain && captainMult === 2) ? 2 : 1;
+          const pts = (p.mdPoints || 0) * mult;
           if (p.posCode === 'FWD') b.atk += pts;
           else if (p.posCode === 'MID') b.mid += pts;
           else if (p.posCode === 'DEF' || p.posCode === 'GK') b.def += pts;
           if (p.isCaptain) b.capPts += pts;
-          mdTotal += pts;
 
-          // Bombardierul: accumulate raw mdPoints (no captain doubling) per player
+          // Bombardierul: accumulate effective contribution per player (with captain bonus)
           const pid = p.id || p.name;
           if (pid != null) {
             if (!b.playerTotals[pid]) b.playerTotals[pid] = { name: p.name || '?', total: 0 };
-            b.playerTotals[pid].total += (p.mdPoints || 0);
+            b.playerTotals[pid].total += pts;
           }
 
-          // Echipa Aleasă: accumulate raw mdPoints per club (teamCode)
+          // Clubul Preferat: accumulate effective contribution per club (teamCode)
           const tc = p.teamCode || '';
           if (tc) {
             if (!b.teamTotals[tc]) b.teamTotals[tc] = { team: p.team || tc, total: 0 };
-            b.teamTotals[tc].total += (p.mdPoints || 0);
+            b.teamTotals[tc].total += pts;
           }
         } else {
           b.benchLost += (p.mdPoints || 0);
@@ -6239,6 +6253,15 @@ function computeTrofeuBreakdown(guid, catId) {
       });
     }
 
+    // Detect captain-double schema for this MD (same as in computeTrofeuStats)
+    const _starters = (mgr.players || []).filter(p => p.isStarter !== false);
+    const _sumRaw = _starters.reduce((s, p) => s + (p.mdPoints || 0), 0);
+    const _cap = _starters.find(p => p.isCaptain);
+    const _gd = mgr.gdPoints || 0;
+    const _captainMult =
+      _cap && _gd && Math.abs((_sumRaw + _cap.mdPoints) - _gd) < Math.abs(_sumRaw - _gd) ? 2 : 1;
+    const effPts = (p) => (p.mdPoints || 0) * (p.isCaptain && _captainMult === 2 ? 2 : 1);
+
     let delta = 0;
     const contribMap = {};
 
@@ -6248,8 +6271,8 @@ function computeTrofeuBreakdown(guid, catId) {
         if (p.isStarter === false) return;
         const pid = p.id || p.name;
         if (String(pid) !== String(bombardierPid)) return;
-        const pts = p.mdPoints || 0;
-        if (pts > 0 || pts < 0) {
+        const pts = effPts(p);
+        if (pts !== 0) {
           delta += pts;
           contribMap[bombardierName] = (contribMap[bombardierName] || 0) + pts;
         }
@@ -6260,7 +6283,7 @@ function computeTrofeuBreakdown(guid, catId) {
       (mgr.players || []).forEach(p => {
         if (p.isStarter === false) return;
         if ((p.teamCode || '') !== bestTeamCode) return;
-        const pts = p.mdPoints || 0;
+        const pts = effPts(p);
         if (pts !== 0) {
           delta += pts;
           const k = p.name || '?';
@@ -6269,13 +6292,8 @@ function computeTrofeuBreakdown(guid, catId) {
       });
       running += delta;
     } else if (catId === 'bestMd') {
-      // Best MD: each MD's row shows the manager's total starter pts that MD.
-      // mdPoints already includes captain double, so just sum it.
-      let mdTotal = 0;
-      (mgr.players || []).forEach(p => {
-        if (p.isStarter === false) return;
-        mdTotal += (p.mdPoints || 0);
-      });
+      // Authoritative game total per MD (UCL Fantasy gdPoints), with fallback
+      const mdTotal = _gd || (_sumRaw + (_captainMult === 2 ? (_cap?.mdPoints || 0) : 0));
       delta = mdTotal;
       running = Math.max(running, mdTotal);
     } else {
@@ -6292,6 +6310,8 @@ function computeTrofeuBreakdown(guid, catId) {
           c = p.posCode === 'GK' ? (savesByPid[p.id] || 0) : 0;
         } else {
           c = _trfCounts(p, cat);
+          // Apply captain multiplier to pts-kind categories so breakdown matches the card total
+          if (cat.kind === 'pts' && p.isCaptain && _captainMult === 2) c *= 2;
         }
         if (c > 0) {
           delta += c;
