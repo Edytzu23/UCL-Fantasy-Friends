@@ -6033,17 +6033,17 @@ const TRF_CATEGORIES = [
 
 function _trfPlayerDelta(p, cat) {
   // Returns the contribution of player p to a given category in one MD.
-  // For 'pts' kinds, captain effectively doubles (mdPoints × 2).
+  // NOTE: p.mdPoints on a manager's roster is ALREADY captain-doubled by the
+  // backend (a 23-pt captain shows as 46), so do NOT multiply by 2 again here.
   if (cat.id === 'goals')   return p.mdGoals || 0;
   if (cat.id === 'assists') return p.mdAssists || 0;
   if (cat.id === 'cs')      return p.mdCleanSheet ? 1 : 0;
   if (cat.id === 'mvps')    return p.momFlag ? 1 : 0;
   if (cat.id === 'saves')   return p.posCode === 'GK' ? (p.mdSaves || 0) : 0;
-  if (cat.id === 'capPts')  return p.isCaptain ? (p.mdPoints || 0) : 0; // raw, undoubled
+  if (cat.id === 'capPts')  return p.isCaptain ? (p.mdPoints || 0) : 0;
   if (cat.id === 'benchLost') return p.mdPoints || 0; // caller restricts to bench
-  // pts buckets:
-  const cap = p.isCaptain ? 2 : 1;
-  const pts = (p.mdPoints || 0) * cap;
+  // pts buckets — mdPoints already includes captain double when applicable
+  const pts = p.mdPoints || 0;
   if (cat.posFilter === 'FWD' && p.posCode === 'FWD') return pts;
   if (cat.posFilter === 'MID' && p.posCode === 'MID') return pts;
   if (cat.posFilter === 'DEF_GK' && (p.posCode === 'DEF' || p.posCode === 'GK')) return pts;
@@ -6102,12 +6102,12 @@ function computeTrofeuStats() {
           if (p.mdCleanSheet) b.cs += 1;
           if (p.momFlag)      b.mvps += 1;
           if (p.posCode === 'GK') b.saves += savesByPid[p.id] || 0;
-          const cap = p.isCaptain ? 2 : 1;
-          const pts = (p.mdPoints || 0) * cap;
+          // mdPoints already includes captain double for the captain
+          const pts = p.mdPoints || 0;
           if (p.posCode === 'FWD') b.atk += pts;
           else if (p.posCode === 'MID') b.mid += pts;
           else if (p.posCode === 'DEF' || p.posCode === 'GK') b.def += pts;
-          if (p.isCaptain) b.capPts += (p.mdPoints || 0);
+          if (p.isCaptain) b.capPts += pts;
           mdTotal += pts;
 
           // Bombardierul: accumulate raw mdPoints (no captain doubling) per player
@@ -6269,13 +6269,12 @@ function computeTrofeuBreakdown(guid, catId) {
       });
       running += delta;
     } else if (catId === 'bestMd') {
-      // Best MD: each MD's row shows the manager's total starter pts that MD
-      // (informational), running stays the running max
+      // Best MD: each MD's row shows the manager's total starter pts that MD.
+      // mdPoints already includes captain double, so just sum it.
       let mdTotal = 0;
       (mgr.players || []).forEach(p => {
         if (p.isStarter === false) return;
-        const cap = p.isCaptain ? 2 : 1;
-        mdTotal += (p.mdPoints || 0) * cap;
+        mdTotal += (p.mdPoints || 0);
       });
       delta = mdTotal;
       running = Math.max(running, mdTotal);
