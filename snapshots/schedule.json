@@ -24,7 +24,7 @@
     {
       "time": "09:00",
       "label": "FINALMD",
-      "fired": false
+      "fired": true
     }
   ]
 }
