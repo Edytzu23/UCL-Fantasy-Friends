@@ -3691,8 +3691,9 @@ body::before {
   grid-template-columns: 22px 4px 1fr auto auto;
   align-items: center;
   gap: 10px;
-  padding: 7px 4px;
-  height: 30px;
+  padding: 6px 4px;
+  min-height: 34px;
+  line-height: 1.2;
   border-radius: 5px;
   cursor: pointer;
   transition: background 140ms ease, transform 120ms cubic-bezier(.34,1.56,.64,1);
@@ -4896,11 +4897,13 @@ function toggleUserDropdown() {
 
 function switchGlobalUser(guid) {
   CURRENT_USER = guid;
+  selectedMgr = guid;
   document.getElementById('navUserDropdown').classList.remove('open');
   populateUserDropdown();
   updateNavUserName();
   renderClasament();
   if (currentTab === 'totw') renderTOTW();
+  if (currentTab === 'trofeu') { try { renderTrofeu(); } catch(_) {} }
 }
 
 function switchClsTab(el, sort) {
