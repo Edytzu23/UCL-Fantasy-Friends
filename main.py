@@ -1440,7 +1440,8 @@ def match_detail(match_id: int):
     })
 
 
-DATA_MEMO_TTL = 20  # seconds — only applies to the current MD
+DATA_MEMO_TTL = 20          # seconds — only applies to the current MD
+GITHUB_CACHE_TTL = 4 * 3600  # 4 hours — stale GitHub cache triggers rebuild for current MD
 
 
 @app.get("/api/data")
@@ -1473,6 +1474,15 @@ def get_data(md: int = None):
     # GitHub is the shared source of truth — any lambda that hits /api/cron/tick
     # during a match window writes fresh data there. Read it back.
     data = load_md_cache(md)
+    if data:
+        # For the current MD, discard stale cache so transfers/picks stay fresh
+        if is_current:
+            try:
+                lu = datetime.fromisoformat(data["lastUpdated"])
+                if (datetime.now() - lu).total_seconds() > GITHUB_CACHE_TTL:
+                    data = None
+            except Exception:
+                pass
     if data:
         with cache_lock:
             cache[md] = {"ts": now, "data": data}
