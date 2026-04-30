@@ -1462,12 +1462,16 @@ def get_data(md: int = None):
                 md = md - 1
     current_md = get_current_matchday()
     is_current = (md == current_md)
+    # Previous MD shown as stand-in while current MD hasn't started yet —
+    # needs TTL treatment so second-leg results aren't missed.
+    is_recent_previous = (not is_current and md == current_md - 1)
     now = time.time()
 
-    # Local memo check: historical MDs cached forever, current MD for DATA_MEMO_TTL
+    # Local memo check: historical MDs cached forever, current MD for DATA_MEMO_TTL.
+    # recent_previous bypasses memo so the GitHub TTL check below can run.
     with cache_lock:
         entry = cache.get(md)
-    if entry and isinstance(entry, dict) and "data" in entry:
+    if entry and isinstance(entry, dict) and "data" in entry and not is_recent_previous:
         if not is_current or (now - entry.get("ts", 0) < DATA_MEMO_TTL):
             return JSONResponse(entry["data"])
 
@@ -1475,10 +1479,7 @@ def get_data(md: int = None):
     # during a match window writes fresh data there. Read it back.
     data = load_md_cache(md)
     if data:
-        # Apply TTL to the current MD and also to the previous MD when it's being
-        # displayed as a stand-in (current MD not started yet). This ensures the
-        # second-leg results get captured even after FINALMD cron has already fired.
-        is_recent_previous = (not is_current and md == current_md - 1)
+        # Discard stale GitHub cache for current MD and recent previous MD
         if is_current or is_recent_previous:
             try:
                 lu = datetime.fromisoformat(data["lastUpdated"])
