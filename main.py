@@ -1475,8 +1475,11 @@ def get_data(md: int = None):
     # during a match window writes fresh data there. Read it back.
     data = load_md_cache(md)
     if data:
-        # For the current MD, discard stale cache so transfers/picks stay fresh
-        if is_current:
+        # Apply TTL to the current MD and also to the previous MD when it's being
+        # displayed as a stand-in (current MD not started yet). This ensures the
+        # second-leg results get captured even after FINALMD cron has already fired.
+        is_recent_previous = (not is_current and md == current_md - 1)
+        if is_current or is_recent_previous:
             try:
                 lu = datetime.fromisoformat(data["lastUpdated"])
                 if (datetime.now() - lu).total_seconds() > GITHUB_CACHE_TTL:
