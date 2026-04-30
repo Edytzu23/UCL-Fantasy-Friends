@@ -40,11 +40,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Save fresh DB produced by pipeline
+          cp xg/db/xpts.db /tmp/xpts_fresh.db
+          # Reset to remote state to avoid divergence on binary file
+          git fetch origin main
+          git reset --hard origin/main
+          # Restore fresh DB and commit if changed
+          cp /tmp/xpts_fresh.db xg/db/xpts.db
           git add xg/db/xpts.db
           if git diff --cached --quiet; then
             echo "No DB changes to commit"
             exit 0
           fi
           git commit -m "auto: daily xPts pipeline update ($(date -u +%Y-%m-%dT%H:%MZ))"
-          git pull --rebase origin main
-          git push
+          git push origin main
