@@ -115,6 +115,245 @@ def load_md_cache(md):
     return None
 
 
+# ── PER-MD PLAYER STATS ARCHIVE ──────────────────────────────────────────
+# Immutable per-MD per-player snapshots captured while UEFA feeds are warm.
+# Once a stats/md{XX}_players.json file exists for a given MD, it is the
+# authoritative source of mdGoals/mdAssists/mdCleanSheet for that MD —
+# refresh_cache will not overwrite it. Solves the past-assists bug where
+# UEFA's gA field returns 0 outside the live match window.
+GH_STATS_DIR = "stats"
+
+_stats_archive_memo = {}  # md -> {pid: {...}} or None
+_unverified_memo = {"data": None, "ts": 0}
+_UNVERIFIED_TTL = 300  # seconds
+
+
+def _stats_archive_payload(md, players, source="live_window"):
+    """Shape the per-player slice we want to freeze for a given MD."""
+    rows = []
+    for p in players:
+        rows.append({
+            "id": int(p["id"]),
+            "name": p.get("name", ""),
+            "teamCode": p.get("teamCode", ""),
+            "posCode": p.get("posCode", "MID"),
+            "mdGoals": int(p.get("mdGoals", 0) or 0),
+            "mdAssists": int(p.get("mdAssists", 0) or 0),
+            "mdCleanSheet": int(p.get("mdCleanSheet", 0) or 0),
+            "mdMins": int(p.get("mdMins", 0) or 0),
+            "mdSaves": int(p.get("mdSaves", 0) or 0),
+            "mdYellowCards": int(p.get("yellowCards", 0) or 0),
+            "mdRedCards": int(p.get("redCards", 0) or 0),
+            "mdMomFlag": bool(p.get("momFlag", False)),
+            "mdPoints": int(p.get("curGDPts", 0) or 0),
+        })
+    return {
+        "matchday": md,
+        "savedAt": datetime.now().isoformat(),
+        "source": source,
+        "playerCount": len(rows),
+        "players": rows,
+    }
+
+
+def save_player_stats_archive(md, data, source="live_window", overwrite=False):
+    """Persist per-MD per-player stats to GitHub. Idempotent — does not
+    overwrite an existing archive unless overwrite=True (admin endpoint)."""
+    if not GITHUB_TOKEN:
+        return False
+    try:
+        path = f"{GH_STATS_DIR}/md{md:02d}_players.json"
+        existing, sha = github_get_file(path)
+        if existing and not overwrite:
+            print(f"[StatsArchive] MD{md} already saved, skipping")
+            return False
+        payload = _stats_archive_payload(md, data.get("allPlayers", []), source=source)
+        content_str = json.dumps(payload, ensure_ascii=False)
+        ok = github_put_file(
+            path, content_str, sha=sha,
+            message=f"stats archive MD{md} — {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        )
+        if ok:
+            _stats_archive_memo[md] = {p["id"]: p for p in payload["players"]}
+            print(f"[StatsArchive] Saved MD{md} ({payload['playerCount']} players, source={source})")
+        return bool(ok)
+    except Exception as e:
+        print(f"[StatsArchive] Error saving MD{md}: {e}")
+        return False
+
+
+def load_player_stats_archive(md):
+    """Return {pid_int: {...}} for the MD's archive, or None if missing.
+    Memoized in-process — archives are immutable so we never re-fetch."""
+    if md in _stats_archive_memo:
+        return _stats_archive_memo[md]
+    if not GITHUB_TOKEN:
+        return None
+    try:
+        path = f"{GH_STATS_DIR}/md{md:02d}_players.json"
+        content, _ = github_get_file(path)
+        if not content:
+            _stats_archive_memo[md] = None
+            return None
+        payload = json.loads(content)
+        idx = {int(p["id"]): p for p in payload.get("players", [])}
+        _stats_archive_memo[md] = idx
+        return idx
+    except Exception as e:
+        print(f"[StatsArchive] Error loading MD{md}: {e}")
+        return None
+
+
+def _load_unverified():
+    """Load list of MDs marked as unverified (cached for 5min)."""
+    now = time.time()
+    if _unverified_memo["data"] is not None and (now - _unverified_memo["ts"]) < _UNVERIFIED_TTL:
+        return _unverified_memo["data"]
+    if not GITHUB_TOKEN:
+        _unverified_memo.update({"data": set(), "ts": now})
+        return set()
+    try:
+        content, _ = github_get_file(f"{GH_STATS_DIR}/_unverified.json")
+        mds = set(json.loads(content)) if content else set()
+    except Exception:
+        mds = set()
+    _unverified_memo.update({"data": mds, "ts": now})
+    return mds
+
+
+def is_unverified(md):
+    return md in _load_unverified()
+
+
+def mark_md_unverified(md, unverified=True):
+    """Add or remove a matchday from the unverified list on GitHub."""
+    if not GITHUB_TOKEN:
+        return False
+    try:
+        path = f"{GH_STATS_DIR}/_unverified.json"
+        content, sha = github_get_file(path)
+        mds = set(json.loads(content)) if content else set()
+        if unverified:
+            mds.add(md)
+        else:
+            mds.discard(md)
+        new_content = json.dumps(sorted(mds))
+        ok = github_put_file(
+            path, new_content, sha=sha,
+            message=f"{'mark' if unverified else 'unmark'} MD{md} unverified",
+        )
+        if ok:
+            _unverified_memo.update({"data": mds, "ts": time.time()})
+        return bool(ok)
+    except Exception as e:
+        print(f"[StatsArchive] Error updating unverified list: {e}")
+        return False
+
+
+# ── SECONDARY BACKUP (FotMob) ────────────────────────────────────────────
+# Independent backup source for goals/assists/MOTM/clean-sheets. UEFA's
+# feeds are the primary; FotMob is captured in parallel at FINALMD so we
+# never depend on a single vendor for the matchday's truth.
+#
+# As of 2026-05, FotMob's public CDN returns 403 and matchDetails requires
+# Turnstile. The fetch is wrapped defensively — if the source is down, we
+# log and skip without breaking the primary capture. The framework stays
+# in place so a future source (or a working FotMob path) plugs in cleanly.
+
+def fetch_fotmob_md_stats(matchday):
+    """Try to fetch per-player stats for the given UCL matchday from FotMob.
+    Returns {uefa_id: {mdGoals, mdAssists, mdCleanSheet, mdMomFlag, mdMins}}
+    or {} if the source is unavailable.
+
+    Mapping FotMob → UEFA is done by (normalized last name, teamCode).
+    """
+    try:
+        # FotMob's matchDetails is currently behind Turnstile and the player
+        # _next/data endpoint returns null for `data`. We attempt nothing
+        # and return empty until a working source is wired up.
+        # When re-enabling: refer to xg/src/data/fotmob.py for fetch_ucl_fixtures
+        # and existing helpers (build_id, headers).
+        print(f"[StatsFotmob] Source unavailable (FotMob blocked), skipping MD{matchday}")
+        return {}
+    except Exception as e:
+        print(f"[StatsFotmob] fetch failed for MD{matchday}: {e}")
+        return {}
+
+
+def save_fotmob_backup_archive(md, overwrite=False):
+    """Write FotMob secondary backup to stats/md{XX}_fotmob.json.
+    Idempotent like the primary archive. No-op if FotMob returned nothing."""
+    if not GITHUB_TOKEN:
+        return False
+    fm_data = fetch_fotmob_md_stats(md)
+    if not fm_data:
+        return False
+    try:
+        path = f"{GH_STATS_DIR}/md{md:02d}_fotmob.json"
+        existing, sha = github_get_file(path)
+        if existing and not overwrite:
+            print(f"[StatsFotmob] MD{md} backup already saved, skipping")
+            return False
+        payload = {
+            "matchday": md,
+            "savedAt": datetime.now().isoformat(),
+            "source": "fotmob_matchDetails",
+            "playerCount": len(fm_data),
+            "players": list(fm_data.values()),
+        }
+        ok = github_put_file(
+            path, json.dumps(payload, ensure_ascii=False), sha=sha,
+            message=f"fotmob backup MD{md} — {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        )
+        if ok:
+            print(f"[StatsFotmob] Saved MD{md} backup ({len(fm_data)} players)")
+        return bool(ok)
+    except Exception as e:
+        print(f"[StatsFotmob] Error saving MD{md}: {e}")
+        return False
+
+
+def load_fotmob_backup_archive(md):
+    """Return {pid: {...}} for the FotMob backup, or None if missing."""
+    if not GITHUB_TOKEN:
+        return None
+    try:
+        path = f"{GH_STATS_DIR}/md{md:02d}_fotmob.json"
+        content, _ = github_get_file(path)
+        if not content:
+            return None
+        payload = json.loads(content)
+        return {int(p.get("uefaId", p.get("id", 0))): p for p in payload.get("players", [])}
+    except Exception as e:
+        print(f"[StatsFotmob] Error loading MD{md}: {e}")
+        return None
+
+
+def compare_archives(md):
+    """Return diff between primary (UEFA) and FotMob backup archives for MD."""
+    primary = load_player_stats_archive(md) or {}
+    backup = load_fotmob_backup_archive(md) or {}
+    diffs = []
+    for pid, p in primary.items():
+        b = backup.get(pid)
+        if not b:
+            continue
+        for field in ("mdGoals", "mdAssists", "mdCleanSheet", "mdMomFlag"):
+            pv = p.get(field, 0)
+            bv = b.get(field, 0)
+            if pv != bv:
+                diffs.append({
+                    "id": pid, "name": p.get("name", ""), "field": field,
+                    "primary": pv, "fotmob": bv,
+                })
+    return {
+        "matchday": md,
+        "primaryCount": len(primary),
+        "fotmobCount": len(backup),
+        "discrepancies": diffs,
+    }
+
+
 def load_all_cached_mds():
     """Load all cached matchdays from GitHub into memory on startup."""
     if not GITHUB_TOKEN:
@@ -540,6 +779,19 @@ def fetch_world_leader_team(matchday, phase_id=2):
 def build_data(matchday=11):
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Fetching MD{matchday}...")
 
+    # If this is a past MD with an immutable stats archive, that archive is
+    # the source of truth for mdGoals/mdAssists/mdCleanSheet/mdMins/mdSaves —
+    # UEFA's live feeds decay outside the match window, but the archive was
+    # captured while they were warm.
+    try:
+        current_md = get_current_matchday()
+    except Exception:
+        current_md = matchday
+    is_past_md = matchday < current_md
+    archive = load_player_stats_archive(matchday) if is_past_md else None
+    if archive:
+        print(f"  Stats archive: {len(archive)} players (past MD)")
+
     public_players = fetch_public_players_cached(matchday)
 
     # Fetch previous MD to compute per-MD stats via diff (uses cache if already loaded)
@@ -606,6 +858,8 @@ def build_data(matchday=11):
         print(f"Live scores fetch failed (non-fatal): {e}")
 
     def md_g(pid):
+        if archive and pid in archive:
+            return archive[pid].get("mdGoals", 0)
         if pid in live_events:
             return live_events[pid].get("goals", 0)
         if pid in live_scoring_stats:
@@ -616,6 +870,8 @@ def build_data(matchday=11):
         return md_stat(pid, "goals", public_players, prev_players)
 
     def md_a(pid):
+        if archive and pid in archive:
+            return archive[pid].get("mdAssists", 0)
         if pid in live_events:
             return live_events[pid].get("assists", 0)
         if pid in live_scoring_stats:
@@ -625,6 +881,8 @@ def build_data(matchday=11):
         return md_stat(pid, "assists", public_players, prev_players)
 
     def md_cs(pid):
+        if archive and pid in archive:
+            return archive[pid].get("mdCleanSheet", 0)
         if pid in live_clean_sheet_pids:
             return 1
         if pid in live_scoring_stats:
@@ -632,6 +890,16 @@ def build_data(matchday=11):
         if matchday == 1:
             return 0
         return md_stat(pid, "cleanSheets", public_players, prev_players)
+
+    def md_mins(pid, lss_default):
+        if archive and pid in archive:
+            return archive[pid].get("mdMins", 0)
+        return lss_default
+
+    def md_saves(pid, lss_default):
+        if archive and pid in archive:
+            return archive[pid].get("mdSaves", 0)
+        return lss_default
 
     managers_raw = fetch_team_data(matchday)
 
@@ -765,8 +1033,8 @@ def build_data(matchday=11):
                 "mdGoals": md_g(pid),
                 "mdAssists": md_a(pid),
                 "mdCleanSheet": md_cs(pid),
-                "mdMins": lss.get("mins", 0),
-                "mdSaves": lss.get("saves", 0),
+                "mdMins": md_mins(pid, lss.get("mins", 0)),
+                "mdSaves": md_saves(pid, lss.get("saves", 0)),
             }
         )
     all_players.sort(key=lambda x: x["totPts"], reverse=True)
@@ -817,6 +1085,8 @@ def build_data(matchday=11):
         "managers": managers,
         "allPlayers": all_players,
         "worldLeader": world_leader,
+        "statsArchived": archive is not None,
+        "unverified": is_unverified(matchday),
     }
 
 
@@ -1035,6 +1305,21 @@ def save_live_checkpoint(md, label):
     save_live_schedule()
     print(f"[LiveSnap] Saved checkpoint '{label}' for MD{md}")
 
+    # Capture immutable per-MD player stats archive while UEFA feeds are warm.
+    # FINALMD (09:00 day after) is the canonical write; HTM2/FTM2 act as
+    # backups in case FINALMD fails. save_player_stats_archive is idempotent.
+    if label in ("HTM2", "FTM2", "FINALMD"):
+        try:
+            save_player_stats_archive(md, data, source="live_window")
+        except Exception as e:
+            print(f"[StatsArchive] checkpoint write failed: {e}")
+        # Secondary backup from FotMob — independent source for goals/assists/MOTM/CS
+        if label == "FINALMD":
+            try:
+                save_fotmob_backup_archive(md)
+            except Exception as e:
+                print(f"[StatsFotmob] checkpoint write failed: {e}")
+
 
 def advance_to_next_md():
     """After FINALMD fires, advance schedule to the next matchday.
@@ -1192,6 +1477,84 @@ def list_snapshots():
                     pass
         return JSONResponse({"snapshots": sorted(mds), "liveSnapshots": sorted(live_mds)})
     return JSONResponse({"snapshots": [], "liveSnapshots": []})
+
+
+# ── PER-MD STATS ARCHIVE ENDPOINTS ─────────────────────────────────────────
+
+@app.post("/api/stats/archive/save")
+def admin_save_stats_archive(md: int, overwrite: bool = False):
+    """Force-capture the immutable per-MD player stats archive for the given MD.
+    Used to lock in data before it can decay from UEFA's feeds. Idempotent
+    unless overwrite=true (admin-only safety valve)."""
+    if not GITHUB_TOKEN:
+        return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
+    # Prefer fresh data — refresh forces a UEFA pull and writes md cache too.
+    data = refresh_cache(md)
+    if not data:
+        return JSONResponse({"error": "Could not build data for MD"}, status_code=500)
+    saved = save_player_stats_archive(md, data, source="manual", overwrite=overwrite)
+    return JSONResponse({
+        "matchday": md,
+        "saved": saved,
+        "overwrite": overwrite,
+        "playerCount": len(data.get("allPlayers", [])),
+    })
+
+
+@app.post("/api/stats/backup/fotmob/save")
+def admin_save_fotmob_backup(md: int, overwrite: bool = False):
+    """Force-capture FotMob secondary backup for the given MD.
+    Currently no-ops gracefully when FotMob is blocked."""
+    if not GITHUB_TOKEN:
+        return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
+    saved = save_fotmob_backup_archive(md, overwrite=overwrite)
+    return JSONResponse({
+        "matchday": md,
+        "saved": saved,
+        "overwrite": overwrite,
+        "note": "FotMob currently blocked (Cloudflare/Turnstile). Saves nothing until source is re-enabled.",
+    })
+
+
+@app.get("/api/stats/compare/{md}")
+def compare_stats_sources(md: int):
+    """Return diff between primary (UEFA) and FotMob backup archives for MD.
+    Useful for auditing data quality once both sources are populated."""
+    return JSONResponse(compare_archives(md))
+
+
+@app.get("/api/stats/list")
+def list_stats_archives():
+    """List which MDs have a primary stats archive and/or FotMob backup."""
+    if not GITHUB_TOKEN:
+        return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
+    url = f"{GH_API}/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{GH_STATS_DIR}"
+    r = requests.get(url, headers=_gh_headers(), params={"ref": GITHUB_BRANCH})
+    primary = []
+    fotmob = []
+    if r.status_code == 200:
+        for f in r.json():
+            n = f["name"]
+            if n.endswith("_players.json"):
+                try: primary.append(int(n.replace("md", "").replace("_players.json", "")))
+                except: pass
+            elif n.endswith("_fotmob.json"):
+                try: fotmob.append(int(n.replace("md", "").replace("_fotmob.json", "")))
+                except: pass
+    return JSONResponse({
+        "primary": sorted(primary),
+        "fotmob": sorted(fotmob),
+        "unverified": sorted(_load_unverified()),
+    })
+
+
+@app.post("/api/stats/unverified/mark")
+def admin_mark_unverified(md: int, unverified: bool = True):
+    """Mark or unmark a matchday as having unverified/incomplete stats."""
+    if not GITHUB_TOKEN:
+        return JSONResponse({"error": "GITHUB_TOKEN not set"}, status_code=500)
+    ok = mark_md_unverified(md, unverified=unverified)
+    return JSONResponse({"matchday": md, "unverified": unverified, "saved": ok})
 
 
 # ── LIVE SCHEDULE / SNAPSHOT ENDPOINTS ─────────────────────────────────────
