@@ -578,83 +578,122 @@ body::before {
   min-width: 0;
 }
 
-/* ─── FM HEADER (manager info + stats) ─── */
+/* ─── FM HEADER v2 (3-zone: identity / score / trajectory) ─── */
 .fm-hdr{
   background:linear-gradient(160deg,rgba(22,32,48,1) 0%,rgba(14,22,36,1) 100%);
   border-bottom:1px solid var(--border);
-  padding:16px 24px;
   position:relative;
   overflow:hidden;
   flex-shrink:0;
+  display:grid;
+  grid-template-columns:auto auto 1fr;
+  align-items:stretch;
+  min-height:124px;
 }
 .fm-hdr::before{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;
-  height:2px;
-  background:linear-gradient(90deg,transparent 0%,#2E7D32 30%,#4CAF50 50%,#2E7D32 70%,transparent 100%);
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent 0%,#00f0ff 20%,#00f0ff 80%,transparent 100%);
+  box-shadow:0 0 8px rgba(0,240,255,.4);
+  z-index:1;
 }
-.fm-hdr::after{
-  content:'';
-  position:absolute;
-  bottom:0;left:26px;right:26px;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
-}
-.fm-hdr-identity{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
-.fm-hdr-info{flex:1;min-width:0;}
-.fm-avatar-lg{
-  width:48px;height:48px;
-  border-radius:12px;
+.fm-hdr-zone{display:flex;align-items:center;}
+
+/* ── ZONE 1: IDENTITY (crest + name + rank badge) */
+.fm-hdr-identity-v2{gap:16px;padding:0 28px;border-right:1px solid rgba(255,255,255,.05);}
+.fm-crest-wrap{position:relative;flex-shrink:0;}
+.fm-crest{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(0,240,255,.25));}
+.fm-crest-fallback{
+  width:56px;height:56px;border-radius:14px;
   background:linear-gradient(135deg,#1a4a8a 0%,#0d2d5e 100%);
   border:1.5px solid rgba(100,180,255,.25);
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-display);
-  font-size:var(--type-headline);font-weight:var(--weight-bold);color:#fff;
-  letter-spacing:var(--ls-subtle);
-  box-shadow:0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);
-  flex-shrink:0;
+  font-family:var(--font-display);font-size:22px;font-weight:700;color:#fff;
 }
-.fm-mgr-name{
-  font-family:var(--font-display);
-  font-size:var(--type-title-2);font-weight:var(--weight-bold);
-  text-transform:uppercase;letter-spacing:var(--ls-wide);
-  line-height:var(--lh-none);color:var(--text);
+.fm-crest-badge{
+  position:absolute;bottom:-4px;right:-4px;
+  background:#0f1120;border:1px solid #1a1f35;
+  padding:2px 5px;font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:#b8c4e8;line-height:1;border-radius:3px;
 }
-.fm-mgr-sub{font-size:var(--type-footnote);color:var(--muted);margin-top:3px;font-family:var(--font-body);letter-spacing:var(--ls-subtle);}
+.fm-mgr-name-v2{
+  font-family:var(--font-display);font-size:24px;font-weight:700;
+  text-transform:uppercase;letter-spacing:-0.01em;line-height:1;color:#f0f4ff;
+}
+.fm-mgr-sub-v2{font-size:11px;color:#b8c4e8;margin-top:6px;font-family:var(--font-body);}
+.fm-rank-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.fm-rank-badge{
+  padding:2px 7px;font-family:'Oswald',sans-serif;font-size:10px;
+  font-weight:700;letter-spacing:0.12em;text-transform:uppercase;line-height:1.4;
+}
+.fm-rank-badge.top{background:#4CAF50;color:#0a0c14;}
+.fm-rank-badge.podium{background:#00f0ff;color:#0a0c14;}
+.fm-rank-badge.mid{background:rgba(255,255,255,.08);color:#b8c4e8;}
+.fm-rank-badge.last{background:#FF5722;color:#0a0c14;}
+.fm-rank-detail{font-family:'JetBrains Mono',monospace;font-size:11px;color:#b8c4e8;}
 
-/* stat strip — 4 columns */
-.fm-stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
+/* ── ZONE 2: SCORE (centered MD label + big number, then stats column) */
+.fm-hdr-score{
+  gap:20px;padding:0 32px;border-right:1px solid rgba(255,255,255,.05);
+  background:linear-gradient(to bottom,rgba(255,87,34,.04) 0%,transparent 100%);
 }
-.fm-stat{
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:8px;
-  padding:12px 16px;
-  display:flex;flex-direction:column;gap:4px;
-  box-shadow:0 2px 8px rgba(0,0,0,.25), 0 1px 0 rgba(255,255,255,.04) inset;
+.fm-score-num{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:120px;
 }
-.fm-stat-private{
-  border-color:rgba(255,179,0,.2);
-  background:rgba(255,179,0,.04);
+.fm-score-md{
+  font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:0.2em;text-transform:uppercase;color:#a8b4d8;
+  margin-bottom:4px;
 }
-.fm-stat-v{
-  font-family:var(--font-display);
-  font-size:var(--type-title-1);font-weight:var(--weight-bold);line-height:var(--lh-none);letter-spacing:var(--ls-tight);display:block;
+.fm-score-pts{
+  font-family:var(--font-display);font-size:80px;font-weight:800;
+  letter-spacing:-0.03em;line-height:.92;color:#f0f4ff;
+  font-variant-numeric:tabular-nums;
 }
-.fm-stat-v.orange{color:#FF5722;}
-.fm-stat-v.green{color:#4CAF50;}
-.fm-stat-v.chalk{color:var(--text);font-size:var(--type-headline);}
-.fm-stat-v.gold{color:#f59e0b;}
-.fm-stat-l{
-  font-family:var(--font-body);
-  font-size:var(--type-caption);color:var(--muted);
-  letter-spacing:var(--ls-spread);text-transform:uppercase;
-  display:block;font-weight:var(--weight-semi);
-  order:-1;
+.fm-score-stats{
+  display:flex;flex-direction:column;gap:14px;
+  border-left:1px solid rgba(255,255,255,.05);padding-left:20px;
+  align-self:stretch;justify-content:center;
+}
+.fm-score-stat-l{
+  font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:0.15em;text-transform:uppercase;color:#a8b4d8;
+}
+.fm-score-stat-l span{color:#b8c4e8;font-size:11px;}
+.fm-score-stat-v{
+  font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;
+  margin-top:2px;line-height:1;
+}
+.fm-score-stat-v.up{color:#4CAF50;}
+.fm-score-stat-v.up::before{content:'▲';font-size:.7em;margin-right:4px;}
+.fm-score-stat-v.down{color:#FF5722;}
+.fm-score-stat-v.down::before{content:'▼';font-size:.7em;margin-right:4px;}
+.fm-score-stat-v.flat{color:#b8c4e8;}
+.fm-score-stat-v.flat::before{content:'–';font-size:.9em;margin-right:4px;}
+.fm-score-stat-v.cyan{color:#00f0ff;}
+
+/* ── ZONE 3: TRAJECTORY (sparkline + total) */
+.fm-hdr-trajectory{gap:28px;padding:0 28px;}
+.fm-traj-chart{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;}
+.fm-traj-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.fm-traj-l{
+  font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:0.2em;text-transform:uppercase;color:#a8b4d8;
+}
+.fm-traj-r{font-family:'JetBrains Mono',monospace;font-size:11px;color:#b8c4e8;}
+.fm-traj-spark{width:100%;height:56px;display:block;}
+.fm-traj-total{
+  display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
+  border-left:1px solid rgba(255,255,255,.05);padding-left:24px;align-self:stretch;
+}
+.fm-traj-total-l{
+  font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:0.18em;text-transform:uppercase;color:#a8b4d8;
+}
+.fm-traj-total-v{
+  font-family:var(--font-display);font-size:28px;font-weight:800;
+  letter-spacing:-0.02em;color:#00f0ff;line-height:1;margin-top:4px;
+  font-variant-numeric:tabular-nums;
 }
 
 /* ─── FM CONTENT: two-column layout (pitch left + bench/transfers right) ─── */
@@ -4594,40 +4633,157 @@ function mdEventIcons(p) {
   return h + '</div>';
 }
 
-// ─── RENDER HEADER ───
+// ─── HEADER v2 HELPERS ───
+function mostOwnedTeam(roster) {
+  if (!roster || !Array.isArray(roster.starters)) return null;
+  const counts = {};
+  roster.starters.forEach(p => {
+    if (p.teamCode) counts[p.teamCode] = (counts[p.teamCode] || 0) + 1;
+  });
+  let best = null;
+  for (const code in counts) {
+    if (!best || counts[code] > best.count) best = { code, count: counts[code] };
+  }
+  return best;
+}
+
+function friendsAvgForMD(md) {
+  // Prefer cached MD data so historical viewing shows that MD's avg.
+  // Fall back to live MANAGERS for the current MD.
+  const src = (mdCache[md] && Array.isArray(mdCache[md].managers))
+    ? mdCache[md].managers : MANAGERS;
+  if (!src.length) return 0;
+  const sum = src.reduce((s, m) => s + (m.gdPoints || 0), 0);
+  return Math.round(sum / src.length);
+}
+
+function formatRank(r) {
+  if (!r || r <= 0) return '—';
+  if (r >= 1000000) return (r / 1000000).toFixed(1) + 'M';
+  if (r >= 1000) return Math.round(r / 1000) + 'k';
+  return r.toLocaleString();
+}
+
+function rankBadge(pr, total) {
+  if (pr === 1) return { label: 'TOP SCORER MD', cls: 'top' };
+  if (pr === total) return { label: 'LAST PLACE', cls: 'last' };
+  if (pr <= 3) return { label: 'PODIUM #' + pr, cls: 'podium' };
+  return { label: '#' + pr, cls: 'mid' };
+}
+
+function last6Trajectory(guid, currentMd) {
+  const points = [];
+  const start = Math.max(1, currentMd - 5);
+  for (let i = start; i <= currentMd; i++) {
+    const data = mdCache[i];
+    if (data && Array.isArray(data.managers)) {
+      const m = data.managers.find(x => x.guid === guid);
+      if (m) points.push({ md: i, pts: m.gdPoints || 0 });
+    }
+  }
+  return points;
+}
+
+function buildSparkline(points, w, h) {
+  if (points.length < 2) return null;
+  const max = Math.max.apply(null, points.map(p => p.pts).concat([10]));
+  const stepX = w / (points.length - 1);
+  const xy = points.map((p, i) => ({
+    x: i * stepX,
+    y: h - (p.pts / max) * h,
+  }));
+  const line = xy.map((pt, i) => (i === 0 ? 'M' : 'L') + ' ' + pt.x.toFixed(1) + ' ' + pt.y.toFixed(1)).join(' ');
+  const area = line + ' L ' + w + ' ' + h + ' L 0 ' + h + ' Z';
+  const last = xy[xy.length - 1];
+  return { line, area, lastX: last.x, lastY: last.y };
+}
+
+// ─── RENDER HEADER v2 ───
 function renderHeader() {
   const m = MANAGERS.find(x => x.guid === selectedMgr);
   if (!m) return;
   const pr = getPrivateRank(m.guid);
-  const rankStr = '#' + (m.gdRank || 0).toLocaleString();
-  const privateMedal = pr === 1 ? '\uD83E\uDD47' : pr === 2 ? '\uD83E\uDD48' : pr === 3 ? '\uD83E\uDD49' : null;
-  const privateRankStr = privateMedal ? `${privateMedal} #${pr}` : `#${pr}`;
+  const total = MANAGERS.length;
+  const badge = rankBadge(pr, total);
+
+  // Crest: most-owned team in this MD's roster
+  const roster = ROSTERS[selectedMgr];
+  const crest = mostOwnedTeam(roster);
+  const crestHtml = crest
+    ? `<img class="fm-crest" src="/static/logos/${crest.code}.png" alt="${crest.code}" onerror="this.outerHTML='<div class=fm-crest-fallback>${initials(nick(m.username))}</div>'"/>
+       <div class="fm-crest-badge">×${crest.count}</div>`
+    : `<div class="fm-crest-fallback">${initials(nick(m.username))}</div>`;
+
+  // Friends avg + delta
+  const avg = friendsAvgForMD(MD);
+  const delta = (m.gdPoints || 0) - avg;
+  const trendCls = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
+  const deltaStr = (delta > 0 ? '+' : '') + delta;
+
+  // Sparkline last 6 MDs
+  const traj = last6Trajectory(m.guid, MD);
+  const SPARK_W = 280, SPARK_H = 56;
+  const spark = buildSparkline(traj, SPARK_W, SPARK_H);
+  const sparkHtml = spark
+    ? `<svg class="fm-traj-spark" viewBox="0 0 ${SPARK_W} ${SPARK_H}" preserveAspectRatio="none">
+         <defs>
+           <linearGradient id="fmSparkGrad-${m.guid}" x1="0" x2="0" y1="0" y2="1">
+             <stop offset="0%" stop-color="#FF5722" stop-opacity="0.4"/>
+             <stop offset="100%" stop-color="#FF5722" stop-opacity="0"/>
+           </linearGradient>
+         </defs>
+         <path d="${spark.area}" fill="url(#fmSparkGrad-${m.guid})"/>
+         <path d="${spark.line}" stroke="#FF5722" stroke-width="1.5" fill="none"/>
+         <circle cx="${spark.lastX}" cy="${spark.lastY}" r="3" fill="#FF5722"/>
+         <circle cx="${spark.lastX}" cy="${spark.lastY}" r="6" fill="none" stroke="#FF5722" stroke-opacity="0.4"/>
+       </svg>`
+    : `<div style="height:56px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8090c0;">— more matchdays needed —</div>`;
+  const trajRange = traj.length >= 2
+    ? traj[0].pts + ' → ' + traj[traj.length - 1].pts
+    : '';
 
   document.getElementById('fmHeader').innerHTML = `
     <div class="fm-hdr">
-      <div class="fm-hdr-identity">
-        <div class="fm-avatar-lg">${initials(nick(m.username))}</div>
-        <div class="fm-hdr-info">
-          <div class="fm-mgr-name">${nick(m.username)}</div>
-          <div class="fm-mgr-sub">${m.teamName}</div>
+      <div class="fm-hdr-zone fm-hdr-identity-v2">
+        <div class="fm-crest-wrap">${crestHtml}</div>
+        <div>
+          <div class="fm-mgr-name-v2">${nick(m.username)}</div>
+          <div class="fm-mgr-sub-v2">${m.teamName}</div>
+          <div class="fm-rank-row">
+            <div class="fm-rank-badge ${badge.cls}">${badge.label}</div>
+            <div class="fm-rank-detail">friends #${pr}/${total}</div>
+          </div>
         </div>
       </div>
-      <div class="fm-stats">
-        <div class="fm-stat">
-          <span class="fm-stat-l">MD${MD} PTS</span>
-          <span class="fm-stat-v orange">${m.gdPoints}</span>
+
+      <div class="fm-hdr-zone fm-hdr-score">
+        <div class="fm-score-num">
+          <div class="fm-score-md">MD${MD}</div>
+          <div class="fm-score-pts">${m.gdPoints || 0}</div>
         </div>
-        <div class="fm-stat">
-          <span class="fm-stat-l">TOTAL PTS</span>
-          <span class="fm-stat-v green">${m.ovPoints}</span>
+        <div class="fm-score-stats">
+          <div>
+            <div class="fm-score-stat-l">vs friends avg <span>${avg}</span></div>
+            <div class="fm-score-stat-v ${trendCls}">${deltaStr}</div>
+          </div>
+          <div>
+            <div class="fm-score-stat-l">global rank</div>
+            <div class="fm-score-stat-v cyan">${formatRank(m.gdRank)}</div>
+          </div>
         </div>
-        <div class="fm-stat">
-          <span class="fm-stat-l">OVERALL</span>
-          <span class="fm-stat-v chalk">${rankStr}</span>
+      </div>
+
+      <div class="fm-hdr-zone fm-hdr-trajectory">
+        <div class="fm-traj-chart">
+          <div class="fm-traj-top">
+            <div class="fm-traj-l">Last 6 matchdays</div>
+            <div class="fm-traj-r">${trajRange}</div>
+          </div>
+          ${sparkHtml}
         </div>
-        <div class="fm-stat fm-stat-private">
-          <span class="fm-stat-l">LIGA PRIVAT\u0102</span>
-          <span class="fm-stat-v gold">${privateRankStr}</span>
+        <div class="fm-traj-total">
+          <div class="fm-traj-total-l">Total</div>
+          <div class="fm-traj-total-v">${m.ovPoints || 0}</div>
         </div>
       </div>
     </div>`;
