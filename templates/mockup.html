@@ -588,7 +588,7 @@ body::before {
   display:grid;
   grid-template-columns:auto auto 1fr;
   align-items:stretch;
-  min-height:124px;
+  min-height:140px;
 }
 .fm-hdr::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
@@ -681,9 +681,27 @@ body::before {
   letter-spacing:0.2em;text-transform:uppercase;color:#a8b4d8;
 }
 .fm-traj-r{font-family:'JetBrains Mono',monospace;font-size:11px;color:#b8c4e8;}
-.fm-traj-spark{width:100%;height:56px;display:block;}
-.fm-spark-hit{cursor:help;}
-.fm-spark-hit:hover{fill:rgba(255,87,34,0.15);}
+/* sparkline wrap: SVG stretches to fill, dots + MD labels are real DOM
+   elements positioned by percentage so they keep round shape & readable text */
+.fm-traj-svg-wrap{position:relative;width:100%;height:72px;}
+.fm-traj-line{position:absolute;left:0;right:0;top:0;height:56px;width:100%;display:block;}
+.fm-traj-dot{
+  position:absolute;width:8px;height:8px;border-radius:50%;
+  background:#FF5722;border:none;padding:0;cursor:help;
+  transform:translate(-50%,-50%);transition:transform .15s ease,box-shadow .15s ease;
+  box-shadow:0 0 0 0 rgba(255,87,34,0);
+}
+.fm-traj-dot.dim{background:rgba(255,87,34,.55);width:6px;height:6px;}
+.fm-traj-dot:hover,.fm-traj-dot:focus-visible{
+  transform:translate(-50%,-50%) scale(1.6);
+  box-shadow:0 0 0 6px rgba(255,87,34,.2);outline:none;
+}
+.fm-traj-label{
+  position:absolute;bottom:0;
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:#8090c0;
+  transform:translateX(-50%);line-height:1;pointer-events:none;
+  font-variant-numeric:tabular-nums;
+}
 .fm-traj-total{
   display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
   border-left:1px solid rgba(255,255,255,.05);padding-left:24px;align-self:stretch;
@@ -4729,40 +4747,55 @@ function renderHeader() {
   const trendCls = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
   const deltaStr = (delta > 0 ? '+' : '') + delta;
 
-  // Sparkline: full history of past MDs (1 → currentMd-1)
+  // Sparkline: full history of past MDs (1 → currentMd-1).
+  // Hybrid render: SVG line + area for the curve, HTML dots + labels so they
+  // stay round and readable regardless of how the chart is stretched.
   const traj = fullTrajectory(m.guid, MD);
-  const SPARK_W = 280, SPARK_H = 56;
-  const spark = buildSparkline(traj, SPARK_W, SPARK_H);
   let sparkHtml;
-  if (spark) {
-    const last = spark.points[spark.points.length - 1];
-    const dots = spark.points.map((pt, i) => {
-      const isLast = i === spark.points.length - 1;
-      const r = isLast ? 3 : 2;
-      const fill = isLast ? '#FF5722' : 'rgba(255,87,34,0.55)';
-      // Invisible larger hit area on top so hover/title is easy to trigger
-      return `<circle class="fm-spark-hit" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="9" fill="transparent">
-                <title>MD${pt.md}: ${pt.pts} pts</title>
-              </circle>
-              <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${r}" fill="${fill}" pointer-events="none"/>`;
+  if (traj.length >= 2) {
+    const max = Math.max.apply(null, traj.map(p => p.pts).concat([10]));
+    const CHART_H = 56;            // px reserved for the line/dots
+    const PAD_TOP = 4;             // keep peak dots from clipping
+    const usable = CHART_H - PAD_TOP;
+    const ptsXY = traj.map((p, i) => ({
+      md: p.md,
+      pts: p.pts,
+      xPct: (i / (traj.length - 1)) * 100,
+      yPx: PAD_TOP + (1 - p.pts / max) * usable,
+    }));
+    // SVG path uses 0..100 viewBox X (matches xPct) so it stretches with
+    // the container; vector-effect keeps the stroke 1.5px regardless.
+    const linePath = ptsXY.map((pt, i) => (i === 0 ? 'M' : 'L') + ' ' + pt.xPct.toFixed(2) + ' ' + pt.yPx.toFixed(1)).join(' ');
+    const areaPath = linePath + ' L 100 ' + CHART_H + ' L 0 ' + CHART_H + ' Z';
+    const dotsHtml = ptsXY.map((pt, i) => {
+      const isLast = i === ptsXY.length - 1;
+      return `<button type="button" class="fm-traj-dot${isLast ? '' : ' dim'}" style="left:${pt.xPct}%;top:${pt.yPx}px" title="MD${pt.md}: ${pt.pts} pts" aria-label="MD${pt.md}: ${pt.pts} pts"></button>`;
     }).join('');
-    const lastHalo = `<circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="6" fill="none" stroke="#FF5722" stroke-opacity="0.4" pointer-events="none"/>`;
-    sparkHtml = `<svg class="fm-traj-spark" viewBox="0 0 ${SPARK_W} ${SPARK_H}" preserveAspectRatio="none">
-       <defs>
-         <linearGradient id="fmSparkGrad-${m.guid}" x1="0" x2="0" y1="0" y2="1">
-           <stop offset="0%" stop-color="#FF5722" stop-opacity="0.4"/>
-           <stop offset="100%" stop-color="#FF5722" stop-opacity="0"/>
-         </linearGradient>
-       </defs>
-       <path d="${spark.area}" fill="url(#fmSparkGrad-${m.guid})"/>
-       <path d="${spark.line}" stroke="#FF5722" stroke-width="1.5" fill="none"/>
-       ${lastHalo}
-       ${dots}
-     </svg>`;
+    // MD labels — show every one if ≤ 8 points, otherwise thin to fit
+    const showEvery = ptsXY.length > 12 ? 2 : 1;
+    const labelsHtml = ptsXY.map((pt, i) => {
+      const isEdge = i === 0 || i === ptsXY.length - 1;
+      if (!isEdge && i % showEvery !== 0) return '';
+      return `<span class="fm-traj-label" style="left:${pt.xPct}%">MD${pt.md}</span>`;
+    }).join('');
+    sparkHtml = `<div class="fm-traj-svg-wrap">
+      <svg class="fm-traj-line" viewBox="0 0 100 ${CHART_H}" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="fmSparkGrad-${m.guid}" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#FF5722" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#FF5722" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="${areaPath}" fill="url(#fmSparkGrad-${m.guid})"/>
+        <path d="${linePath}" stroke="#FF5722" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke"/>
+      </svg>
+      ${dotsHtml}
+      ${labelsHtml}
+    </div>`;
   } else if (traj.length === 1) {
-    sparkHtml = `<div style="height:56px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8090c0;">MD${traj[0].md}: ${traj[0].pts} pts</div>`;
+    sparkHtml = `<div style="height:72px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8090c0;">MD${traj[0].md}: ${traj[0].pts} pts</div>`;
   } else {
-    sparkHtml = `<div style="height:56px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8090c0;">— no history yet —</div>`;
+    sparkHtml = `<div style="height:72px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8090c0;">— no history yet —</div>`;
   }
   const trajRange = traj.length >= 2
     ? `MD${traj[0].md} → MD${traj[traj.length - 1].md}`
