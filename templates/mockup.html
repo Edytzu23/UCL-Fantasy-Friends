@@ -682,6 +682,8 @@ body::before {
 }
 .fm-traj-r{font-family:'JetBrains Mono',monospace;font-size:11px;color:#b8c4e8;}
 .fm-traj-spark{width:100%;height:56px;display:block;}
+.fm-spark-hit{cursor:help;}
+.fm-spark-hit:hover{fill:rgba(255,87,34,0.15);}
 .fm-traj-total{
   display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
   border-left:1px solid rgba(255,255,255,.05);padding-left:24px;align-self:stretch;
@@ -4411,6 +4413,10 @@ async function silentLoad(md) {
     if (currentTab === 'trofeu') {
       try { renderTrofeu(); } catch (_) { /* ignore */ }
     }
+    // Refresh header so the history sparkline grows as past MDs stream in.
+    if (currentTab === 'clasament' && typeof selectedMgr !== 'undefined' && selectedMgr) {
+      try { renderHeader(); } catch (_) { /* ignore */ }
+    }
   } catch(e) { /* silent fail */ }
 }
 
@@ -4671,10 +4677,12 @@ function rankBadge(pr, total) {
   return { label: '#' + pr, cls: 'mid' };
 }
 
-function last6Trajectory(guid, currentMd) {
+// Full history: every past MD (excludes the currently-viewed one — that's
+// already shown as the big number in the score zone). Sparse: skips MDs
+// not yet loaded in mdCache, so the line connects only the data we have.
+function fullTrajectory(guid, currentMd) {
   const points = [];
-  const start = Math.max(1, currentMd - 5);
-  for (let i = start; i <= currentMd; i++) {
+  for (let i = 1; i < currentMd; i++) {
     const data = mdCache[i];
     if (data && Array.isArray(data.managers)) {
       const m = data.managers.find(x => x.guid === guid);
@@ -4687,15 +4695,16 @@ function last6Trajectory(guid, currentMd) {
 function buildSparkline(points, w, h) {
   if (points.length < 2) return null;
   const max = Math.max.apply(null, points.map(p => p.pts).concat([10]));
-  const stepX = w / (points.length - 1);
+  const stepX = points.length > 1 ? w / (points.length - 1) : 0;
   const xy = points.map((p, i) => ({
+    md: p.md,
+    pts: p.pts,
     x: i * stepX,
     y: h - (p.pts / max) * h,
   }));
   const line = xy.map((pt, i) => (i === 0 ? 'M' : 'L') + ' ' + pt.x.toFixed(1) + ' ' + pt.y.toFixed(1)).join(' ');
   const area = line + ' L ' + w + ' ' + h + ' L 0 ' + h + ' Z';
-  const last = xy[xy.length - 1];
-  return { line, area, lastX: last.x, lastY: last.y };
+  return { line, area, points: xy };
 }
 
 // ─── RENDER HEADER v2 ───
@@ -4720,26 +4729,43 @@ function renderHeader() {
   const trendCls = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
   const deltaStr = (delta > 0 ? '+' : '') + delta;
 
-  // Sparkline last 6 MDs
-  const traj = last6Trajectory(m.guid, MD);
+  // Sparkline: full history of past MDs (1 → currentMd-1)
+  const traj = fullTrajectory(m.guid, MD);
   const SPARK_W = 280, SPARK_H = 56;
   const spark = buildSparkline(traj, SPARK_W, SPARK_H);
-  const sparkHtml = spark
-    ? `<svg class="fm-traj-spark" viewBox="0 0 ${SPARK_W} ${SPARK_H}" preserveAspectRatio="none">
-         <defs>
-           <linearGradient id="fmSparkGrad-${m.guid}" x1="0" x2="0" y1="0" y2="1">
-             <stop offset="0%" stop-color="#FF5722" stop-opacity="0.4"/>
-             <stop offset="100%" stop-color="#FF5722" stop-opacity="0"/>
-           </linearGradient>
-         </defs>
-         <path d="${spark.area}" fill="url(#fmSparkGrad-${m.guid})"/>
-         <path d="${spark.line}" stroke="#FF5722" stroke-width="1.5" fill="none"/>
-         <circle cx="${spark.lastX}" cy="${spark.lastY}" r="3" fill="#FF5722"/>
-         <circle cx="${spark.lastX}" cy="${spark.lastY}" r="6" fill="none" stroke="#FF5722" stroke-opacity="0.4"/>
-       </svg>`
-    : `<div style="height:56px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8090c0;">— more matchdays needed —</div>`;
+  let sparkHtml;
+  if (spark) {
+    const last = spark.points[spark.points.length - 1];
+    const dots = spark.points.map((pt, i) => {
+      const isLast = i === spark.points.length - 1;
+      const r = isLast ? 3 : 2;
+      const fill = isLast ? '#FF5722' : 'rgba(255,87,34,0.55)';
+      // Invisible larger hit area on top so hover/title is easy to trigger
+      return `<circle class="fm-spark-hit" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="9" fill="transparent">
+                <title>MD${pt.md}: ${pt.pts} pts</title>
+              </circle>
+              <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${r}" fill="${fill}" pointer-events="none"/>`;
+    }).join('');
+    const lastHalo = `<circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="6" fill="none" stroke="#FF5722" stroke-opacity="0.4" pointer-events="none"/>`;
+    sparkHtml = `<svg class="fm-traj-spark" viewBox="0 0 ${SPARK_W} ${SPARK_H}" preserveAspectRatio="none">
+       <defs>
+         <linearGradient id="fmSparkGrad-${m.guid}" x1="0" x2="0" y1="0" y2="1">
+           <stop offset="0%" stop-color="#FF5722" stop-opacity="0.4"/>
+           <stop offset="100%" stop-color="#FF5722" stop-opacity="0"/>
+         </linearGradient>
+       </defs>
+       <path d="${spark.area}" fill="url(#fmSparkGrad-${m.guid})"/>
+       <path d="${spark.line}" stroke="#FF5722" stroke-width="1.5" fill="none"/>
+       ${lastHalo}
+       ${dots}
+     </svg>`;
+  } else if (traj.length === 1) {
+    sparkHtml = `<div style="height:56px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8090c0;">MD${traj[0].md}: ${traj[0].pts} pts</div>`;
+  } else {
+    sparkHtml = `<div style="height:56px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8090c0;">— no history yet —</div>`;
+  }
   const trajRange = traj.length >= 2
-    ? traj[0].pts + ' → ' + traj[traj.length - 1].pts
+    ? `MD${traj[0].md} → MD${traj[traj.length - 1].md}`
     : '';
 
   document.getElementById('fmHeader').innerHTML = `
@@ -4776,7 +4802,7 @@ function renderHeader() {
       <div class="fm-hdr-zone fm-hdr-trajectory">
         <div class="fm-traj-chart">
           <div class="fm-traj-top">
-            <div class="fm-traj-l">Last 6 matchdays</div>
+            <div class="fm-traj-l">History</div>
             <div class="fm-traj-r">${trajRange}</div>
           </div>
           ${sparkHtml}
