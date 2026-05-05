@@ -695,7 +695,29 @@ body::before {
 .fm-traj-dot:hover,.fm-traj-dot:focus-visible{
   transform:translate(-50%,-50%) scale(1.6);
   box-shadow:0 0 0 6px rgba(255,87,34,.2);outline:none;
+  z-index:5;
 }
+/* Instant CSS tooltip — appears on hover with no native browser delay */
+.fm-traj-dot::after{
+  content:attr(data-tip);
+  position:absolute;left:50%;bottom:calc(100% + 10px);
+  transform:translateX(-50%);
+  background:rgba(15,17,32,.96);
+  border:1px solid rgba(255,87,34,.45);
+  color:#f0f4ff;font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:4px 8px;border-radius:3px;white-space:nowrap;line-height:1.2;
+  opacity:0;pointer-events:none;
+  transition:opacity .1s ease;z-index:6;
+  font-variant-numeric:tabular-nums;
+}
+.fm-traj-dot::before{
+  content:'';position:absolute;left:50%;bottom:calc(100% + 4px);
+  border:5px solid transparent;border-top-color:rgba(255,87,34,.45);
+  margin-left:-5px;
+  opacity:0;pointer-events:none;transition:opacity .1s ease;z-index:6;
+}
+.fm-traj-dot:hover::after,.fm-traj-dot:hover::before,
+.fm-traj-dot:focus-visible::after,.fm-traj-dot:focus-visible::before{opacity:1;}
 .fm-traj-label{
   position:absolute;bottom:0;
   font-family:'JetBrains Mono',monospace;font-size:9px;color:#8090c0;
@@ -4769,7 +4791,7 @@ function renderHeader() {
     const areaPath = linePath + ' L 100 ' + CHART_H + ' L 0 ' + CHART_H + ' Z';
     const dotsHtml = ptsXY.map((pt, i) => {
       const isLast = i === ptsXY.length - 1;
-      return `<button type="button" class="fm-traj-dot${isLast ? '' : ' dim'}" style="left:${pt.xPct}%;top:${pt.yPx}px" title="MD${pt.md}: ${pt.pts} pts" aria-label="MD${pt.md}: ${pt.pts} pts"></button>`;
+      return `<button type="button" class="fm-traj-dot${isLast ? '' : ' dim'}" style="left:${pt.xPct}%;top:${pt.yPx}px" data-tip="MD${pt.md}: ${pt.pts} pts" aria-label="MD${pt.md}: ${pt.pts} pts"></button>`;
     }).join('');
     // MD labels — show every one if ≤ 8 points, otherwise thin to fit
     const showEvery = ptsXY.length > 12 ? 2 : 1;
