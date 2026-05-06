@@ -7102,22 +7102,20 @@ async function showMatchModal(idx) {
     }
     function groupByPos(arr) {
       const out = { GK:[], DEF:[], MID:[], FWD:[] };
-      for (const p of arr) {
-        const code = posMap[(p.player||{}).fieldPosition||p.fieldPosition||p.type||''] || 'MID';
-        (out[code] || out.MID).push(p);
-      }
+      for (const p of arr) (out[playerStats(p).pos] || out.MID).push(p);
       return out;
     }
-    function getSubs(team) {
-      const s = (team||{}).substitutions;
-      if(!s) return [];
-      if(Array.isArray(s)) return s.map(x=>x.playerIn||x).filter(Boolean);
-      if(s.playerIn) return Array.isArray(s.playerIn)?s.playerIn:[s.playerIn];
-      return [];
+    // Bench players who came on during the match (fantasy minutes > 0).
+    function getSubsOn(team) {
+      const bench = (team||{}).bench || [];
+      return bench.filter(b => {
+        const pid = String((b.player||{}).id || b.id || '');
+        return ((fantasy||{})[pid] || {}).mins > 0;
+      });
     }
     const hf = ((lineups||{}).homeTeam||{}).field||[];
     const af = ((lineups||{}).awayTeam||{}).field||[];
-    const hs = getSubs((lineups||{}).homeTeam), as_ = getSubs((lineups||{}).awayTeam);
+    const hs = getSubsOn((lineups||{}).homeTeam), as_ = getSubsOn((lineups||{}).awayTeam);
     const statusLabel = isLive?`LIVE ${minute}'`:isFT?'Final':'Programat';
     const statusCls = isLive?'live':isFT?'ft':'';
     // Build timeline events
