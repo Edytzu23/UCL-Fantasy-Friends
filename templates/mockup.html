@@ -2741,6 +2741,35 @@ body::before {
 .match-ev-icon{font-size:11px;line-height:1}
 .match-sub-divider{font-size:10px;color:var(--muted);font-style:italic;padding:6px 0 2px}
 @media(max-width:600px){.match-modal-body{grid-template-columns:1fr}.match-modal-col:first-child{border-right:none;border-bottom:1px solid var(--border)}.match-modal-scoreline{font-size:32px}}
+
+/* shared mirrored pitch in match modal */
+.match-modal-pitch-wrap{padding:14px 16px 18px;display:flex;flex-direction:column;gap:8px}
+.match-modal-team-strip{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.match-modal-team-strip img{width:22px;height:22px;object-fit:contain}
+.match-modal-team-strip.bot{justify-content:flex-end}
+.fm-pitch.fm-pitch-match{min-height:580px;padding:18px 10px;gap:6px}
+.fm-pitch.fm-pitch-match .fm-row{gap:6px}
+.fm-pc.is-mini{width:96px}
+.fm-pc.is-mini .fm-pc-body{width:90px;padding:9px 6px 9px}
+.fm-pc.is-mini .fm-pc-n{font-size:11px}
+.fm-pc.is-mini .fm-pc-p{font-size:18px}
+.fm-pc.is-mini .fm-pc-events{position:absolute;top:-5px;right:-5px;display:flex;gap:2px;align-items:center;background:rgba(10,12,20,.92);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:2px 4px;z-index:3}
+.fm-pc.is-mini .fm-ev-i{display:inline-flex;align-items:center;line-height:1}
+.match-modal-bench-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.match-modal-bench-col{min-width:0}
+.match-modal-bench-title{font-family:var(--font-display);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.match-modal-bench-cards{display:flex;flex-wrap:wrap;gap:6px}
+.fm-pc.is-mini.fm-pc-bench{width:88px}
+.fm-pc.is-mini.fm-pc-bench .fm-pc-body{width:82px;padding:7px 5px 7px;position:relative}
+.fm-pc.is-mini.fm-pc-bench .fm-pc-body .fm-br-pos{position:absolute;top:5px;left:5px;z-index:2;font-size:8px;padding:1px 4px;letter-spacing:.04em}
+@media(max-width:600px){
+  .fm-pitch.fm-pitch-match{min-height:480px;padding:14px 6px}
+  .fm-pc.is-mini{width:74px}
+  .fm-pc.is-mini .fm-pc-body{width:70px;padding:7px 4px 7px}
+  .fm-pc.is-mini .fm-pc-n{font-size:10px}
+  .fm-pc.is-mini .fm-pc-p{font-size:15px}
+  .match-modal-bench-row{grid-template-columns:1fr}
+}
 /* match modal tabs */
 .match-modal-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 20px}
 .match-modal-tab{padding:10px 20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
@@ -4239,6 +4268,38 @@ body::before {
 </div><!-- /app-frame -->
 
 <script>
+// ─── CLIENT CACHE ───
+// localStorage-backed stale-while-revalidate. Past MDs trusted forever; live MD
+// always re-fetches in background. Bump CACHE_VER to wipe everything.
+const CACHE_VER = '1';
+const CACHE_PREFIX = `pp.cache.v${CACHE_VER}.`;
+(function migrateCache(){
+  try {
+    if (localStorage.getItem('pp.cache.version') !== CACHE_VER) {
+      Object.keys(localStorage).filter(k => k.startsWith('pp.cache.')).forEach(k => localStorage.removeItem(k));
+      localStorage.setItem('pp.cache.version', CACHE_VER);
+    }
+  } catch(_) {}
+})();
+function cacheGet(key) {
+  try { const raw = localStorage.getItem(CACHE_PREFIX + key); return raw ? JSON.parse(raw) : null; }
+  catch(_) { return null; }
+}
+function cacheSet(key, value) {
+  try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(value)); }
+  catch(_) {}
+}
+function cacheKeys(prefix) {
+  try {
+    const out = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(CACHE_PREFIX + prefix)) out.push(k.slice(CACHE_PREFIX.length));
+    }
+    return out;
+  } catch(_) { return []; }
+}
+
 // ─── DATA ───
 let MD = 12;
 // LIVE_MD = the actual current matchday (the live one). MD tracks whichever
@@ -4276,14 +4337,30 @@ function nick(username) { return NICKNAMES[(username||'').toLowerCase()] || user
 
 async function loadApiData(md) {
   try {
-    let data;
-    if (mdCache[md]) {
-      data = mdCache[md];
-    } else {
-      const r = await fetch(`/api/data?md=${md}`);
-      data = await r.json();
-      if (data.error) { console.error('API error:', data.error); return; }
-      mdCache[md] = data;
+    // Hydrate from localStorage if not already in mdCache.
+    if (!mdCache[md]) {
+      const cached = cacheGet(`md.${md}`);
+      if (cached && cached.data) mdCache[md] = cached.data;
+    }
+    const isLive = (md === LIVE_MD);
+    const haveCache = !!mdCache[md];
+    let data = mdCache[md];
+    // Fetch fresh if missing OR live MD (always revalidate).
+    if (!haveCache || isLive) {
+      try {
+        const r = await fetch(`/api/data?md=${md}`);
+        const fresh = await r.json();
+        if (fresh.error) {
+          if (!haveCache) { console.error('API error:', fresh.error); return; }
+        } else {
+          data = fresh;
+          mdCache[md] = data;
+          cacheSet(`md.${md}`, { data, savedAt: Date.now(), liveMd: LIVE_MD });
+        }
+      } catch(e) {
+        if (!haveCache) throw e;
+        // network failed but we have cache — render it
+      }
     }
 
     // Map managers
@@ -4439,11 +4516,22 @@ function renderMdDropdown() {
 }
 
 async function silentLoad(md) {
-  if (mdCache[md]) return;
+  // Hydrate from localStorage first.
+  if (!mdCache[md]) {
+    const cached = cacheGet(`md.${md}`);
+    if (cached && cached.data) mdCache[md] = cached.data;
+  }
+  // Past MD with cache stored after it was finalised (cached.liveMd > md) — trust forever.
+  if (mdCache[md] && md < LIVE_MD) {
+    const cached = cacheGet(`md.${md}`);
+    if (cached && cached.liveMd != null && cached.liveMd > md) return;
+  }
   try {
     const r = await fetch(`/api/data?md=${md}`);
     const data = await r.json();
+    if (data.error) return;
     mdCache[md] = data;
+    cacheSet(`md.${md}`, { data, savedAt: Date.now(), liveMd: LIVE_MD });
     // If PS5 view is currently shown, re-render so the best-ever ranks update
     // as more MDs stream in.
     if (currentSort === 'ps5' && currentTab === 'clasament') {
@@ -6911,8 +6999,17 @@ async function showMatchModal(idx) {
   overlay.addEventListener('click', e => { if (e.target === overlay) closeMatchModal(); });
   document.body.appendChild(overlay);
   try {
-    const r = await fetch(`/api/match-detail/${fix.mId}`);
-    const { match, lineups, fantasy } = await r.json();
+    const cached = cacheGet(`match.${fix.mId}`);
+    let payload;
+    if (cached && cached.data && cached.status === 'FINISHED') {
+      payload = cached.data;
+    } else {
+      const r = await fetch(`/api/match-detail/${fix.mId}`);
+      payload = await r.json();
+      const matchStatus = (payload && payload.match && payload.match.status) || '';
+      cacheSet(`match.${fix.mId}`, { data: payload, savedAt: Date.now(), status: matchStatus });
+    }
+    const { match, lineups, fantasy } = payload;
     const score = (match.score || {}).total || {};
     const homeScore = score.home != null ? score.home : '?';
     const awayScore = score.away != null ? score.away : '?';
@@ -6929,12 +7026,12 @@ async function showMatchModal(idx) {
       const apid = String((s.assistPlayer || s.assist || {}).id || ''); if (apid) { assistMap[apid] = (assistMap[apid]||0)+1; }
     }
     const posMap = {G:'GK',D:'DEF',M:'MID',F:'FWD',GK:'GK',DEF:'DEF',MID:'MID',FWD:'FWD',GOALKEEPER:'GK',DEFENDER:'DEF',MIDFIELDER:'MID',FORWARD:'FWD'};
-    const posOrder = {GK:0,DEF:1,MID:2,FWD:3};
-    function sortByPos(arr) { return [...arr].sort((a,b) => { const pa=posOrder[posMap[(a.player||{}).fieldPosition||a.fieldPosition||'']||'MID']; const pb=posOrder[posMap[(b.player||{}).fieldPosition||b.fieldPosition||'']||'MID']; return (pa!=null?pa:2)-(pb!=null?pb:2); }); }
     const goalSvg = `<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#FF4444" stroke-width="1.3"/><path d="M10 4.5L13 7.5L11.8 11.5H8.2L7 7.5Z" stroke="#FF4444" stroke-width="1" stroke-linejoin="round" fill="none"/><line x1="10" y1="4.5" x2="10" y2="1.5" stroke="#FF4444" stroke-width=".8"/><line x1="13" y1="7.5" x2="17.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="11.8" y1="11.5" x2="15.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="8.2" y1="11.5" x2="4.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="7" y1="7.5" x2="2.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/></svg>`;
     const ogSvg = `<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#FF4444" stroke-width="1.3"/><path d="M10 4.5L13 7.5L11.8 11.5H8.2L7 7.5Z" stroke="#FF4444" stroke-width="1" stroke-linejoin="round" fill="none"/><line x1="10" y1="4.5" x2="10" y2="1.5" stroke="#FF4444" stroke-width=".8"/><line x1="13" y1="7.5" x2="17.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="11.8" y1="11.5" x2="15.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="8.2" y1="11.5" x2="4.5" y2="16" stroke="#FF4444" stroke-width=".8"/><line x1="7" y1="7.5" x2="2.5" y2="5.5" stroke="#FF4444" stroke-width=".8"/><line x1="4" y1="4" x2="16" y2="16" stroke="#FF4444" stroke-width="1.5"/><line x1="16" y1="4" x2="4" y2="16" stroke="#FF4444" stroke-width="1.5"/></svg>`;
     const ycSvg = `<svg width="12" height="15" viewBox="0 0 12 16" fill="none"><rect x="1" y="1" width="10" height="14" rx="1.5" fill="#FFD600" stroke="#BFA200" stroke-width=".8"/></svg>`;
     const rcSvg = `<svg width="12" height="15" viewBox="0 0 12 16" fill="none"><rect x="1" y="1" width="10" height="14" rx="1.5" fill="#FF1744" stroke="#B71C1C" stroke-width=".8"/></svg>`;
+    const bootSvg = `<svg width="16" height="11" viewBox="0 0 28 18" fill="none"><path d="M6 1Q3 1 3 4L3 13L26 13Q28 13 28 11Q28 9 26 9L16 9L13 4Q13 1 10 1Z" stroke="#4488FF" stroke-width="1.3" stroke-linejoin="round" fill="none"/></svg>`;
+    const shieldSvg = `<svg width="13" height="15" viewBox="0 0 15 17" fill="none"><path d="M7.5 1L14 3.5L14 9Q14 15 7.5 16.5Q1 15 1 9L1 3.5Z" stroke="#00E676" stroke-width="1.3" stroke-linejoin="round"/></svg>`;
     function shortName(pl, p) {
       const shirt = pl.clubShirtName || p.clubShirtName || '';
       if (shirt) { const s = shirt.charAt(0).toUpperCase() + shirt.slice(1).toLowerCase(); return s; }
@@ -6950,26 +7047,66 @@ async function showMatchModal(idx) {
       if (tr.name) return tr.name.EN || Object.values(tr.name)[0] || '?';
       return pl.shortName || pl.name || p.shortName || p.name || '?';
     }
-    function buildRow(p, isSub) {
+    function playerStats(p) {
       const pid = String((p.player||{}).id||p.id||'');
-      const name = getPlayerName(p);
-      const fantasyPlayer = allPlayers.find(x => String(x.id) === pid);
-      const pos = (fantasyPlayer && fantasyPlayer.posCode) || posMap[(p.player||{}).fieldPosition||p.fieldPosition||p.type||''] || 'MID';
+      const fp = allPlayers.find(x => String(x.id) === pid) || {};
+      const pos = fp.posCode || posMap[(p.player||{}).fieldPosition||p.fieldPosition||p.type||''] || 'MID';
       const fs = (fantasy||{})[pid]||{};
-      const fp = fantasyPlayer || {};
-      const pts = fs.pts || fp.pts || 0;
-      const goals = fs.goals || scorerMap[pid] || fp.goals || 0;
-      const assists = fs.assists || assistMap[pid] || fp.assists || 0;
-      const cs = fs.cs || fp.cs || 0;
-      const yc = fs.yc||0, rc = fs.rc||0;
+      return {
+        pid, pos, fp,
+        pts: fs.pts || fp.pts || 0,
+        goals: fs.goals || scorerMap[pid] || fp.goals || 0,
+        assists: fs.assists || assistMap[pid] || fp.assists || 0,
+        cs: fs.cs || fp.cs || 0,
+        yc: fs.yc||0,
+        rc: fs.rc||0,
+      };
+    }
+    function eventChip(s) {
       let ev = '';
-      for(let g=0;g<Math.min(goals,4);g++) ev+='<span class="match-ev-icon">⚽</span>';
-      for(let a=0;a<Math.min(assists,4);a++) ev+='<span class="match-ev-icon">👟</span>';
-      if(cs && pos!=='FWD') ev+='<span class="match-ev-icon">🛡️</span>';
-      if(yc) ev+='<span class="match-ev-icon">🟨</span>';
-      if(rc) ev+='<span class="match-ev-icon">🟥</span>';
-      const ptsCls = pts>=10?'fire-pts':pts>0?'has-pts':'';
-      return `<div class="match-player-row"><span class="match-player-pos ${pos}">${pos}</span><span class="match-player-name${isSub?' sub':''}">${name}</span><span class="match-player-events">${ev}</span><span class="match-player-pts ${ptsCls}">${pts||'—'}</span></div>`;
+      for (let g=0; g<Math.min(s.goals,2); g++) ev += `<span class="fm-ev-i">${goalSvg}</span>`;
+      for (let a=0; a<Math.min(s.assists,2); a++) ev += `<span class="fm-ev-i">${bootSvg}</span>`;
+      if (s.cs && s.pos!=='FWD') ev += `<span class="fm-ev-i">${shieldSvg}</span>`;
+      if (s.yc) ev += `<span class="fm-ev-i">${ycSvg}</span>`;
+      if (s.rc) ev += `<span class="fm-ev-i">${rcSvg}</span>`;
+      return ev ? `<div class="fm-pc-events">${ev}</div>` : '';
+    }
+    function buildPitchCard(p, isHome) {
+      const s = playerStats(p);
+      const teamCode = isHome ? fix.home : fix.away;
+      const name = shortName(p.player||{}, p);
+      const ptsCls = s.pts>=10?'blaze':s.pts>=5?'hi':s.pts===0?'zero':'';
+      return `<div class="fm-pc is-mini">
+        <div class="fm-pc-body">
+          <div class="fm-pc-bg"><img src="/static/logos/${teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
+          <div class="fm-pc-n">${name}</div>
+          <div class="fm-pc-p ${ptsCls}">${s.pts||'—'}</div>
+        </div>
+        ${eventChip(s)}
+      </div>`;
+    }
+    function buildBenchCard(p, isHome) {
+      const s = playerStats(p);
+      const teamCode = isHome ? fix.home : fix.away;
+      const name = shortName(p.player||{}, p);
+      const ptsCls = s.pts>=10?'blaze':s.pts>=5?'hi':s.pts===0?'zero':'';
+      return `<div class="fm-pc is-mini fm-pc-bench">
+        <div class="fm-pc-body">
+          <span class="fm-br-pos ${s.pos}">${s.pos}</span>
+          <div class="fm-pc-bg"><img src="/static/logos/${teamCode}.png" alt="" onerror="this.style.display='none'"/></div>
+          <div class="fm-pc-n">${name}</div>
+          <div class="fm-pc-p ${ptsCls}">${s.pts||'—'}</div>
+        </div>
+        ${eventChip(s)}
+      </div>`;
+    }
+    function groupByPos(arr) {
+      const out = { GK:[], DEF:[], MID:[], FWD:[] };
+      for (const p of arr) {
+        const code = posMap[(p.player||{}).fieldPosition||p.fieldPosition||p.type||''] || 'MID';
+        (out[code] || out.MID).push(p);
+      }
+      return out;
     }
     function getSubs(team) {
       const s = (team||{}).substitutions;
@@ -7045,17 +7182,39 @@ async function showMatchModal(idx) {
         <div class="match-modal-tab" onclick="switchMatchTab(this,'events')">Evenimente</div>
       </div>
       <div class="match-modal-tab-content active" data-tab="lineup">
-        <div class="match-modal-body">
-          <div class="match-modal-col">
-            <div class="match-modal-col-title">${homeName}</div>
-            ${sortByPos(hf).map(p=>buildRow(p,false)).join('')}
-            ${hs.length?'<div class="match-sub-divider">Substituiți</div>'+hs.map(p=>buildRow(p,true)).join(''):''}
+        <div class="match-modal-pitch-wrap">
+          <div class="match-modal-team-strip top">
+            <img src="/static/logos/${fix.home}.png" onerror="this.style.display='none'"/>
+            <span>${homeName}</span>
           </div>
-          <div class="match-modal-col">
-            <div class="match-modal-col-title">${awayName}</div>
-            ${sortByPos(af).map(p=>buildRow(p,false)).join('')}
-            ${as_.length?'<div class="match-sub-divider">Substituiți</div>'+as_.map(p=>buildRow(p,true)).join(''):''}
+          <div class="fm-pitch fm-pitch-match">
+            <div class="fm-pitch-cl"></div>
+            <div class="fm-pitch-cc"></div>
+            <div class="fm-pitch-gb top"></div>
+            <div class="fm-pitch-gb bot"></div>
+            ${(() => {
+              const home = groupByPos(hf), away = groupByPos(af);
+              const homeRows = [home.GK, home.DEF, home.MID, home.FWD];
+              const awayRows = [away.FWD, away.MID, away.DEF, away.GK];
+              const rowHtml = (row, isHome) => row.length ? `<div class="fm-row">${row.map(p => buildPitchCard(p, isHome)).join('')}</div>` : '';
+              return homeRows.map(r => rowHtml(r, true)).join('') + awayRows.map(r => rowHtml(r, false)).join('');
+            })()}
           </div>
+          <div class="match-modal-team-strip bot">
+            <img src="/static/logos/${fix.away}.png" onerror="this.style.display='none'"/>
+            <span>${awayName}</span>
+          </div>
+          ${(hs.length || as_.length) ? `
+            <div class="match-modal-bench-row">
+              <div class="match-modal-bench-col">
+                <div class="match-modal-bench-title">${homeName} · Substituiți</div>
+                <div class="match-modal-bench-cards">${hs.map(p => buildBenchCard(p, true)).join('') || '<span style="color:var(--muted);font-size:11px">—</span>'}</div>
+              </div>
+              <div class="match-modal-bench-col">
+                <div class="match-modal-bench-title">${awayName} · Substituiți</div>
+                <div class="match-modal-bench-cards">${as_.map(p => buildBenchCard(p, false)).join('') || '<span style="color:var(--muted);font-size:11px">—</span>'}</div>
+              </div>
+            </div>` : ''}
         </div>
       </div>
       <div class="match-modal-tab-content" data-tab="events">
@@ -7083,6 +7242,17 @@ function switchMatchTab(tabEl, tabName) {
 
 // ─── INIT ───
 (async () => {
+  // Hydrate every cached MD from localStorage upfront so renders don't wait on the network.
+  for (const k of cacheKeys('md.')) {
+    const m = parseInt(k.slice(3), 10);
+    if (!Number.isFinite(m)) continue;
+    const cached = cacheGet(k);
+    if (cached && cached.data) {
+      mdCache[m] = cached.data;
+      if (cached.liveMd) LIVE_MD = Math.max(LIVE_MD, cached.liveMd);
+      MD = Math.max(MD, m);
+    }
+  }
   try {
     const res = await fetch('/api/live-schedule');
     const sched = await res.json();
@@ -7099,6 +7269,7 @@ function switchMatchTab(tabEl, tabName) {
       MD = initialData.matchday;
       LIVE_MD = Math.max(LIVE_MD, initialData.matchday);
       mdCache[MD] = initialData;
+      cacheSet(`md.${MD}`, { data: initialData, savedAt: Date.now(), liveMd: LIVE_MD });
     }
   } catch(e) { /* silent */ }
   document.getElementById('mdLabel').textContent = `MD ${MD}`;
@@ -7753,15 +7924,30 @@ async function loadPreMatchData(forceRefresh) {
   if (!panel) return;
   if (_pmData && !forceRefresh) { renderPreMatch(); return; }
 
-  panel.innerHTML = `
-    <div class="pm-skeleton" style="height:60px"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="pm-skeleton" style="height:82px"></div>
-      <div class="pm-skeleton" style="height:82px"></div>
-      <div class="pm-skeleton" style="height:82px"></div>
-      <div class="pm-skeleton" style="height:82px"></div>
-    </div>
-    <div class="pm-skeleton" style="height:320px"></div>`;
+  // Hydrate from localStorage and render immediately if available.
+  if (!forceRefresh) {
+    const cached = cacheGet('scouting');
+    if (cached && cached.matchups) {
+      _pmData = { matchups: cached.matchups, bracket: cached.bracket };
+      _pmActiveIdx = 0;
+      renderPreMatch();
+      // Skip background refetch if cache <30 min old.
+      if (Date.now() - (cached.savedAt || 0) < 30 * 60 * 1000) return;
+    }
+  }
+
+  // Only show skeleton if there's nothing to show yet.
+  if (!_pmData) {
+    panel.innerHTML = `
+      <div class="pm-skeleton" style="height:60px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="pm-skeleton" style="height:82px"></div>
+        <div class="pm-skeleton" style="height:82px"></div>
+        <div class="pm-skeleton" style="height:82px"></div>
+        <div class="pm-skeleton" style="height:82px"></div>
+      </div>
+      <div class="pm-skeleton" style="height:320px"></div>`;
+  }
 
   try {
     const [mRes, bRes] = await Promise.all([
@@ -7770,8 +7956,10 @@ async function loadPreMatchData(forceRefresh) {
     ]);
     _pmData = { matchups: mRes.matchups || [], bracket: bRes };
     _pmActiveIdx = 0;
+    cacheSet('scouting', { matchups: _pmData.matchups, bracket: _pmData.bracket, savedAt: Date.now() });
     renderPreMatch();
   } catch(e) {
+    if (_pmData) return; // keep showing cached data if we have it
     panel.innerHTML = `<div class="pm-error">
       <div class="pm-error-title">Scouting data unavailable</div>
       FotMob may be rate-limiting or the backend is offline.

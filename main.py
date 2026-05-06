@@ -1796,11 +1796,12 @@ def match_detail(match_id: int):
         lineups_data = fut_lineups.result()
         fantasy_data = fut_fantasy.result()
 
-    return JSONResponse(content={
-        "match": match_data,
-        "lineups": lineups_data,
-        "fantasy": fantasy_data
-    })
+    status = (match_data or {}).get("status", "")
+    cc = "public, max-age=86400, immutable" if status == "FINISHED" else "public, max-age=10"
+    return JSONResponse(
+        content={"match": match_data, "lineups": lineups_data, "fantasy": fantasy_data},
+        headers={"Cache-Control": cc},
+    )
 
 
 DATA_MEMO_TTL = 20          # seconds — only applies to the current MD
@@ -1830,13 +1831,20 @@ def get_data(md: int = None):
     is_recent_previous = (not is_current and md == current_md - 1)
     now = time.time()
 
+    # Past MDs never change → long browser cache. Live/recent-previous → short TTL.
+    if is_current or is_recent_previous:
+        cc = "public, max-age=20"
+    else:
+        cc = "public, max-age=86400, immutable"
+    cache_headers = {"Cache-Control": cc}
+
     # Local memo check: historical MDs cached forever, current MD for DATA_MEMO_TTL.
     # recent_previous bypasses memo so the GitHub TTL check below can run.
     with cache_lock:
         entry = cache.get(md)
     if entry and isinstance(entry, dict) and "data" in entry and not is_recent_previous:
         if not is_current or (now - entry.get("ts", 0) < DATA_MEMO_TTL):
-            return JSONResponse(entry["data"])
+            return JSONResponse(entry["data"], headers=cache_headers)
 
     # GitHub is the shared source of truth — any lambda that hits /api/cron/tick
     # during a match window writes fresh data there. Read it back.
@@ -1853,13 +1861,13 @@ def get_data(md: int = None):
     if data:
         with cache_lock:
             cache[md] = {"ts": now, "data": data}
-        return JSONResponse(data)
+        return JSONResponse(data, headers=cache_headers)
 
     # GitHub has nothing for this MD yet (e.g. brand-new MD before first cron
     # tick). Build it now, which also persists to GitHub for everyone else.
     data = refresh_cache(md)
     if data:
-        return JSONResponse(data)
+        return JSONResponse(data, headers=cache_headers)
     return JSONResponse({"error": "Failed to fetch data"}, status_code=500)
 
 
