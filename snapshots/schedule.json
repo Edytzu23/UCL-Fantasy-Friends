@@ -1,20 +1,20 @@
 {
-  "matchday": 17,
+  "matchday": 18,
   "checkpoints": [
     {
       "time": "19:45",
       "label": "HTM1",
-      "fired": true
+      "fired": false
     },
     {
       "time": "20:45",
       "label": "FTM1",
-      "fired": true
+      "fired": false
     },
     {
       "time": "09:00",
       "label": "FINALMD",
-      "fired": true
+      "fired": false
     }
   ]
 }
