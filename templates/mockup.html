@@ -4833,15 +4833,20 @@ function rankBadge(pr, total) {
   return { label: '#' + pr, cls: 'mid' };
 }
 
-// Full history: every past MD (excludes the currently-viewed one — that's
-// already shown as the big number in the score zone). Sparse: skips MDs
-// not yet loaded in mdCache, so the line connects only the data we have.
+// Full history: every MD from 1 up to and including the currently-viewed one
+// (the chart line should reach the present). Sparse: skips MDs not yet loaded
+// in mdCache. For the current MD, falls back to live MANAGERS when its cache
+// entry hasn't streamed in yet so the latest dot is never missing.
 function fullTrajectory(guid, currentMd) {
   const points = [];
-  for (let i = 1; i < currentMd; i++) {
+  for (let i = 1; i <= currentMd; i++) {
     const data = mdCache[i];
     if (data && Array.isArray(data.managers)) {
       const m = data.managers.find(x => x.guid === guid);
+      if (m) { points.push({ md: i, pts: m.gdPoints || 0 }); continue; }
+    }
+    if (i === currentMd) {
+      const m = MANAGERS.find(x => x.guid === guid);
       if (m) points.push({ md: i, pts: m.gdPoints || 0 });
     }
   }
