@@ -4335,6 +4335,125 @@ const NICKNAMES = {
 };
 function nick(username) { return NICKNAMES[(username||'').toLowerCase()] || username; }
 
+// Project a /api/data response into the global state and render every view.
+// Extracted so init and loadApiData can both paint from the cache before
+// (or without) waiting on the network. No fetching here — pure data → DOM.
+function applyMdData(data) {
+  if (!data) return;
+
+  MANAGERS = (data.managers || []).map((m, i) => ({
+    guid: m.guid,
+    username: m.username,
+    teamName: m.teamName,
+    gdPoints: m.gdPoints || 0,
+    gdRank: m.gdRank || 0,
+    ovPoints: m.ovPoints || 0,
+    ovRank: m.ovRank || 0,
+    color: MGR_COLORS[i % MGR_COLORS.length]
+  }));
+
+  const urlUser = new URLSearchParams(window.location.search).get('user');
+  if (urlUser) {
+    const match = MANAGERS.find(m => m.username.toLowerCase() === urlUser.toLowerCase());
+    CURRENT_USER = match ? match.guid : (MANAGERS[0]?.guid || null);
+  } else {
+    const me = MANAGERS.find(m => /eduard/i.test(m.username));
+    CURRENT_USER = me ? me.guid : (MANAGERS[0]?.guid || null);
+  }
+  selectedMgr = CURRENT_USER;
+  populateUserDropdown();
+  updateNavUserName();
+
+  ROSTERS = {};
+  (data.managers || []).forEach(m => {
+    const starters = [];
+    const bench = [];
+    const transfersOut = (m.transfersOut || []).map(p => ({
+      id: p.id, name: p.name || '', posCode: p.posCode || '',
+      teamCode: p.teamCode || '', pts: p.mdPoints || 0
+    }));
+    const transfersIn = [];
+    (m.players || []).forEach(p => {
+      const mapped = {
+        id: p.id,
+        name: p.name || p.fullName || '',
+        fullName: p.fullName || p.name || '',
+        posCode: p.posCode || '',
+        teamCode: p.teamCode || '',
+        pts: p.mdPoints || 0,
+        captain: p.isCaptain || false,
+        goals: p.mdGoals || 0,
+        assists: p.mdAssists || 0,
+        cs: p.mdCleanSheet ? true : false,
+        momFlag: p.momFlag || false,
+        isTransfer: p.isTransfer || false
+      };
+      if (p.isTransfer) transfersIn.push(mapped);
+      if (p.isStarter) starters.push(mapped);
+      else bench.push(mapped);
+    });
+    const dc = { DEF:0, MID:0, FWD:0 };
+    starters.forEach(p => { if (dc[p.posCode] !== undefined) dc[p.posCode]++; });
+    const formation = `${dc.DEF}-${dc.MID}-${dc.FWD}`;
+    ROSTERS[m.guid] = { formation, starters, bench, transfersOut, transfersIn };
+  });
+
+  allPlayers = (data.allPlayers || []).map(p => ({
+    id: p.id,
+    name: p.name || p.fullName || '',
+    posCode: p.posCode || '',
+    teamCode: p.teamCode || '',
+    team: p.team || '',
+    pts: p.curGDPts || 0,
+    goals: p.mdGoals || 0,
+    assists: p.mdAssists || 0,
+    cs: p.mdCleanSheet ? true : false,
+    totPts: p.totPts || 0,
+    lastGdPts: p.lastGdPts || 0,
+    totGoals: p.goals || 0,
+    totAssists: p.assists || 0,
+    totCS: p.cleanSheets || 0,
+    selPer: p.selPer || 0,
+    value: p.value || 0,
+    rating: p.rating || 0,
+    momCount: p.momCount || 0,
+    localOwnership: p.localOwnership || 0,
+    yellowCards: p.yellowCards || 0,
+    redCards: p.redCards || 0,
+    ownedBy: p.ownedBy || [],
+    mdMins: p.mdMins || 0,
+    mdSaves: p.mdSaves || 0,
+    status: p.status || ''
+  }));
+
+  worldLeader = data.worldLeader || null;
+
+  if (pendingSelectAfterLoad) {
+    const wanted = pendingSelectAfterLoad;
+    pendingSelectAfterLoad = null;
+    if (MANAGERS.find(m => m.guid === wanted)) {
+      selectedMgr = wanted;
+    }
+  }
+
+  renderClasament();
+  renderHeader();
+  renderPitch();
+  renderNavFixtures();
+  if (currentTab === 'totw') renderTOTW();
+  if (currentTab === 'scouting') {
+    scoutDataCache = null;
+    posAvgCache = null;
+    const chipsEl = document.getElementById('mgrChips');
+    if (chipsEl) chipsEl.dataset.init = '';
+    const teamChipsEl = document.getElementById('teamChips');
+    if (teamChipsEl) teamChipsEl.dataset.init = '';
+    const sortEl = document.getElementById('sortBtns');
+    if (sortEl) sortEl.dataset.init = '';
+    renderScouting();
+  }
+}
+
 async function loadApiData(md) {
   try {
     // Hydrate from localStorage if not already in mdCache.
@@ -4344,147 +4463,32 @@ async function loadApiData(md) {
     }
     const isLive = (md === LIVE_MD);
     const haveCache = !!mdCache[md];
-    let data = mdCache[md];
+
+    // Render-first: paint the cached data NOW so the UI is interactive even
+    // while we revalidate the live MD. Past MDs return after this paint.
+    if (haveCache) applyMdData(mdCache[md]);
+
     // Fetch fresh if missing OR live MD (always revalidate).
     if (!haveCache || isLive) {
       try {
         const r = await fetch(`/api/data?md=${md}`);
         const fresh = await r.json();
         if (fresh.error) {
-          if (!haveCache) { console.error('API error:', fresh.error); return; }
-        } else {
-          data = fresh;
-          mdCache[md] = data;
-          cacheSet(`md.${md}`, { data, savedAt: Date.now(), liveMd: LIVE_MD });
+          if (!haveCache) console.error('API error:', fresh.error);
+          return;
+        }
+        const prev = mdCache[md];
+        mdCache[md] = fresh;
+        cacheSet(`md.${md}`, { data: fresh, savedAt: Date.now(), liveMd: LIVE_MD });
+        // Skip the re-render if the payload is byte-identical to what we just
+        // painted from cache — avoids a needless reflow on warm reloads.
+        if (!prev || prev.lastUpdated !== fresh.lastUpdated) {
+          applyMdData(fresh);
         }
       } catch(e) {
         if (!haveCache) throw e;
-        // network failed but we have cache — render it
+        // network failed but we have cache — already rendered, nothing to do
       }
-    }
-
-    // Map managers
-    MANAGERS = (data.managers || []).map((m, i) => ({
-      guid: m.guid,
-      username: m.username,
-      teamName: m.teamName,
-      gdPoints: m.gdPoints || 0,
-      gdRank: m.gdRank || 0,
-      ovPoints: m.ovPoints || 0,
-      ovRank: m.ovRank || 0,
-      color: MGR_COLORS[i % MGR_COLORS.length]
-    }));
-
-    // Detect current user from URL param or fallback to 'Eduard'
-    const urlUser = new URLSearchParams(window.location.search).get('user');
-    if (urlUser) {
-      const match = MANAGERS.find(m => m.username.toLowerCase() === urlUser.toLowerCase());
-      CURRENT_USER = match ? match.guid : (MANAGERS[0]?.guid || null);
-    } else {
-      const me = MANAGERS.find(m => /eduard/i.test(m.username));
-      CURRENT_USER = me ? me.guid : (MANAGERS[0]?.guid || null);
-    }
-    selectedMgr = CURRENT_USER;
-    populateUserDropdown();
-    updateNavUserName();
-
-    // Build rosters from manager players
-    ROSTERS = {};
-    (data.managers || []).forEach(m => {
-      const starters = [];
-      const bench = [];
-      const transfersOut = (m.transfersOut || []).map(p => ({
-        id: p.id, name: p.name || '', posCode: p.posCode || '',
-        teamCode: p.teamCode || '', pts: p.mdPoints || 0
-      }));
-      const transfersIn = [];
-      (m.players || []).forEach(p => {
-        const mapped = {
-          id: p.id,
-          name: p.name || p.fullName || '',
-          fullName: p.fullName || p.name || '',
-          posCode: p.posCode || '',
-          teamCode: p.teamCode || '',
-          pts: p.mdPoints || 0,
-          captain: p.isCaptain || false,
-          goals: p.mdGoals || 0,
-          assists: p.mdAssists || 0,
-          cs: p.mdCleanSheet ? true : false,
-          momFlag: p.momFlag || false,
-          isTransfer: p.isTransfer || false
-        };
-        // isTransfer marks players transferred IN this MD — they're still part of the squad
-        if (p.isTransfer) transfersIn.push(mapped);
-        if (p.isStarter) {
-          starters.push(mapped);
-        } else {
-          bench.push(mapped);
-        }
-      });
-      // Detect formation from starters
-      const dc = { DEF:0, MID:0, FWD:0 };
-      starters.forEach(p => { if (dc[p.posCode] !== undefined) dc[p.posCode]++; });
-      const formation = `${dc.DEF}-${dc.MID}-${dc.FWD}`;
-      ROSTERS[m.guid] = { formation, starters, bench, transfersOut, transfersIn };
-    });
-
-    // All players for global TOTW
-    allPlayers = (data.allPlayers || []).map(p => ({
-      id: p.id,
-      name: p.name || p.fullName || '',
-      posCode: p.posCode || '',
-      teamCode: p.teamCode || '',
-      team: p.team || '',
-      pts: p.curGDPts || 0,
-      goals: p.mdGoals || 0,
-      assists: p.mdAssists || 0,
-      cs: p.mdCleanSheet ? true : false,
-      totPts: p.totPts || 0,
-      lastGdPts: p.lastGdPts || 0,
-      totGoals: p.goals || 0,
-      totAssists: p.assists || 0,
-      totCS: p.cleanSheets || 0,
-      selPer: p.selPer || 0,
-      value: p.value || 0,
-      rating: p.rating || 0,
-      momCount: p.momCount || 0,
-      localOwnership: p.localOwnership || 0,
-      yellowCards: p.yellowCards || 0,
-      redCards: p.redCards || 0,
-      ownedBy: p.ownedBy || [],
-      mdMins: p.mdMins || 0,
-      mdSaves: p.mdSaves || 0,
-      status: p.status || ''
-    }));
-
-    worldLeader = data.worldLeader || null;
-
-    // Honor a pending PS5 jump: select the requested manager once the
-    // target MD's data is loaded.
-    if (pendingSelectAfterLoad) {
-      const wanted = pendingSelectAfterLoad;
-      pendingSelectAfterLoad = null;
-      if (MANAGERS.find(m => m.guid === wanted)) {
-        selectedMgr = wanted;
-      }
-    }
-
-    // Render everything
-    renderClasament();
-    renderHeader();
-    renderPitch();
-    renderNavFixtures();
-    if (currentTab === 'totw') renderTOTW();
-    if (currentTab === 'scouting') {
-      scoutDataCache = null;
-      posAvgCache = null;
-      const chipsEl = document.getElementById('mgrChips');
-      if (chipsEl) chipsEl.dataset.init = '';
-      const teamChipsEl = document.getElementById('teamChips');
-      if (teamChipsEl) teamChipsEl.dataset.init = '';
-      const sortEl = document.getElementById('sortBtns');
-      if (sortEl) sortEl.dataset.init = '';
-      renderScouting();
     }
   } catch(e) {
     console.error('loadApiData error:', e);
@@ -4552,8 +4556,12 @@ async function loadAllMDs() {
   await loadApiData(MD);
   for (let i = 1; i <= TOTAL_MDS; i++) {
     if (i === MD) continue;
+    // Throttle only when we're about to hit the network. Already-cached MDs
+    // (mdCache or localStorage) short-circuit inside silentLoad, so back-to-back
+    // calls just hydrate from disk and shouldn't pay the 300ms gap.
+    const willFetch = !mdCache[i] && !cacheGet(`md.${i}`);
     await silentLoad(i);
-    await new Promise(r => setTimeout(r, 300));
+    if (willFetch) await new Promise(r => setTimeout(r, 300));
   }
 }
 
@@ -7277,7 +7285,8 @@ function switchMatchTab(tabEl, tabName) {
 
 // ─── INIT ───
 (async () => {
-  // Hydrate every cached MD from localStorage upfront so renders don't wait on the network.
+  // 1. Hydrate every cached MD from localStorage. MD picks the highest
+  //    cached MD as the candidate display MD (revalidation may bump it).
   for (const k of cacheKeys('md.')) {
     const m = parseInt(k.slice(3), 10);
     if (!Number.isFinite(m)) continue;
@@ -7288,31 +7297,64 @@ function switchMatchTab(tabEl, tabName) {
       MD = Math.max(MD, m);
     }
   }
-  try {
-    const res = await fetch('/api/live-schedule');
-    const sched = await res.json();
-    if (sched.matchday > 0) { MD = sched.matchday; LIVE_MD = sched.matchday; }
-  } catch(e) {
-    console.warn('[MD] Could not fetch live schedule, using default MD');
-  }
-  // Backend applies MD-1 fallback when current MD hasn't started yet (pre-deadline).
-  // Call /api/data without ?md so the backend decides the effective display MD.
-  try {
-    const dataRes = await fetch('/api/data');
-    const initialData = await dataRes.json();
-    if (initialData.matchday && !initialData.error) {
-      MD = initialData.matchday;
-      LIVE_MD = Math.max(LIVE_MD, initialData.matchday);
-      mdCache[MD] = initialData;
-      cacheSet(`md.${MD}`, { data: initialData, savedAt: Date.now(), liveMd: LIVE_MD });
-    }
-  } catch(e) { /* silent */ }
+
+  // 2. Static scaffolding (label, MD dropdown, fixtures placeholder).
   document.getElementById('mdLabel').textContent = `MD ${MD}`;
   renderMdDropdown();
-  renderNavFixtures(); // shows "Se încarcă..." placeholder
-  loadAllMDs();        // load current MD first, then preload all others into cache
-  loadFixturesFromAPI(); // fetch UEFA fixtures
-  startLivePolling();  // check for live matches and auto-refresh
+  renderNavFixtures();
+
+  // 3. Warm cache: paint immediately and start every secondary loader. The
+  //    /api/data revalidate below runs in parallel and only re-renders if the
+  //    payload actually changed.
+  let painted = false;
+  let secondaryStarted = false;
+  if (mdCache[MD]) {
+    applyMdData(mdCache[MD]);
+    painted = true;
+    loadAllMDs();
+    loadFixturesFromAPI();
+    startLivePolling();
+    secondaryStarted = true;
+  }
+
+  // 4. Revalidate (warm) or initial fetch (cold). Live-schedule + /api/data in
+  //    parallel — they're independent. Backend applies MD-1 fallback pre-
+  //    deadline, so /api/data without ?md returns the effective display MD.
+  let sched = null, initialData = null;
+  try {
+    [sched, initialData] = await Promise.all([
+      fetch('/api/live-schedule').then(r => r.json()).catch(() => null),
+      fetch('/api/data').then(r => r.json()).catch(() => null),
+    ]);
+  } catch(_) {}
+  if (sched && sched.matchday > 0) LIVE_MD = Math.max(LIVE_MD, sched.matchday);
+  if (initialData && initialData.matchday && !initialData.error) {
+    const newMd = initialData.matchday;
+    LIVE_MD = Math.max(LIVE_MD, newMd);
+    const prev = mdCache[newMd];
+    mdCache[newMd] = initialData;
+    cacheSet(`md.${newMd}`, { data: initialData, savedAt: Date.now(), liveMd: LIVE_MD });
+    const mdAdvanced = (newMd !== MD);
+    if (mdAdvanced) {
+      MD = newMd;
+      document.getElementById('mdLabel').textContent = `MD ${MD}`;
+      renderMdDropdown();
+    }
+    if (!painted || mdAdvanced || (prev && prev.lastUpdated !== initialData.lastUpdated)) {
+      applyMdData(initialData);
+      painted = true;
+    }
+  }
+
+  // 5. Make sure the secondary loaders run at least once. Warm cache started
+  //    them in step 3; cold cache reaches them here regardless of whether the
+  //    revalidate fetch succeeded (so a transient failure doesn't disable the
+  //    history sparkline + live polling).
+  if (!secondaryStarted) {
+    loadAllMDs();
+    loadFixturesFromAPI();
+    startLivePolling();
+  }
 })();
 
 
