@@ -417,6 +417,9 @@ def _add_minutes(hhmm, mins):
 def build_checkpoints_from_plan(plan, today_str=None):
     """Derive checkpoint list from a plan entry {dates, kickoff}.
 
+    Each checkpoint carries the absolute date it should fire on, so the cron
+    cannot fire it on a wrong day (e.g. while we're between MDs). FINALMD
+    fires on the day after the last match date.
     Past-date checkpoints are marked fired so the cron won't retroactively
     snapshot them. `today_str` is overridable for tests; defaults to now.
     """
@@ -426,19 +429,22 @@ def build_checkpoints_from_plan(plan, today_str=None):
     today = today_str or datetime.now().strftime("%Y-%m-%d")
     day1_past = len(dates) >= 1 and dates[0] < today
     day2_past = len(dates) >= 2 and dates[1] < today
+    last_date = dates[-1]
+    finalmd_date = (datetime.strptime(last_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    finalmd_past = finalmd_date < today
     if len(dates) >= 2:
         return [
-            {"time": ht, "label": "HTM1", "fired": day1_past},
-            {"time": ft, "label": "FTM1", "fired": day1_past},
-            {"time": ht, "label": "HTM2", "fired": day2_past},
-            {"time": ft, "label": "FTM2", "fired": day2_past},
-            {"time": FINALMD_TIME, "label": "FINALMD", "fired": False},
+            {"date": dates[0], "time": ht, "label": "HTM1", "fired": day1_past},
+            {"date": dates[0], "time": ft, "label": "FTM1", "fired": day1_past},
+            {"date": dates[1], "time": ht, "label": "HTM2", "fired": day2_past},
+            {"date": dates[1], "time": ft, "label": "FTM2", "fired": day2_past},
+            {"date": finalmd_date, "time": FINALMD_TIME, "label": "FINALMD", "fired": finalmd_past},
         ]
     # Single-day MD (the final)
     return [
-        {"time": ht, "label": "HTM1", "fired": day1_past},
-        {"time": ft, "label": "FTM1", "fired": day1_past},
-        {"time": FINALMD_TIME, "label": "FINALMD", "fired": False},
+        {"date": dates[0], "time": ht, "label": "HTM1", "fired": day1_past},
+        {"date": dates[0], "time": ft, "label": "FTM1", "fired": day1_past},
+        {"date": finalmd_date, "time": FINALMD_TIME, "label": "FINALMD", "fired": finalmd_past},
     ]
 
 
@@ -1326,12 +1332,18 @@ def advance_to_next_md():
 
     If UPCOMING_MATCHDAYS has an entry for the next MD, build fresh checkpoints
     from the plan (correct kickoff times for that specific matchday). Otherwise
-    fall back to reusing the previous times with fired flags reset.
+    we are already past the last planned MD (the Final) — do nothing rather
+    than synthesizing a phantom MD that UEFA's API doesn't have.
     """
     global live_schedule
     with live_schedule_lock:
         current_md = live_schedule.get("matchday", 0)
         next_md = current_md + 1
+
+    max_md = max(UPCOMING_MATCHDAYS.keys()) if UPCOMING_MATCHDAYS else 0
+    if next_md > max_md:
+        print(f"[LiveSched] Refusing to advance past MD{max_md} (last planned). Current MD{current_md} kept.")
+        return
 
     plan = UPCOMING_MATCHDAYS.get(next_md)
     if plan:
@@ -1589,6 +1601,7 @@ async def cron_tick(request: Request):
         sched = json.loads(json.dumps(live_schedule))
 
     now_str = now.strftime("%H:%M")
+    today_str = now.strftime("%Y-%m-%d")
     cps = sched.get("checkpoints", [])
     # FINALMD is a morning-after checkpoint — only let it fire once every
     # HTM/FTM checkpoint has already fired. Otherwise a daily 09:00 tick on
@@ -1599,6 +1612,13 @@ async def cron_tick(request: Request):
     ) and any(cp.get("label", "").startswith(("HTM", "FTM")) for cp in cps)
     for cp in cps:
         if cp["time"] == now_str and not cp.get("fired"):
+            # Date guard: if checkpoint carries a date, today must match.
+            # Without this, HTM/FTM/FINALMD would fire daily at their HH:MM
+            # on every day between MDs (e.g. 19:45 today even though the
+            # Final is on 2026-05-30).
+            cp_date = cp.get("date")
+            if cp_date and cp_date != today_str:
+                continue
             md = sched["matchday"]
             label = cp["label"]
             if label == "FINALMD" and not match_cps_all_fired:
