@@ -4781,6 +4781,34 @@ function mostOwnedTeam(roster) {
   return best;
 }
 
+// Cross-MD favorite team — sums starter appearances per team across every
+// loaded MD so the crest reflects the manager's most-used club for the whole
+// season (matches "Clubul Preferat" intent in the trofeu tab). Falls back to
+// the current MD's roster if no historical MDs are cached yet.
+function favoriteTeamAcrossMds(guid, fallbackRoster) {
+  const counts = {};
+  let total = 0;
+  for (let md = 1; md <= TOTAL_MDS; md++) {
+    const data = mdCache[md];
+    if (!data || !Array.isArray(data.managers)) continue;
+    const mgr = data.managers.find(x => x.guid === guid);
+    if (!mgr || !Array.isArray(mgr.players)) continue;
+    mgr.players.forEach(p => {
+      if (p.isStarter === false) return;
+      const tc = p.teamCode;
+      if (!tc) return;
+      counts[tc] = (counts[tc] || 0) + 1;
+      total++;
+    });
+  }
+  if (total === 0) return mostOwnedTeam(fallbackRoster);
+  let best = null;
+  for (const code in counts) {
+    if (!best || counts[code] > best.count) best = { code, count: counts[code] };
+  }
+  return best;
+}
+
 function friendsAvgForMD(md) {
   // Prefer cached MD data so historical viewing shows that MD's avg.
   // Fall back to live MANAGERS for the current MD.
@@ -4843,9 +4871,9 @@ function renderHeader() {
   const total = MANAGERS.length;
   const badge = rankBadge(pr, total);
 
-  // Crest: most-owned team in this MD's roster
+  // Crest: most-used team across every loaded MD (whole-season favorite)
   const roster = ROSTERS[selectedMgr];
-  const crest = mostOwnedTeam(roster);
+  const crest = favoriteTeamAcrossMds(selectedMgr, roster);
   const crestHtml = crest
     ? `<img class="fm-crest" src="/static/logos/${crest.code}.png" alt="${crest.code}" onerror="this.outerHTML='<div class=fm-crest-fallback>${initials(nick(m.username))}</div>'"/>
        <div class="fm-crest-badge">×${crest.count}</div>`
@@ -4881,11 +4909,15 @@ function renderHeader() {
       const isLast = i === ptsXY.length - 1;
       return `<button type="button" class="fm-traj-dot${isLast ? '' : ' dim'}" style="left:${pt.xPct}%;top:${pt.yPx}px" data-tip="MD${pt.md}: ${pt.pts} pts" aria-label="MD${pt.md}: ${pt.pts} pts"></button>`;
     }).join('');
-    // MD labels — show every one if ≤ 8 points, otherwise thin to fit
-    const showEvery = ptsXY.length > 12 ? 2 : 1;
+    // MD labels — always show first and last; thin the middle so labels never
+    // collide with the edges (matters once we hit MD17, where the old simple
+    // i%2 rule put a labeled mid-point right next to the last one).
+    const N = ptsXY.length;
+    const stride = N <= 8 ? 1 : N <= 16 ? 2 : 3;
+    const labelSet = new Set([0, N - 1]);
+    for (let i = stride; i <= N - 1 - stride; i += stride) labelSet.add(i);
     const labelsHtml = ptsXY.map((pt, i) => {
-      const isEdge = i === 0 || i === ptsXY.length - 1;
-      if (!isEdge && i % showEvery !== 0) return '';
+      if (!labelSet.has(i)) return '';
       return `<span class="fm-traj-label" style="left:${pt.xPct}%">MD${pt.md}</span>`;
     }).join('');
     sparkHtml = `<div class="fm-traj-svg-wrap">
