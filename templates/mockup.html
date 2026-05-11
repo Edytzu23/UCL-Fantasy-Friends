@@ -152,6 +152,19 @@ body.theme-wc .md-dropdown { background: var(--card); border-color: var(--border
 body.theme-wc .md-drop-item { color: var(--text); }
 body.theme-wc .md-drop-item:hover { background: rgba(27,94,32,.06); }
 body.theme-wc .md-drop-item.active { color: var(--fire); }
+/* Lighter, cream-tinted navbar — no dark navy. The cyan glow bar on the
+   navbar top is swapped for a thin grass-green seam. */
+body.theme-wc .navbar {
+  background: rgba(247, 250, 246, .92);
+  border-bottom: 1px solid rgba(27, 94, 32, .15);
+  box-shadow: 0 1px 0 rgba(20, 33, 61, .04);
+}
+body.theme-wc .navbar::before {
+  background: linear-gradient(90deg, transparent, rgba(27,94,32,.45) 30%, rgba(27,94,32,.7) 50%, rgba(27,94,32,.45) 70%, transparent);
+}
+/* Hide the upcoming-match fixture chips in the navbar for WC — the user
+   will click rows in the schedule view instead. */
+body.theme-wc .nav-fixtures { display: none; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; }
@@ -721,6 +734,242 @@ body.theme-wc .mode-knob { box-shadow: 0 2px 8px rgba(200,16,46,.40); }
   line-height: 1.5;
 }
 .sched-empty strong { display: block; color: var(--text); font-family: var(--font-display); font-size: 16px; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 6px; }
+
+/* ── WC match modal (opened from a schedule row click) ── */
+.wc-mm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(8,12,24,.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: wcMmFade 220ms var(--ease-out);
+}
+body.theme-wc .wc-mm-overlay { background: rgba(20,33,61,.32); }
+.wc-mm {
+  position: relative;
+  width: min(560px, 100%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-floating);
+  padding: 32px 28px 24px;
+  text-align: center;
+  animation: wcMmRise 280ms var(--spring);
+}
+body.theme-wc .wc-mm {
+  background: #ffffff;
+  border-color: rgba(27,94,32,.18);
+  box-shadow: 0 32px 80px rgba(20,33,61,.22), 0 8px 24px rgba(27,94,32,.08);
+}
+.wc-mm-close {
+  position: absolute;
+  top: 10px; right: 12px;
+  width: 32px; height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 24px;
+  line-height: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color .15s ease, background .15s ease;
+}
+.wc-mm-close:hover { color: var(--text); background: rgba(255,255,255,.06); }
+body.theme-wc .wc-mm-close:hover { background: rgba(27,94,32,.08); }
+.wc-mm-stage {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: var(--weight-bold);
+  margin-bottom: 18px;
+}
+.wc-mm-teams {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.wc-mm-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.wc-mm-flag {
+  width: 72px; height: 54px;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.18), 0 6px 16px rgba(0,0,0,.18);
+}
+body.theme-wc .wc-mm-flag { box-shadow: 0 0 0 1px rgba(27,94,32,.15), 0 6px 16px rgba(20,33,61,.10); }
+.wc-mm-name {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--text);
+  line-height: 1.15;
+  text-align: center;
+}
+.wc-mm-code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  color: var(--sub);
+  letter-spacing: .12em;
+}
+.wc-mm-rank {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  letter-spacing: .14em;
+  color: var(--fire);
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255,87,34,.10);
+  border: 1px solid rgba(255,87,34,.30);
+  text-transform: uppercase;
+}
+body.theme-wc .wc-mm-rank {
+  color: #C8102E;
+  background: rgba(200,16,46,.06);
+  border-color: rgba(200,16,46,.25);
+}
+.wc-mm-vs {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: var(--weight-heavy);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.wc-mm-when {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  font-weight: var(--weight-semi);
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.wc-mm-countdown {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--fire);
+  letter-spacing: .04em;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+body.theme-wc .wc-mm-countdown { color: #C8102E; }
+@keyframes wcMmFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes wcMmRise {
+  from { opacity: 0; transform: translateY(20px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── WC live countdown to the opener ── */
+.wc-countdown-host {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.wc-countdown {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-width: 720px;
+}
+.wc-countdown-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: var(--weight-bold);
+}
+.wc-countdown-headline {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--text);
+  line-height: 1;
+}
+.wc-countdown-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 640px;
+  margin-top: 6px;
+}
+.wc-cd-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-elevated);
+  min-width: 90px;
+}
+body.theme-wc .wc-cd-cell {
+  background: #ffffff;
+  border-color: rgba(27,94,32,.15);
+  box-shadow: 0 4px 18px rgba(20,33,61,.08), 0 1px 0 rgba(255,255,255,.6) inset;
+}
+.wc-cd-num {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 58px);
+  font-weight: var(--weight-heavy);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  color: var(--fire);
+  line-height: 1;
+}
+body.theme-wc .wc-cd-num { color: #C8102E; }
+.wc-cd-lbl {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: var(--weight-bold);
+}
+.wc-cd-sep {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 44px);
+  color: var(--muted);
+  font-weight: var(--weight-bold);
+  opacity: .5;
+}
+.wc-countdown-meta {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--sub);
+  letter-spacing: .04em;
+}
 
 /* ── Match tiers — uniform tinted gradient backdrops.
    Tier 0 (TBD) = neutral gray, no coloring.
@@ -5845,7 +6094,11 @@ function renderScheduleList() {
       ? `<div class="sched-mid"><div class="sched-score">${m.scoreHome} – ${m.scoreAway}</div><div class="sched-time">${t}</div></div>`
       : `<div class="sched-mid"><div class="sched-score vs">VS</div><div class="sched-time">${t}</div></div>`;
     const tip = `${homeFull} vs ${awayFull}${m.group ? ' — Grupa ' + m.group : ''}`;
-    html += `<div class="sched-row tier-${tier}${isPastView ? ' past' : ''}" title="${tip}">`
+    const matchPayload = encodeURIComponent(JSON.stringify({
+      home: m.home, away: m.away, kickoffUtc: m.kickoffUtc,
+      stage: m.stage, group: m.group, mdLabel: m.mdLabel
+    }));
+    html += `<div class="sched-row tier-${tier}${isPastView ? ' past' : ''}" title="${tip}" onclick="openWcMatchModal('${matchPayload}')">`
           +   homeFlag
           +   homeRank
           +   `<span class="sched-code">${homeCode}</span>`
@@ -5858,14 +6111,149 @@ function renderScheduleList() {
   list.innerHTML = html;
 }
 
+// Kickoff of the WC2026 opener: MEX vs RSA, 11 June 2026, 22:00 Bucharest = 19:00 UTC.
+const WC_KICKOFF_UTC = Date.UTC(2026, 5, 11, 19, 0, 0);
+let _wcCountdownTimer = null;
+
+function _wcCountdownHtml(ms) {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const days = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400) / 3600);
+  const mins = Math.floor((totalSec % 3600) / 60);
+  const secs = totalSec % 60;
+  const pad = n => String(n).padStart(2, '0');
+  return `
+    <div class="wc-countdown">
+      <div class="wc-countdown-eyebrow">FIFA World Cup 2026</div>
+      <div class="wc-countdown-headline">Primul meci în</div>
+      <div class="wc-countdown-grid">
+        <div class="wc-cd-cell"><div class="wc-cd-num">${days}</div><div class="wc-cd-lbl">Zile</div></div>
+        <div class="wc-cd-sep">:</div>
+        <div class="wc-cd-cell"><div class="wc-cd-num">${pad(hours)}</div><div class="wc-cd-lbl">Ore</div></div>
+        <div class="wc-cd-sep">:</div>
+        <div class="wc-cd-cell"><div class="wc-cd-num">${pad(mins)}</div><div class="wc-cd-lbl">Min</div></div>
+        <div class="wc-cd-sep">:</div>
+        <div class="wc-cd-cell"><div class="wc-cd-num">${pad(secs)}</div><div class="wc-cd-lbl">Sec</div></div>
+      </div>
+      <div class="wc-countdown-meta">11 iunie 2026 · 22:00 Bucureşti · Mexic vs Africa de Sud</div>
+    </div>`;
+}
+
+function startWcCountdown() {
+  if (_wcCountdownTimer) { clearInterval(_wcCountdownTimer); _wcCountdownTimer = null; }
+  const target = document.getElementById('wcCountdownHost');
+  if (!target) return;
+  const tick = () => {
+    const ms = WC_KICKOFF_UTC - Date.now();
+    if (ms <= 0) {
+      target.innerHTML = `<div class="wc-countdown"><div class="wc-countdown-headline">Turneul a început.</div></div>`;
+      clearInterval(_wcCountdownTimer);
+      _wcCountdownTimer = null;
+      return;
+    }
+    target.innerHTML = _wcCountdownHtml(ms);
+  };
+  tick();
+  _wcCountdownTimer = setInterval(tick, 1000);
+}
+
+// Lightweight WC match popup — shown when the user clicks a row in the
+// Schedule view. No live data exists yet, so we surface what we have:
+// teams, ranks, group, stage, kickoff (Bucharest), and a per-match countdown.
+function openWcMatchModal(payload) {
+  let m;
+  try { m = JSON.parse(decodeURIComponent(payload)); } catch(_) { return; }
+  const teams = (WC_DATA && WC_DATA.teams) || {};
+  const ranks = (WC_DATA && WC_DATA.nationRanks) || {};
+  const home = teams[m.home] || { iso2: 'xx', name: m.home };
+  const away = teams[m.away] || { iso2: 'xx', name: m.away };
+  const homeRank = ranks[m.home];
+  const awayRank = ranks[m.away];
+  const kickoffMs = m.kickoffUtc ? Date.parse(m.kickoffUtc) : null;
+  const kickoffLine = m.kickoffUtc
+    ? new Date(m.kickoffUtc).toLocaleString('ro-RO', {
+        timeZone: 'Europe/Bucharest',
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      }) + ' (Bucureşti)'
+    : 'TBD';
+  const stageMap = {
+    GROUP_STAGE: m.group ? `Grupa ${m.group}` : 'Grupă',
+    ROUND_OF_32: 'Round of 32',
+    ROUND_OF_16: 'Optimi de finală',
+    QUARTER_FINAL: 'Sferturi de finală',
+    SEMI_FINAL: 'Semifinale',
+    THIRD_PLACE: 'Finala mică',
+    FINAL: 'Finala',
+  };
+  const stageLine = stageMap[m.stage] || m.stage || '';
+  const flag = (iso2) => iso2 && iso2 !== 'xx'
+    ? `https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/4x3/${iso2.toLowerCase()}.svg`
+    : '/static/flag-placeholder.svg';
+  const rankPill = r => (r != null) ? `<div class="wc-mm-rank">FIFA #${r}</div>` : '';
+  const overlay = document.createElement('div');
+  overlay.className = 'wc-mm-overlay';
+  overlay.id = 'wcMatchModalOverlay';
+  overlay.innerHTML = `
+    <div class="wc-mm" role="dialog" aria-modal="true">
+      <button class="wc-mm-close" aria-label="Închide" onclick="closeWcMatchModal()">×</button>
+      <div class="wc-mm-stage">${stageLine}</div>
+      <div class="wc-mm-teams">
+        <div class="wc-mm-team">
+          <img class="wc-mm-flag" src="${flag(home.iso2)}" alt="" onerror="this.onerror=null;this.src='/static/flag-placeholder.svg'"/>
+          <div class="wc-mm-name">${home.name || m.home}</div>
+          <div class="wc-mm-code">${m.home}</div>
+          ${rankPill(homeRank)}
+        </div>
+        <div class="wc-mm-vs">vs</div>
+        <div class="wc-mm-team">
+          <img class="wc-mm-flag" src="${flag(away.iso2)}" alt="" onerror="this.onerror=null;this.src='/static/flag-placeholder.svg'"/>
+          <div class="wc-mm-name">${away.name || m.away}</div>
+          <div class="wc-mm-code">${m.away}</div>
+          ${rankPill(awayRank)}
+        </div>
+      </div>
+      <div class="wc-mm-when">${kickoffLine}</div>
+      ${kickoffMs ? `<div class="wc-mm-countdown" id="wcMmCountdown"></div>` : ''}
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeWcMatchModal(); });
+  document.body.appendChild(overlay);
+  // Per-match countdown
+  if (kickoffMs) {
+    const cdEl = overlay.querySelector('#wcMmCountdown');
+    const tick = () => {
+      const left = kickoffMs - Date.now();
+      if (left <= 0) { cdEl.textContent = 'Meciul a început.'; clearInterval(cdEl._t); return; }
+      const d = Math.floor(left/86400000), h = Math.floor(left/3600000)%24,
+            mn = Math.floor(left/60000)%60, s = Math.floor(left/1000)%60;
+      cdEl.textContent = `${d}z ${String(h).padStart(2,'0')}h ${String(mn).padStart(2,'0')}m ${String(s).padStart(2,'0')}s până la kickoff`;
+    };
+    tick();
+    cdEl._t = setInterval(tick, 1000);
+  }
+  // ESC to close
+  const esc = e => { if (e.key === 'Escape') { closeWcMatchModal(); document.removeEventListener('keydown', esc); } };
+  document.addEventListener('keydown', esc);
+}
+
+function closeWcMatchModal() {
+  const ov = document.getElementById('wcMatchModalOverlay');
+  if (!ov) return;
+  const cd = ov.querySelector('#wcMmCountdown');
+  if (cd && cd._t) clearInterval(cd._t);
+  ov.remove();
+}
+
 function renderWcEmptyStates() {
   const fmLeft = document.getElementById('fmLeft');
   const fmRight = document.getElementById('fmRight');
   const fmHeader = document.getElementById('fmHeader');
   const emptyMsg = `<div class="sched-empty"><strong>World Cup 2026</strong>Turneul începe pe 11 iunie. Clasamentul și echipele se deblochează după MD1.</div>`;
-  if (fmLeft) fmLeft.innerHTML = emptyMsg;
+  // Center panel gets the live countdown instead of static empty text.
+  if (fmLeft) fmLeft.innerHTML = `<div id="wcCountdownHost" class="wc-countdown-host"></div>`;
   if (fmRight) fmRight.innerHTML = '';
   if (fmHeader) fmHeader.innerHTML = '';
+  startWcCountdown();
   const clsList = document.getElementById('clsList');
   if (clsList && leftMode === 'standings') {
     clsList.innerHTML = emptyMsg;
