@@ -1,0 +1,1645 @@
+{
+  "competition": "FIFA World Cup 2026",
+  "season": "2026",
+  "hosts": [
+    "USA",
+    "MEX",
+    "CAN"
+  ],
+  "nationRanks": {
+    "FRA": 1,
+    "ESP": 2,
+    "ARG": 3,
+    "ENG": 4,
+    "POR": 5,
+    "BRA": 6,
+    "NED": 7,
+    "MAR": 8,
+    "BEL": 9,
+    "GER": 10,
+    "CRO": 11,
+    "ITA": 12,
+    "COL": 13,
+    "SEN": 14,
+    "MEX": 15,
+    "USA": 16,
+    "URU": 17,
+    "JPN": 18,
+    "SUI": 19,
+    "DEN": 20,
+    "IRN": 21,
+    "AUT": 22,
+    "SWE": 23,
+    "KOR": 24,
+    "AUS": 25,
+    "CAN": 26,
+    "ECU": 28,
+    "POL": 31,
+    "SRB": 32,
+    "CZE": 33,
+    "TUR": 35,
+    "NOR": 36,
+    "EGY": 37,
+    "NGA": 38,
+    "ALG": 39,
+    "CIV": 40,
+    "CMR": 41,
+    "TUN": 42,
+    "PAR": 43,
+    "KSA": 44,
+    "PAN": 45,
+    "CRC": 46,
+    "UZB": 47,
+    "RSA": 48,
+    "CPV": 49,
+    "IRQ": 51,
+    "JAM": 52,
+    "BFA": 54,
+    "GHA": 56,
+    "BOL": 57,
+    "HAI": 58,
+    "JOR": 59,
+    "QAT": 61,
+    "NZL": 62,
+    "COD": 63,
+    "CUW": 75,
+    "SCO": 39,
+    "BIH": 65
+  },
+  "teams": {
+    "MEX": {
+      "iso2": "mx",
+      "name": "Mexic"
+    },
+    "RSA": {
+      "iso2": "za",
+      "name": "Africa de Sud"
+    },
+    "KOR": {
+      "iso2": "kr",
+      "name": "Coreea de Sud"
+    },
+    "CZE": {
+      "iso2": "cz",
+      "name": "Cehia"
+    },
+    "CAN": {
+      "iso2": "ca",
+      "name": "Canada"
+    },
+    "BIH": {
+      "iso2": "ba",
+      "name": "Bosnia-Hertegovina"
+    },
+    "QAT": {
+      "iso2": "qa",
+      "name": "Qatar"
+    },
+    "SUI": {
+      "iso2": "ch",
+      "name": "Elvetia"
+    },
+    "BRA": {
+      "iso2": "br",
+      "name": "Brazilia"
+    },
+    "MAR": {
+      "iso2": "ma",
+      "name": "Maroc"
+    },
+    "HAI": {
+      "iso2": "ht",
+      "name": "Haiti"
+    },
+    "SCO": {
+      "iso2": "gb-sct",
+      "name": "Scotia"
+    },
+    "USA": {
+      "iso2": "us",
+      "name": "SUA"
+    },
+    "PAR": {
+      "iso2": "py",
+      "name": "Paraguay"
+    },
+    "AUS": {
+      "iso2": "au",
+      "name": "Australia"
+    },
+    "TUR": {
+      "iso2": "tr",
+      "name": "Turcia"
+    },
+    "GER": {
+      "iso2": "de",
+      "name": "Germania"
+    },
+    "CUW": {
+      "iso2": "cw",
+      "name": "Curacao"
+    },
+    "CIV": {
+      "iso2": "ci",
+      "name": "Coasta de Fildes"
+    },
+    "ECU": {
+      "iso2": "ec",
+      "name": "Ecuador"
+    },
+    "NED": {
+      "iso2": "nl",
+      "name": "Olanda"
+    },
+    "JPN": {
+      "iso2": "jp",
+      "name": "Japonia"
+    },
+    "SWE": {
+      "iso2": "se",
+      "name": "Suedia"
+    },
+    "TUN": {
+      "iso2": "tn",
+      "name": "Tunisia"
+    },
+    "BEL": {
+      "iso2": "be",
+      "name": "Belgia"
+    },
+    "EGY": {
+      "iso2": "eg",
+      "name": "Egipt"
+    },
+    "IRN": {
+      "iso2": "ir",
+      "name": "Iran"
+    },
+    "NZL": {
+      "iso2": "nz",
+      "name": "Noua Zeelanda"
+    },
+    "ESP": {
+      "iso2": "es",
+      "name": "Spania"
+    },
+    "CPV": {
+      "iso2": "cv",
+      "name": "Insulele Capului Verde"
+    },
+    "KSA": {
+      "iso2": "sa",
+      "name": "Arabia Saudita"
+    },
+    "URU": {
+      "iso2": "uy",
+      "name": "Uruguay"
+    },
+    "FRA": {
+      "iso2": "fr",
+      "name": "Franta"
+    },
+    "SEN": {
+      "iso2": "sn",
+      "name": "Senegal"
+    },
+    "IRQ": {
+      "iso2": "iq",
+      "name": "Irak"
+    },
+    "NOR": {
+      "iso2": "no",
+      "name": "Norvegia"
+    },
+    "ARG": {
+      "iso2": "ar",
+      "name": "Argentina"
+    },
+    "ALG": {
+      "iso2": "dz",
+      "name": "Algeria"
+    },
+    "AUT": {
+      "iso2": "at",
+      "name": "Austria"
+    },
+    "JOR": {
+      "iso2": "jo",
+      "name": "Iordania"
+    },
+    "POR": {
+      "iso2": "pt",
+      "name": "Portugalia"
+    },
+    "COD": {
+      "iso2": "cd",
+      "name": "RD Congo"
+    },
+    "UZB": {
+      "iso2": "uz",
+      "name": "Uzbekistan"
+    },
+    "COL": {
+      "iso2": "co",
+      "name": "Columbia"
+    },
+    "ENG": {
+      "iso2": "gb-eng",
+      "name": "Anglia"
+    },
+    "CRO": {
+      "iso2": "hr",
+      "name": "Croatia"
+    },
+    "GHA": {
+      "iso2": "gh",
+      "name": "Ghana"
+    },
+    "PAN": {
+      "iso2": "pa",
+      "name": "Panama"
+    },
+    "TBD": {
+      "iso2": "xx",
+      "name": "TBD"
+    }
+  },
+  "groups": {
+    "A": [
+      "MEX",
+      "RSA",
+      "KOR",
+      "CZE"
+    ],
+    "B": [
+      "CAN",
+      "BIH",
+      "QAT",
+      "SUI"
+    ],
+    "C": [
+      "BRA",
+      "MAR",
+      "HAI",
+      "SCO"
+    ],
+    "D": [
+      "USA",
+      "PAR",
+      "AUS",
+      "TUR"
+    ],
+    "E": [
+      "GER",
+      "CUW",
+      "CIV",
+      "ECU"
+    ],
+    "F": [
+      "NED",
+      "JPN",
+      "SWE",
+      "TUN"
+    ],
+    "G": [
+      "BEL",
+      "EGY",
+      "IRN",
+      "NZL"
+    ],
+    "H": [
+      "ESP",
+      "CPV",
+      "KSA",
+      "URU"
+    ],
+    "I": [
+      "FRA",
+      "SEN",
+      "IRQ",
+      "NOR"
+    ],
+    "J": [
+      "ARG",
+      "ALG",
+      "AUT",
+      "JOR"
+    ],
+    "K": [
+      "POR",
+      "COD",
+      "UZB",
+      "COL"
+    ],
+    "L": [
+      "ENG",
+      "CRO",
+      "GHA",
+      "PAN"
+    ]
+  },
+  "matchdays": [
+    {
+      "id": 1,
+      "label": "Group Stage — MD1",
+      "matches": [
+        {
+          "mId": "wc-g001",
+          "kickoffUtc": "2026-06-11T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "A",
+          "home": "MEX",
+          "away": "RSA",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g002",
+          "kickoffUtc": "2026-06-12T02:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "A",
+          "home": "KOR",
+          "away": "CZE",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g003",
+          "kickoffUtc": "2026-06-12T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "B",
+          "home": "CAN",
+          "away": "BIH",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g007",
+          "kickoffUtc": "2026-06-13T01:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "D",
+          "home": "USA",
+          "away": "PAR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g004",
+          "kickoffUtc": "2026-06-13T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "B",
+          "home": "QAT",
+          "away": "SUI",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g005",
+          "kickoffUtc": "2026-06-13T22:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "C",
+          "home": "BRA",
+          "away": "MAR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g006",
+          "kickoffUtc": "2026-06-14T01:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "C",
+          "home": "HAI",
+          "away": "SCO",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g008",
+          "kickoffUtc": "2026-06-14T04:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "D",
+          "home": "AUS",
+          "away": "TUR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g009",
+          "kickoffUtc": "2026-06-14T17:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "E",
+          "home": "GER",
+          "away": "CUW",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g011",
+          "kickoffUtc": "2026-06-14T20:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "F",
+          "home": "NED",
+          "away": "JPN",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g010",
+          "kickoffUtc": "2026-06-14T23:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "E",
+          "home": "CIV",
+          "away": "ECU",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g012",
+          "kickoffUtc": "2026-06-15T02:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "F",
+          "home": "SWE",
+          "away": "TUN",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g015",
+          "kickoffUtc": "2026-06-15T16:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "H",
+          "home": "ESP",
+          "away": "CPV",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g013",
+          "kickoffUtc": "2026-06-15T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "G",
+          "home": "BEL",
+          "away": "EGY",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g016",
+          "kickoffUtc": "2026-06-15T22:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "H",
+          "home": "KSA",
+          "away": "URU",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g014",
+          "kickoffUtc": "2026-06-16T01:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "G",
+          "home": "IRN",
+          "away": "NZL",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g017",
+          "kickoffUtc": "2026-06-16T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "I",
+          "home": "FRA",
+          "away": "SEN",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g018",
+          "kickoffUtc": "2026-06-16T22:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "I",
+          "home": "IRQ",
+          "away": "NOR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g019",
+          "kickoffUtc": "2026-06-17T01:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "J",
+          "home": "ARG",
+          "away": "ALG",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g020",
+          "kickoffUtc": "2026-06-17T04:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "J",
+          "home": "AUT",
+          "away": "JOR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g021",
+          "kickoffUtc": "2026-06-17T17:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "K",
+          "home": "POR",
+          "away": "COD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g023",
+          "kickoffUtc": "2026-06-17T20:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "L",
+          "home": "ENG",
+          "away": "CRO",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g024",
+          "kickoffUtc": "2026-06-17T23:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "L",
+          "home": "GHA",
+          "away": "PAN",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g022",
+          "kickoffUtc": "2026-06-18T02:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "K",
+          "home": "UZB",
+          "away": "COL",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Group Stage — MD2",
+      "matches": [
+        {
+          "mId": "wc-g025",
+          "kickoffUtc": "2026-06-18T16:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "A",
+          "home": "CZE",
+          "away": "RSA",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g027",
+          "kickoffUtc": "2026-06-18T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "B",
+          "home": "SUI",
+          "away": "BIH",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g028",
+          "kickoffUtc": "2026-06-18T22:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "B",
+          "home": "CAN",
+          "away": "QAT",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g026",
+          "kickoffUtc": "2026-06-19T01:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "A",
+          "home": "MEX",
+          "away": "KOR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g031",
+          "kickoffUtc": "2026-06-19T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "D",
+          "home": "USA",
+          "away": "AUS",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g029",
+          "kickoffUtc": "2026-06-19T22:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "C",
+          "home": "SCO",
+          "away": "MAR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g030",
+          "kickoffUtc": "2026-06-20T00:30:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "C",
+          "home": "BRA",
+          "away": "HAI",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g032",
+          "kickoffUtc": "2026-06-20T03:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "D",
+          "home": "TUR",
+          "away": "PAR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g035",
+          "kickoffUtc": "2026-06-20T17:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "F",
+          "home": "NED",
+          "away": "SWE",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g033",
+          "kickoffUtc": "2026-06-20T20:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "E",
+          "home": "GER",
+          "away": "CIV",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g034",
+          "kickoffUtc": "2026-06-21T00:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "E",
+          "home": "ECU",
+          "away": "CUW",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g036",
+          "kickoffUtc": "2026-06-21T04:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "F",
+          "home": "TUN",
+          "away": "JPN",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g039",
+          "kickoffUtc": "2026-06-21T16:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "H",
+          "home": "ESP",
+          "away": "KSA",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g037",
+          "kickoffUtc": "2026-06-21T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "G",
+          "home": "BEL",
+          "away": "IRN",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g040",
+          "kickoffUtc": "2026-06-21T22:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "H",
+          "home": "URU",
+          "away": "CPV",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g038",
+          "kickoffUtc": "2026-06-22T01:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "G",
+          "home": "NZL",
+          "away": "EGY",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g043",
+          "kickoffUtc": "2026-06-22T17:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "J",
+          "home": "ARG",
+          "away": "AUT",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g041",
+          "kickoffUtc": "2026-06-22T21:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "I",
+          "home": "FRA",
+          "away": "IRQ",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g042",
+          "kickoffUtc": "2026-06-23T00:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "I",
+          "home": "NOR",
+          "away": "SEN",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g044",
+          "kickoffUtc": "2026-06-23T03:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "J",
+          "home": "JOR",
+          "away": "ALG",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g045",
+          "kickoffUtc": "2026-06-23T17:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "K",
+          "home": "POR",
+          "away": "UZB",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g047",
+          "kickoffUtc": "2026-06-23T20:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "L",
+          "home": "ENG",
+          "away": "GHA",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g048",
+          "kickoffUtc": "2026-06-23T23:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "L",
+          "home": "PAN",
+          "away": "CRO",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g046",
+          "kickoffUtc": "2026-06-24T02:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "K",
+          "home": "COL",
+          "away": "COD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "label": "Group Stage — MD3",
+      "matches": [
+        {
+          "mId": "wc-g051",
+          "kickoffUtc": "2026-06-24T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "B",
+          "home": "SUI",
+          "away": "CAN",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g052",
+          "kickoffUtc": "2026-06-24T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "B",
+          "home": "BIH",
+          "away": "QAT",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g053",
+          "kickoffUtc": "2026-06-24T22:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "C",
+          "home": "MAR",
+          "away": "HAI",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g054",
+          "kickoffUtc": "2026-06-24T22:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "C",
+          "home": "SCO",
+          "away": "BRA",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g049",
+          "kickoffUtc": "2026-06-25T01:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "A",
+          "home": "RSA",
+          "away": "KOR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g050",
+          "kickoffUtc": "2026-06-25T01:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "A",
+          "home": "CZE",
+          "away": "MEX",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g057",
+          "kickoffUtc": "2026-06-25T20:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "E",
+          "home": "CUW",
+          "away": "CIV",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g058",
+          "kickoffUtc": "2026-06-25T20:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "E",
+          "home": "ECU",
+          "away": "GER",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g059",
+          "kickoffUtc": "2026-06-25T23:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "F",
+          "home": "TUN",
+          "away": "NED",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g060",
+          "kickoffUtc": "2026-06-25T23:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "F",
+          "home": "JPN",
+          "away": "SWE",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g055",
+          "kickoffUtc": "2026-06-26T02:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "D",
+          "home": "TUR",
+          "away": "USA",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g056",
+          "kickoffUtc": "2026-06-26T02:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "D",
+          "home": "PAR",
+          "away": "AUS",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g065",
+          "kickoffUtc": "2026-06-26T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "I",
+          "home": "NOR",
+          "away": "FRA",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g066",
+          "kickoffUtc": "2026-06-26T19:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "I",
+          "home": "SEN",
+          "away": "IRQ",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g063",
+          "kickoffUtc": "2026-06-27T00:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "H",
+          "home": "CPV",
+          "away": "KSA",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g064",
+          "kickoffUtc": "2026-06-27T00:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "H",
+          "home": "URU",
+          "away": "ESP",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g061",
+          "kickoffUtc": "2026-06-27T03:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "G",
+          "home": "EGY",
+          "away": "IRN",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g062",
+          "kickoffUtc": "2026-06-27T03:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "G",
+          "home": "NZL",
+          "away": "BEL",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g071",
+          "kickoffUtc": "2026-06-27T21:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "L",
+          "home": "CRO",
+          "away": "GHA",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g072",
+          "kickoffUtc": "2026-06-27T21:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "L",
+          "home": "PAN",
+          "away": "ENG",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g069",
+          "kickoffUtc": "2026-06-27T23:30:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "K",
+          "home": "COD",
+          "away": "UZB",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g070",
+          "kickoffUtc": "2026-06-27T23:30:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "K",
+          "home": "COL",
+          "away": "POR",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g067",
+          "kickoffUtc": "2026-06-28T02:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "J",
+          "home": "JOR",
+          "away": "ARG",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-g068",
+          "kickoffUtc": "2026-06-28T02:00:00Z",
+          "venue": "",
+          "stage": "GROUP_STAGE",
+          "group": "J",
+          "home": "ALG",
+          "away": "AUT",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Round of 32",
+      "matches": [
+        {
+          "mId": "wc-round-of-32-01",
+          "kickoffUtc": "2026-06-29T19:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-02",
+          "kickoffUtc": "2026-06-29T21:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-03",
+          "kickoffUtc": "2026-06-30T00:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-04",
+          "kickoffUtc": "2026-06-30T19:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-05",
+          "kickoffUtc": "2026-07-00T22:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-06",
+          "kickoffUtc": "2026-07-01T01:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-07",
+          "kickoffUtc": "2026-07-01T19:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-08",
+          "kickoffUtc": "2026-07-01T22:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-09",
+          "kickoffUtc": "2026-07-02T01:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-10",
+          "kickoffUtc": "2026-07-02T19:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-11",
+          "kickoffUtc": "2026-07-02T22:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-12",
+          "kickoffUtc": "2026-07-03T01:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-13",
+          "kickoffUtc": "2026-07-03T19:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-14",
+          "kickoffUtc": "2026-07-03T22:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-15",
+          "kickoffUtc": "2026-07-04T01:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-32-16",
+          "kickoffUtc": "2026-07-04T19:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_32",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Round of 16",
+      "matches": [
+        {
+          "mId": "wc-round-of-16-17",
+          "kickoffUtc": "2026-07-04T22:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_16",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-16-18",
+          "kickoffUtc": "2026-07-05T01:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_16",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-16-19",
+          "kickoffUtc": "2026-07-05T19:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_16",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-16-20",
+          "kickoffUtc": "2026-07-05T22:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_16",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-16-21",
+          "kickoffUtc": "2026-07-06T19:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_16",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-16-22",
+          "kickoffUtc": "2026-07-06T22:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_16",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-16-23",
+          "kickoffUtc": "2026-07-07T19:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_16",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-round-of-16-24",
+          "kickoffUtc": "2026-07-07T22:00:00Z",
+          "venue": "",
+          "stage": "ROUND_OF_16",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "label": "Quarter-finals",
+      "matches": [
+        {
+          "mId": "wc-quarter-final-25",
+          "kickoffUtc": "2026-07-10T19:00:00Z",
+          "venue": "",
+          "stage": "QUARTER_FINAL",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-quarter-final-26",
+          "kickoffUtc": "2026-07-10T22:00:00Z",
+          "venue": "",
+          "stage": "QUARTER_FINAL",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-quarter-final-27",
+          "kickoffUtc": "2026-07-11T19:00:00Z",
+          "venue": "",
+          "stage": "QUARTER_FINAL",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-quarter-final-28",
+          "kickoffUtc": "2026-07-11T22:00:00Z",
+          "venue": "",
+          "stage": "QUARTER_FINAL",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "label": "Semi-finals",
+      "matches": [
+        {
+          "mId": "wc-semi-final-29",
+          "kickoffUtc": "2026-07-15T19:00:00Z",
+          "venue": "",
+          "stage": "SEMI_FINAL",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        },
+        {
+          "mId": "wc-semi-final-30",
+          "kickoffUtc": "2026-07-16T19:00:00Z",
+          "venue": "",
+          "stage": "SEMI_FINAL",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "label": "Third-place play-off",
+      "matches": [
+        {
+          "mId": "wc-third-place-31",
+          "kickoffUtc": "2026-07-18T19:00:00Z",
+          "venue": "",
+          "stage": "THIRD_PLACE",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "label": "Final",
+      "matches": [
+        {
+          "mId": "wc-final-32",
+          "kickoffUtc": "2026-07-19T19:00:00Z",
+          "venue": "",
+          "stage": "FINAL",
+          "group": null,
+          "home": "TBD",
+          "away": "TBD",
+          "scoreHome": null,
+          "scoreAway": null,
+          "status": "UPCOMING"
+        }
+      ]
+    }
+  ]
+}

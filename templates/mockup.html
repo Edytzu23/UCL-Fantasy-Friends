@@ -91,6 +91,68 @@
   --shadow-floating: 0 24px 64px rgba(0,0,0,.6), 0 8px 24px rgba(0,240,255,.06);
 }
 
+/* ─────────────────────────────────────────────────────────────
+   WORLD CUP 2026 theme — bright sky + grass
+   Activated by adding `theme-wc` to <body>.
+   Overrides only the variables that change; everything else
+   inherits from :root.
+   ───────────────────────────────────────────────────────────── */
+body.theme-wc {
+  --bg: #eef3ee;             /* soft cream-on-grass page surface */
+  --bg-outer: #dde6dc;       /* grass-tinted outer */
+  --surf: #f7faf6;           /* light surface (panels) */
+  --card: #ffffff;           /* clean card */
+  --card2: #f1f5ee;          /* secondary card */
+  --border: rgba(27, 94, 32, .14);
+  --border-lt: rgba(27, 94, 32, .07);
+  --fire: #C8102E;           /* FIFA red replaces fire-orange as the action accent */
+  --fire-dim: rgba(200, 16, 46, .12);
+  --green: #1B5E20;
+  --green-lt: #2E7D32;
+  --pitch-bg: #b8d8a8;
+  --pitch-line: rgba(27, 94, 32, .35);
+  --neon: #1B5E20;           /* grass-green replaces neon-cyan */
+  --neon-dim: rgba(27, 94, 32, .15);
+  --neon-pink: #C8102E;
+  --text: #14213d;           /* deep navy ink */
+  --muted: #6b7596;
+  --sub: #4a5670;
+  --shadow-elevated: 0 2px 6px rgba(20, 33, 61, .08), 0 8px 24px rgba(20, 33, 61, .06);
+  --shadow-floating: 0 24px 64px rgba(20, 33, 61, .18), 0 8px 24px rgba(27, 94, 32, .06);
+}
+/* Replace the dark page noise + outer ambience for WC */
+body.theme-wc {
+  background: var(--bg-outer);
+}
+body.theme-wc::before {
+  opacity: .025;             /* lighter noise on a light surface */
+}
+body.theme-wc .app-frame {
+  background:
+    radial-gradient(ellipse 60% 35% at 20% 0%, rgba(27,94,32,.06), transparent),
+    radial-gradient(ellipse 50% 35% at 85% 100%, rgba(200,16,46,.04), transparent),
+    var(--bg);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 60px rgba(20,33,61,.10), 0 0 0 1px rgba(27,94,32,.06);
+}
+/* Loose audit fixes: places where dark-palette literals were used outside vars */
+body.theme-wc .left-panel { background: var(--surf); border-right-color: var(--border); }
+body.theme-wc .cls-tabs { background: rgba(27, 94, 32, .06); }
+body.theme-wc .cls-tab:hover { background: rgba(27, 94, 32, .08); color: var(--text); }
+body.theme-wc .cls-tab.active {
+  background: var(--fire);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(200,16,46,.30);
+}
+body.theme-wc .nav-tab { color: var(--muted); }
+body.theme-wc .nav-tab.active,
+body.theme-wc .nav-tab:hover { color: var(--text); }
+body.theme-wc .nav-icon-btn { color: var(--muted); }
+body.theme-wc .md-dropdown { background: var(--card); border-color: var(--border); box-shadow: var(--shadow-floating); }
+body.theme-wc .md-drop-item { color: var(--text); }
+body.theme-wc .md-drop-item:hover { background: rgba(27,94,32,.06); }
+body.theme-wc .md-drop-item.active { color: var(--fire); }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; }
 body {
@@ -269,6 +331,53 @@ body::before {
   align-items: center;
   gap: 10px;
 }
+
+/* ── Competition swap (UCL ⇄ WC) — sits left of MD selector ── */
+.comp-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px;
+  gap: 0;
+  user-select: none;
+  cursor: pointer;
+}
+.comp-toggle:focus-visible { outline: 2px solid var(--fire); outline-offset: 2px; }
+.comp-knob {
+  position: absolute;
+  top: 3px; bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  background: var(--fire);
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(255,87,34,.30);
+  transition: transform .32s var(--spring), background .25s ease, box-shadow .25s ease;
+  z-index: 0;
+}
+body.theme-wc .comp-knob { box-shadow: 0 2px 10px rgba(200,16,46,.30); }
+.comp-toggle[data-active="wc"] .comp-knob {
+  transform: translateX(100%);
+}
+.comp-opt {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 38px;
+  padding: 6px 10px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  letter-spacing: .08em;
+  text-align: center;
+  color: var(--muted);
+  text-transform: uppercase;
+  transition: color .2s ease;
+}
+.comp-toggle[data-active="ucl"] .comp-opt[data-comp="ucl"],
+.comp-toggle[data-active="wc"]  .comp-opt[data-comp="wc"]  { color: #fff; }
 
 .md-toggle {
   display: flex;
@@ -452,6 +561,207 @@ body::before {
   color: #fff;
   box-shadow: 0 2px 14px rgba(255,87,34,.35), 0 0 4px rgba(255,87,34,.2);
 }
+
+/* Title row holds the title + the standings/schedule mode switch */
+.cls-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.cls-title-row .cls-title { margin-bottom: 0; flex: 1; }
+.cls-title-row .cls-title::after { display: none; }
+
+.cls-mode-switch {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.cls-mode-switch:focus-visible { outline: 2px solid var(--fire); outline-offset: 3px; border-radius: 18px; }
+.mode-track {
+  position: relative;
+  width: 56px;
+  height: 26px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  transition: background .25s ease, border-color .25s ease;
+}
+body.theme-wc .mode-track { background: rgba(27,94,32,.07); }
+.mode-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--fire);
+  box-shadow: 0 2px 8px rgba(255,87,34,.40);
+  transition: transform .32s var(--spring), background .25s ease, box-shadow .25s ease;
+}
+body.theme-wc .mode-knob { box-shadow: 0 2px 8px rgba(200,16,46,.40); }
+.cls-mode-switch[data-mode="schedule"] .mode-knob {
+  transform: translateX(30px);
+}
+.mode-icon {
+  position: relative;
+  z-index: 1;
+  color: var(--muted);
+  transition: color .2s ease, opacity .2s ease;
+  pointer-events: none;
+}
+.cls-mode-switch[data-mode="standings"] .mode-icon-standings { color: #fff; opacity: 1; }
+.cls-mode-switch[data-mode="standings"] .mode-icon-schedule { color: var(--muted); opacity: .6; }
+.cls-mode-switch[data-mode="schedule"]  .mode-icon-standings { color: var(--muted); opacity: .6; }
+.cls-mode-switch[data-mode="schedule"]  .mode-icon-schedule  { color: #fff; opacity: 1; }
+
+/* ── Schedule rows — strict 7-column grid:
+   flag  •  #rank  •  CODE   •  mid (vs + time)  •  CODE  •  #rank  •  flag
+   Every row uses the same column widths so the entire list stays perfectly
+   aligned regardless of team name length. ── */
+.sched-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px 22px 34px minmax(0,1fr) 34px 22px 24px;
+  align-items: center;
+  column-gap: 6px;
+  padding: 8px 8px;
+  margin-bottom: 6px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  transition: transform .2s var(--spring), border-color .2s ease;
+  cursor: help;
+}
+.sched-row + .sched-row { margin-top: -2px; }
+.sched-row:hover { transform: translateX(2px); }
+.sched-flag {
+  width: 24px; height: 17px;
+  border-radius: 2px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.20);
+  background: rgba(255,255,255,.04);
+}
+.sched-flag.away { justify-self: end; }
+.sched-rank {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  color: var(--sub);
+  letter-spacing: .02em;
+  text-align: center;
+  white-space: nowrap;
+}
+.sched-code {
+  font-family: var(--font-display);
+  font-weight: var(--weight-heavy);
+  font-size: 13px;
+  letter-spacing: .04em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.sched-mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+}
+.sched-score {
+  font-size: 14px;
+  font-weight: var(--weight-bold);
+  color: var(--text);
+  letter-spacing: .02em;
+}
+.sched-score.vs { color: var(--muted); font-size: 10px; letter-spacing: .14em; font-weight: var(--weight-bold); }
+.sched-time {
+  font-size: 9.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  line-height: 1.1;
+}
+
+/* Date / stage header rows inside the schedule list */
+.sched-group {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 14px 4px 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sched-group:first-child { padding-top: 4px; }
+.sched-group::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.sched-empty {
+  padding: 28px 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+.sched-empty strong { display: block; color: var(--text); font-family: var(--font-display); font-size: 16px; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 6px; }
+
+/* ── Match tiers — uniform tinted gradient backdrops.
+   Tier 0 (TBD) = neutral gray, no coloring.
+   Tier 1 (low) = green, Tier 2 (medium) = amber, Tier 3 (derby) = red.
+   Subtle left→right fade so rows feel intentional but readable. ── */
+.sched-row.tier-0 {
+  background: linear-gradient(95deg, rgba(120,130,150,.16) 0%, rgba(120,130,150,.08) 60%, rgba(120,130,150,.05) 100%);
+  border-color: rgba(120,130,150,.25);
+}
+body.theme-wc .sched-row.tier-0 {
+  background: linear-gradient(95deg, rgba(90,106,130,.10) 0%, rgba(90,106,130,.05) 60%, rgba(90,106,130,.03) 100%);
+  border-color: rgba(90,106,130,.22);
+}
+.sched-row.tier-1 {
+  background: linear-gradient(95deg, rgba(46,125,50,.30) 0%, rgba(46,125,50,.16) 60%, rgba(46,125,50,.10) 100%);
+  border-color: rgba(46,125,50,.40);
+}
+.sched-row.tier-2 {
+  background: linear-gradient(95deg, rgba(245,158,11,.32) 0%, rgba(245,158,11,.18) 60%, rgba(245,158,11,.12) 100%);
+  border-color: rgba(245,158,11,.48);
+}
+.sched-row.tier-3 {
+  background: linear-gradient(95deg, rgba(220,38,38,.36) 0%, rgba(220,38,38,.20) 60%, rgba(220,38,38,.12) 100%);
+  border-color: rgba(220,38,38,.55);
+}
+
+body.theme-wc .sched-row.tier-1 {
+  background: linear-gradient(95deg, rgba(46,125,50,.22) 0%, rgba(46,125,50,.10) 60%, rgba(46,125,50,.05) 100%);
+  border-color: rgba(46,125,50,.32);
+}
+body.theme-wc .sched-row.tier-2 {
+  background: linear-gradient(95deg, rgba(245,158,11,.26) 0%, rgba(245,158,11,.12) 60%, rgba(245,158,11,.06) 100%);
+  border-color: rgba(245,158,11,.40);
+}
+body.theme-wc .sched-row.tier-3 {
+  background: linear-gradient(95deg, rgba(200,16,46,.26) 0%, rgba(200,16,46,.13) 60%, rgba(200,16,46,.06) 100%);
+  border-color: rgba(200,16,46,.42);
+}
+
+/* Past (already played) matches: dim slightly */
+.sched-row.past { opacity: .72; }
 
 /* Rankings list */
 .cls-list {
@@ -2682,10 +2992,10 @@ body::before {
 .snap-pill.live:hover { opacity: .8; }
 .snap-pill.live.active { background: rgba(255,87,34,.25); border-color: var(--fire); }
 
-.sched-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-.sched-row .sched-label { font-size: 12px; font-weight: 700; color: var(--text); min-width: 65px; font-family: var(--font-display); }
-.sched-row .sched-fired { font-size: 11px; font-weight: 700; color: #4CAF50; margin-left: 4px; }
-.sched-row .sched-pending { font-size: 11px; font-weight: 700; color: var(--muted); margin-left: 4px; }
+.snap-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.snap-row .snap-label { font-size: 12px; font-weight: 700; color: var(--text); min-width: 65px; font-family: var(--font-display); }
+.snap-row .snap-fired { font-size: 11px; font-weight: 700; color: #4CAF50; margin-left: 4px; }
+.snap-row .snap-pending { font-size: 11px; font-weight: 700; color: var(--muted); margin-left: 4px; }
 
 /* comparison table */
 .cmp-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 4px; }
@@ -4075,6 +4385,11 @@ body::before {
   </div>
 
   <div class="nav-right">
+    <div class="comp-toggle" id="compToggle" data-active="ucl" role="switch" tabindex="0" aria-label="Schimbă competiția" onclick="toggleCompetition()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCompetition();}">
+      <div class="comp-knob"></div>
+      <div class="comp-opt" data-comp="ucl">UCL</div>
+      <div class="comp-opt" data-comp="wc">WC</div>
+    </div>
     <div class="md-toggle">
       <div class="md-current"><span class="dot"></span> <span id="mdLabel">MD 12 (MD Curent)</span></div>
       <div class="md-istoric" onclick="toggleDropdown()">
@@ -4100,7 +4415,16 @@ body::before {
   <div id="view-clasament" class="view-container active">
     <div class="left-panel">
       <div class="cls-header">
-        <div class="cls-title">Clasament</div>
+        <div class="cls-title-row">
+          <div class="cls-title" id="clsTitle">Clasament</div>
+          <button type="button" class="cls-mode-switch" id="clsModeSwitch" data-mode="standings" role="switch" aria-checked="false" aria-label="Schimbă în Schedule" onclick="toggleLeftMode()">
+            <span class="mode-track">
+              <span class="mode-knob"></span>
+              <svg class="mode-icon mode-icon-standings" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg>
+              <svg class="mode-icon mode-icon-schedule" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
+            </span>
+          </button>
+        </div>
         <div class="cls-tabs">
           <div class="cls-tab active" onclick="switchClsTab(this,'etapa')">Etapa</div>
           <div class="cls-tab" onclick="switchClsTab(this,'overall')">Overall</div>
@@ -4436,7 +4760,7 @@ function applyMdData(data) {
     }
   }
 
-  renderClasament();
+  renderLeftPanel();
   renderHeader();
   renderPitch();
   renderNavFixtures();
@@ -4539,7 +4863,7 @@ async function silentLoad(md) {
     // If PS5 view is currently shown, re-render so the best-ever ranks update
     // as more MDs stream in.
     if (currentSort === 'ps5' && currentTab === 'clasament') {
-      try { renderClasament(); } catch (_) { /* ignore */ }
+      try { renderLeftPanel(); } catch (_) { /* ignore */ }
     }
     // Trofeu leaderboards aggregate across mdCache; refresh as new MDs arrive.
     if (currentTab === 'trofeu') {
@@ -4615,8 +4939,56 @@ let scoutViewTab = 'all';
 let posAvgCache = null;
 let headerSortCol = null;
 let headerSortDir = 0; // 0=none, 1=desc, -1=asc
-const TOTAL_MDS = 17;
+let TOTAL_MDS = 17;
 let mdCache = {};
+
+// ─── COMPETITION + LEFT-PANEL MODE ───
+// 'ucl' (default) loads UEFA data; 'wc' renders the 2026 World Cup view from
+// static/wc_fixtures.json. The choice persists across reloads via URL ?comp=
+// (canonical) and localStorage (fallback).
+let competition = 'ucl';
+let leftMode = 'standings';          // 'standings' | 'schedule'
+let WC_DATA = null;                  // lazily loaded WC fixtures JSON
+
+function getInitialCompetition() {
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get('comp');
+    if (fromUrl === 'ucl' || fromUrl === 'wc') return fromUrl;
+    const fromLS = localStorage.getItem('competition');
+    if (fromLS === 'ucl' || fromLS === 'wc') return fromLS;
+  } catch(_) {}
+  return 'ucl';
+}
+
+function applyCompetitionUi(comp) {
+  document.body.classList.toggle('theme-wc', comp === 'wc');
+  document.body.classList.toggle('theme-ucl', comp === 'ucl');
+  const tgl = document.getElementById('compToggle');
+  if (tgl) tgl.setAttribute('data-active', comp);
+}
+
+function initCompetition() {
+  competition = getInitialCompetition();
+  try { localStorage.setItem('competition', competition); } catch(_) {}
+  applyCompetitionUi(competition);
+  // WC has 9 matchdays (3 group + R32 + R16 + QF + SF + 3rd + Final).
+  // UCL keeps the existing 17.
+  if (competition === 'wc') {
+    TOTAL_MDS = 9;
+    LIVE_MD = 1;
+    MD = 1;
+  }
+  try { leftMode = (localStorage.getItem('leftMode') === 'schedule') ? 'schedule' : 'standings'; } catch(_) {}
+}
+
+function toggleCompetition() {
+  const next = (competition === 'ucl') ? 'wc' : 'ucl';
+  try { localStorage.setItem('competition', next); } catch(_) {}
+  const url = new URL(window.location.href);
+  url.searchParams.set('comp', next);
+  // Reload to re-run the entire data pipeline cleanly under the new competition.
+  window.location.href = url.toString();
+}
 
 function getSorted() {
   const m = [...MANAGERS];
@@ -5240,7 +5612,7 @@ document.addEventListener('keydown', e => {
 // ─── INTERACTIONS ───
 function selectMgr(guid) {
   selectedMgr = guid;
-  renderClasament();
+  renderLeftPanel();
   renderHeader();
   renderPitch();
   if (currentTab === 'trofeu') { try { renderTrofeu(); } catch(_) {} }
@@ -5271,7 +5643,7 @@ function switchGlobalUser(guid) {
   document.getElementById('navUserDropdown').classList.remove('open');
   populateUserDropdown();
   updateNavUserName();
-  renderClasament();
+  renderLeftPanel();
   if (currentTab === 'totw') renderTOTW();
   if (currentTab === 'trofeu') { try { renderTrofeu(); } catch(_) {} }
 }
@@ -5280,7 +5652,224 @@ function switchClsTab(el, sort) {
   document.querySelectorAll('.cls-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   currentSort = sort;
-  renderClasament();
+  renderLeftPanel();
+}
+
+// Dispatch: in standings mode the left panel shows the ranking list; in
+// schedule mode it shows match fixtures filtered by the active sub-tab.
+function renderLeftPanel() {
+  if (leftMode === 'schedule') renderScheduleList();
+  else renderClasament();
+}
+
+function applyLeftModeUi() {
+  const sw = document.getElementById('clsModeSwitch');
+  if (sw) {
+    sw.setAttribute('data-mode', leftMode);
+    sw.setAttribute('aria-checked', leftMode === 'schedule' ? 'true' : 'false');
+    sw.setAttribute('aria-label', leftMode === 'schedule' ? 'Comută în Clasament' : 'Comută în Schedule');
+  }
+  const title = document.getElementById('clsTitle');
+  if (title) title.textContent = (leftMode === 'schedule') ? 'Schedule' : 'Clasament';
+  // Sub-tab labels swap meaning between modes:
+  //   standings: Etapa / Overall / PS5  (sort keys)
+  //   schedule:  Următoare / Jucate / Etapa  (upcoming / history / this MD)
+  const labels = (leftMode === 'schedule')
+    ? { etapa: 'Următoare', overall: 'Jucate', ps5: 'Etapa' }
+    : { etapa: 'Etapa', overall: 'Overall', ps5: 'PS5' };
+  document.querySelectorAll('.cls-tab').forEach(t => {
+    const m = (t.getAttribute('onclick') || '').match(/'([a-z0-9]+)'/);
+    if (m && labels[m[1]]) t.textContent = labels[m[1]];
+  });
+}
+
+function toggleLeftMode() {
+  leftMode = (leftMode === 'standings') ? 'schedule' : 'standings';
+  try { localStorage.setItem('leftMode', leftMode); } catch(_) {}
+  applyLeftModeUi();
+  renderLeftPanel();
+}
+
+// ─── Schedule view helpers ───
+const FIFA_RANK_MISSING = 200;
+
+function flagUrl(iso2) {
+  if (!iso2 || iso2 === 'xx') return '/static/flag-placeholder.svg';
+  return `https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/4x3/${iso2.toLowerCase()}.svg`;
+}
+
+function formatBucharestTime(iso) {
+  if (!iso) return 'TBD';
+  try {
+    return new Date(iso).toLocaleTimeString('ro-RO', {
+      timeZone: 'Europe/Bucharest', hour: '2-digit', minute: '2-digit'
+    });
+  } catch(_) { return ''; }
+}
+
+function formatBucharestDate(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString('ro-RO', {
+      timeZone: 'Europe/Bucharest', weekday: 'long', day: 'numeric', month: 'long'
+    });
+  } catch(_) { return ''; }
+}
+
+function bucharestDateKey(iso) {
+  if (!iso) return '__none__';
+  try {
+    return new Date(iso).toLocaleDateString('en-CA', { timeZone: 'Europe/Bucharest' });
+  } catch(_) { return '__bad__'; }
+}
+
+// Resolve each WC match into a flat row with team objects + rank pre-attached.
+function getWcMatchesFlat() {
+  if (!WC_DATA || !WC_DATA.matchdays) return [];
+  const out = [];
+  WC_DATA.matchdays.forEach(md => {
+    (md.matches || []).forEach(m => {
+      const homeT = WC_DATA.teams[m.home] || { iso2: 'xx', name: m.home };
+      const awayT = WC_DATA.teams[m.away] || { iso2: 'xx', name: m.away };
+      out.push({
+        ...m,
+        mdId: md.id, mdLabel: md.label,
+        homeObj: { code: m.home, name: homeT.name, iso2: homeT.iso2, rank: WC_DATA.nationRanks ? WC_DATA.nationRanks[m.home] : null },
+        awayObj: { code: m.away, name: awayT.name, iso2: awayT.iso2, rank: WC_DATA.nationRanks ? WC_DATA.nationRanks[m.away] : null }
+      });
+    });
+  });
+  return out;
+}
+
+// Classify matches into tiers by FIFA rank pair-sum (lowest sum = strongest):
+//   top 30% → tier 3 (derby, red)
+//   middle 50% → tier 2 (amber)
+//   bottom 20% → tier 1 (low, green)
+// TBD matches (either team unknown OR no FIFA rank for either side) get
+// tier 0 (neutral gray) and are excluded from the 30/50/20 split — they
+// only join the classification once the draw fills them in.
+function classifyWcMatches(matches) {
+  const tbd = [], real = [];
+  matches.forEach(m => {
+    const isTbd = (m.home === 'TBD' || m.away === 'TBD' ||
+                   m.homeObj.rank == null || m.awayObj.rank == null);
+    (isTbd ? tbd : real).push(m);
+  });
+  const scored = real.map(m => ({ m, score: m.homeObj.rank + m.awayObj.rank }));
+  scored.sort((a, b) =>
+    (a.score - b.score) ||
+    (new Date(a.m.kickoffUtc) - new Date(b.m.kickoffUtc))
+  );
+  const n = scored.length;
+  const t3End   = Math.round(n * 0.30);
+  const t1Start = Math.round(n * 0.80);
+  scored.forEach((s, i) => {
+    s.m.tier = (i < t3End) ? 3 : (i >= t1Start ? 1 : 2);
+  });
+  tbd.forEach(m => { m.tier = 0; });
+  return matches;
+}
+
+function renderScheduleList() {
+  const list = document.getElementById('clsList');
+  if (!list) return;
+
+  let matches = [];
+  if (competition === 'wc') {
+    matches = getWcMatchesFlat();
+    classifyWcMatches(matches);
+  } else {
+    // UCL: use the active MD's fixtures (full history would need the lazy
+    // cross-MD cache described in the plan — covered as a follow-up).
+    matches = (MD_FIXTURES || []).map(f => ({
+      ...f,
+      kickoffUtc: f.kickoffUtc || null,
+      mdId: MD,
+      homeObj: { code: f.home, name: f.homeName || f.home, iso2: null, rank: null },
+      awayObj: { code: f.away, name: f.awayName || f.away, iso2: null, rank: null },
+      tier: 1
+    }));
+  }
+
+  const now = Date.now();
+  let filtered;
+  if (currentSort === 'etapa') {
+    filtered = matches.filter(m => {
+      if (!m.kickoffUtc) return (m.status === 'UPCOMING');
+      return new Date(m.kickoffUtc).getTime() > now;
+    }).sort((a, b) => new Date(a.kickoffUtc || 0) - new Date(b.kickoffUtc || 0));
+  } else if (currentSort === 'overall') {
+    filtered = matches.filter(m => {
+      if (m.scoreHome != null && m.scoreAway != null) return true;
+      if (!m.kickoffUtc) return false;
+      return new Date(m.kickoffUtc).getTime() <= now;
+    }).sort((a, b) => new Date(b.kickoffUtc || 0) - new Date(a.kickoffUtc || 0));
+  } else { // ps5 — all matches in active MD
+    filtered = matches.filter(m => m.mdId === MD)
+      .sort((a, b) => new Date(a.kickoffUtc || 0) - new Date(b.kickoffUtc || 0));
+  }
+
+  if (filtered.length === 0) {
+    let msg;
+    if (currentSort === 'overall') msg = 'Istoric gol — competiția nu a început încă.';
+    else if (currentSort === 'etapa') msg = 'Niciun meci viitor în program.';
+    else msg = 'Nu există meciuri pentru MD curent.';
+    list.innerHTML = `<div class="sched-empty"><strong>Niciun meci</strong>${msg}</div>`;
+    return;
+  }
+
+  const isPastView = (currentSort === 'overall');
+  let lastDate = '';
+  let html = '';
+  filtered.forEach(m => {
+    const key = bucharestDateKey(m.kickoffUtc);
+    if (key !== lastDate) {
+      const label = m.kickoffUtc ? formatBucharestDate(m.kickoffUtc) : 'TBD';
+      html += `<div class="sched-group">${label}</div>`;
+      lastDate = key;
+    }
+    const home = m.homeObj, away = m.awayObj;
+    const tier = (m.tier != null) ? m.tier : 1;  // 0 = TBD (gray), don't fallback to 1
+    const homeFlag = `<img class="sched-flag" src="${flagUrl(home.iso2)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/static/flag-placeholder.svg'"/>`;
+    const awayFlag = `<img class="sched-flag away" src="${flagUrl(away.iso2)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/static/flag-placeholder.svg'"/>`;
+    const homeRank = (home.rank != null) ? `<span class="sched-rank">#${home.rank}</span>` : `<span class="sched-rank"></span>`;
+    const awayRank = (away.rank != null) ? `<span class="sched-rank">#${away.rank}</span>` : `<span class="sched-rank"></span>`;
+    const homeCode = (home.code && home.code !== 'TBD') ? home.code : '—';
+    const awayCode = (away.code && away.code !== 'TBD') ? away.code : '—';
+    const homeFull = (home.name && home.code !== 'TBD') ? home.name : 'TBD';
+    const awayFull = (away.name && away.code !== 'TBD') ? away.name : 'TBD';
+    const hasScore = (m.scoreHome != null && m.scoreAway != null);
+    const t = formatBucharestTime(m.kickoffUtc);
+    const mid = hasScore
+      ? `<div class="sched-mid"><div class="sched-score">${m.scoreHome} – ${m.scoreAway}</div><div class="sched-time">${t}</div></div>`
+      : `<div class="sched-mid"><div class="sched-score vs">VS</div><div class="sched-time">${t}</div></div>`;
+    const tip = `${homeFull} vs ${awayFull}${m.group ? ' — Grupa ' + m.group : ''}`;
+    html += `<div class="sched-row tier-${tier}${isPastView ? ' past' : ''}" title="${tip}">`
+          +   homeFlag
+          +   homeRank
+          +   `<span class="sched-code">${homeCode}</span>`
+          +   mid
+          +   `<span class="sched-code">${awayCode}</span>`
+          +   awayRank
+          +   awayFlag
+          + `</div>`;
+  });
+  list.innerHTML = html;
+}
+
+function renderWcEmptyStates() {
+  const fmLeft = document.getElementById('fmLeft');
+  const fmRight = document.getElementById('fmRight');
+  const fmHeader = document.getElementById('fmHeader');
+  const emptyMsg = `<div class="sched-empty"><strong>World Cup 2026</strong>Turneul începe pe 11 iunie. Clasamentul și echipele se deblochează după MD1.</div>`;
+  if (fmLeft) fmLeft.innerHTML = emptyMsg;
+  if (fmRight) fmRight.innerHTML = '';
+  if (fmHeader) fmHeader.innerHTML = '';
+  const clsList = document.getElementById('clsList');
+  if (clsList && leftMode === 'standings') {
+    clsList.innerHTML = emptyMsg;
+  }
 }
 
 function toggleDropdown() {
@@ -6968,6 +7557,9 @@ async function loadFixturesFromAPI() {
       .filter(f => f.home && f.away);
 
     renderNavFixtures();
+    // Re-render the left panel if it's showing the schedule view — the
+    // first paint may have happened before fixtures arrived.
+    if (leftMode === 'schedule' && currentTab === 'clasament') renderScheduleList();
   } catch(e) {
     console.warn('Fixtures API error:', e);
   }
@@ -6984,9 +7576,22 @@ function _doTabSwitch(tabName) {
   document.getElementById('view-' + tabName).classList.add('active');
   currentTab = tabName;
   location.hash = tabName;
+  // On WC we don't have player/manager data yet — every tab except the
+  // (placeholder) Clasament gets a shared empty state until MD1 starts.
+  if (competition === 'wc' && tabName !== 'clasament') {
+    paintWcEmptyForTab(tabName);
+    return;
+  }
   if (tabName === 'scouting') { renderScouting(); if (!scoutBracketLoaded) loadScoutSchedule(); }
   if (tabName === 'totw') renderTOTW();
   if (tabName === 'trofeu') renderTrofeu();
+}
+
+function paintWcEmptyForTab(tabName) {
+  const root = document.getElementById('view-' + tabName);
+  if (!root) return;
+  const msg = `<div style="display:flex;align-items:center;justify-content:center;height:100%;width:100%;padding:48px;"><div class="sched-empty" style="max-width:520px;"><strong>World Cup 2026</strong>Tabul "${tabName}" se deblochează după MD1 (11 iunie). Folosește toggle-ul UCL pentru a reveni la sezonul curent.</div></div>`;
+  root.innerHTML = msg;
 }
 
 function activateTab(tabName) {
@@ -7285,6 +7890,31 @@ function switchMatchTab(tabEl, tabName) {
 
 // ─── INIT ───
 (async () => {
+  // 0. Determine which competition the user picked on the landing page
+  //    (or via the top-right swap). This must run BEFORE anything else
+  //    so the body theme class is applied before the first paint and
+  //    TOTAL_MDS / LIVE_MD reflect the chosen competition.
+  initCompetition();
+
+  // 0b. If WC: skip the UCL data pipeline entirely. Load the static
+  //     fixtures JSON for the Schedule view and render the WC empty
+  //     state everywhere else. Bail out of the rest of init.
+  if (competition === 'wc') {
+    try {
+      const r = await fetch('/static/wc_fixtures.json', { cache: 'no-cache' });
+      WC_DATA = await r.json();
+    } catch(e) {
+      console.error('WC fixtures load failed', e);
+      WC_DATA = null;
+    }
+    document.getElementById('mdLabel').textContent = `MD ${MD}`;
+    renderMdDropdown();
+    renderWcEmptyStates();
+    if (leftMode === 'schedule') renderScheduleList();
+    applyLeftModeUi();
+    return;
+  }
+
   // 1. Hydrate every cached MD from localStorage. MD picks the highest
   //    cached MD as the candidate display MD (revalidation may bump it).
   for (const k of cacheKeys('md.')) {
@@ -7298,10 +7928,11 @@ function switchMatchTab(tabEl, tabName) {
     }
   }
 
-  // 2. Static scaffolding (label, MD dropdown, fixtures placeholder).
+  // 2. Static scaffolding (label, MD dropdown, fixtures placeholder, left-panel mode).
   document.getElementById('mdLabel').textContent = `MD ${MD}`;
   renderMdDropdown();
   renderNavFixtures();
+  applyLeftModeUi();
 
   // 3. Warm cache: paint immediately and start every secondary loader. The
   //    /api/data revalidate below runs in parallel and only re-renders if the
@@ -7572,11 +8203,11 @@ function renderSchedRows(){
   el.innerHTML=CP_LABELS.map(label=>{
     const cp=cps.find(c=>c.label===label)||{time:'',label,fired:false};
     const statusHtml=cp.fired
-      ?'<span class="sched-fired">✓ Fired</span>'
-      :'<span class="sched-pending">○ Pending</span>';
-    return`<div class="sched-row">
-      <span class="sched-label">${label}</span>
-      <input type="time" class="stats-sel sched-time" data-label="${label}" value="${cp.time||''}" style="width:100px;"/>
+      ?'<span class="snap-fired">✓ Fired</span>'
+      :'<span class="snap-pending">○ Pending</span>';
+    return`<div class="snap-row">
+      <span class="snap-label">${label}</span>
+      <input type="time" class="stats-sel snap-time" data-label="${label}" value="${cp.time||''}" style="width:100px;"/>
       ${statusHtml}
     </div>`;
   }).join('');
@@ -7584,11 +8215,11 @@ function renderSchedRows(){
 
 async function saveSchedConfig(){
   const status=document.getElementById('liveSchedStatus');
-  const rows=document.querySelectorAll('#liveSchedRows .sched-row');
+  const rows=document.querySelectorAll('#liveSchedRows .snap-row');
   const checkpoints=[];
   rows.forEach(row=>{
-    const label=row.querySelector('.sched-label').textContent;
-    const time=row.querySelector('.sched-time').value;
+    const label=row.querySelector('.snap-label').textContent;
+    const time=row.querySelector('.snap-time').value;
     if(time){
       const existing=(liveSchedule.checkpoints||[]).find(c=>c.label===label);
       checkpoints.push({time,label,fired:existing?existing.fired:false});

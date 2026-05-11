@@ -172,6 +172,103 @@ body::after {
   50% { background-position: 100% 50%; }
 }
 
+/* ── Competition selector ── */
+.comp-selector {
+  width: 100%;
+  max-width: 680px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeSlideIn .5s ease .08s forwards;
+}
+.comp-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 22px;
+  background: linear-gradient(180deg, rgba(15,17,32,.85), rgba(10,12,20,.85));
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), border-color .22s ease, box-shadow .22s ease, background .22s ease;
+  text-decoration: none;
+  color: var(--text);
+  overflow: hidden;
+}
+.comp-card::before {
+  /* Diagonal sheen, hidden until active */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.04) 50%, transparent 65%);
+  opacity: 0;
+  transition: opacity .25s ease;
+  pointer-events: none;
+}
+.comp-card:hover { border-color: rgba(255,255,255,.14); transform: translateY(-1px); }
+.comp-card:focus-visible { outline: 2px solid var(--fire); outline-offset: 3px; }
+.comp-card.active {
+  background: linear-gradient(180deg, rgba(255,87,34,.10), rgba(255,87,34,.02));
+  border-color: rgba(255,87,34,.55);
+  box-shadow: 0 8px 28px rgba(255,87,34,.18), 0 0 0 1px rgba(255,87,34,.25), inset 0 1px 0 rgba(255,180,120,.10);
+}
+.comp-card.active::before { opacity: 1; }
+.comp-card.active .comp-mark { filter: drop-shadow(0 0 12px rgba(255,87,34,.5)); }
+
+/* WC card: when active, swap fire-orange glow for FIFA red */
+.comp-card[data-comp="wc"].active {
+  background: linear-gradient(180deg, rgba(200,16,46,.10), rgba(200,16,46,.02));
+  border-color: rgba(200,16,46,.55);
+  box-shadow: 0 8px 28px rgba(200,16,46,.20), 0 0 0 1px rgba(200,16,46,.25), inset 0 1px 0 rgba(255,180,180,.08);
+}
+.comp-card[data-comp="wc"].active .comp-mark { filter: drop-shadow(0 0 12px rgba(200,16,46,.55)); }
+
+.comp-mark {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  transition: filter .25s ease;
+}
+.comp-mark img { width: 38px; height: 38px; object-fit: contain; }
+.comp-mark svg { width: 32px; height: 32px; }
+
+.comp-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.comp-name {
+  font-family: var(--font-display);
+  font-weight: var(--weight-heavy);
+  font-size: 16px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text);
+  line-height: 1.1;
+}
+.comp-sub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.comp-card[data-comp="wc"] .comp-sub { color: #6b7796; }
+.comp-card.active .comp-sub { color: var(--sub); }
+.comp-card[data-comp="ucl"].active .comp-sub { color: #ffa97a; }
+.comp-card[data-comp="wc"].active .comp-sub { color: #ee9aa6; }
+
+@media (max-width: 540px) {
+  .comp-selector { grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
+}
+
 /* Pitch */
 .landing-pitch {
   width: 100%;
@@ -509,6 +606,34 @@ body::after {
 
   <h1 class="landing-title">Cine ești?</h1>
 
+  <div class="comp-selector" role="tablist" aria-label="Selector competiție">
+    <button type="button" class="comp-card" data-comp="ucl" role="tab" aria-selected="true">
+      <div class="comp-mark">
+        <img src="/static/brand-logo.png" alt=""/>
+      </div>
+      <div class="comp-text">
+        <div class="comp-name">UCL Fantasy</div>
+        <div class="comp-sub">Sezon 25 / 26 · live</div>
+      </div>
+    </button>
+    <button type="button" class="comp-card" data-comp="wc" role="tab" aria-selected="false">
+      <div class="comp-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 4h10v3a5 5 0 0 1-10 0V4z"/>
+          <path d="M17 5h2.5a1.5 1.5 0 0 1 0 3H17"/>
+          <path d="M7 5H4.5a1.5 1.5 0 0 0 0 3H7"/>
+          <path d="M12 12v3"/>
+          <path d="M9 19h6"/>
+          <path d="M8.5 21h7l-.5-2h-6l-.5 2z"/>
+        </svg>
+      </div>
+      <div class="comp-text">
+        <div class="comp-name">World Cup 2026</div>
+        <div class="comp-sub">Start · 11 Iun</div>
+      </div>
+    </button>
+  </div>
+
   <div class="landing-pitch">
     <!-- Pitch markings -->
     <div class="pitch-cl"></div>
@@ -615,6 +740,45 @@ body::after {
 
   <p class="landing-hint">Alege-ți identitatea pentru a vedea clasamentul</p>
 </div>
+
+<script>
+  (function() {
+    var KEY = 'competition';
+    var current = (localStorage.getItem(KEY) === 'wc') ? 'wc' : 'ucl';
+
+    function applyHrefs() {
+      var links = document.querySelectorAll('.user-card[href]');
+      for (var i = 0; i < links.length; i++) {
+        var a = links[i];
+        var base = a.getAttribute('href').split('?')[0];
+        var qs = a.getAttribute('href').split('?')[1] || '';
+        var params = new URLSearchParams(qs);
+        params.set('comp', current);
+        a.setAttribute('href', base + '?' + params.toString());
+      }
+    }
+
+    function applyActive() {
+      document.querySelectorAll('.comp-card').forEach(function(c) {
+        var on = c.getAttribute('data-comp') === current;
+        c.classList.toggle('active', on);
+        c.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+    }
+
+    document.querySelectorAll('.comp-card').forEach(function(c) {
+      c.addEventListener('click', function() {
+        current = c.getAttribute('data-comp');
+        localStorage.setItem(KEY, current);
+        applyActive();
+        applyHrefs();
+      });
+    });
+
+    applyActive();
+    applyHrefs();
+  })();
+</script>
 
 </body>
 </html>

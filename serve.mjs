@@ -91,9 +91,19 @@ http.createServer((req, res) => {
     return;
   }
 
-  // Static file serving
-  let filePath = path.join(__dirname, url === '/' ? '/index.html' : url);
-  const ext = path.extname(filePath).toLowerCase();
+  // Map routes that map onto Jinja templates served by FastAPI in prod:
+  //   /          -> templates/landing.html  (friend picker + competition selector)
+  //   /dashboard -> templates/mockup.html   (the main app)
+  // Everything else is served as a plain static file from the project root.
+  let filePath;
+  if (url === '/' || url === '/index.html') {
+    filePath = path.join(__dirname, 'templates', 'landing.html');
+  } else if (url === '/dashboard' || url === '/dashboard/') {
+    filePath = path.join(__dirname, 'templates', 'mockup.html');
+  } else {
+    filePath = path.join(__dirname, url);
+  }
+  const ext = (path.extname(filePath) || '.html').toLowerCase();
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(404); res.end('Not found'); return; }
     res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
