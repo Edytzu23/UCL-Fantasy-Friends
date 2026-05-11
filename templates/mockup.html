@@ -735,149 +735,131 @@ body.theme-wc .mode-knob { box-shadow: 0 2px 8px rgba(200,16,46,.40); }
 }
 .sched-empty strong { display: block; color: var(--text); font-family: var(--font-display); font-size: 16px; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 6px; }
 
-/* ── WC match modal (opened from a schedule row click) ── */
-.wc-mm-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9000;
-  background: rgba(8,12,24,.62);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  animation: wcMmFade 220ms var(--ease-out);
-}
-body.theme-wc .wc-mm-overlay { background: rgba(20,33,61,.32); }
-.wc-mm {
-  position: relative;
-  width: min(560px, 100%);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  box-shadow: var(--shadow-floating);
-  padding: 32px 28px 24px;
-  text-align: center;
-  animation: wcMmRise 280ms var(--spring);
-}
-body.theme-wc .wc-mm {
+/* ── WC match modal — reuses the existing .match-modal-* shell so the
+   layout mirrors UCL (two-team header + two-column body). Below are
+   WC-specific tweaks: bigger flags instead of club crests, FIFA rank
+   pills, a stage eyebrow under the score, and a per-match countdown for
+   upcoming kickoffs. ── */
+.match-modal-overlay.wc-modal { background: rgba(8,12,24,.62); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+body.theme-wc .match-modal-overlay.wc-modal { background: rgba(20,33,61,.32); }
+body.theme-wc .match-modal-overlay.wc-modal .match-modal {
   background: #ffffff;
   border-color: rgba(27,94,32,.18);
   box-shadow: 0 32px 80px rgba(20,33,61,.22), 0 8px 24px rgba(27,94,32,.08);
 }
-.wc-mm-close {
-  position: absolute;
-  top: 10px; right: 12px;
-  width: 32px; height: 32px;
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font-size: 24px;
-  line-height: 1;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: color .15s ease, background .15s ease;
-}
-.wc-mm-close:hover { color: var(--text); background: rgba(255,255,255,.06); }
-body.theme-wc .wc-mm-close:hover { background: rgba(27,94,32,.08); }
-.wc-mm-stage {
-  font-family: var(--font-display);
-  font-size: 11px;
-  letter-spacing: .26em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: var(--weight-bold);
-  margin-bottom: 18px;
-}
-.wc-mm-teams {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.wc-mm-team {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-.wc-mm-flag {
-  width: 72px; height: 54px;
-  border-radius: 6px;
+
+/* Header flags (replaces club logos in the UCL header) */
+.wc-modal .wc-mm-hdr-flag {
+  width: 56px;
+  height: 42px;
   object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.18), 0 6px 16px rgba(0,0,0,.18);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.18), 0 4px 12px rgba(0,0,0,.18);
 }
-body.theme-wc .wc-mm-flag { box-shadow: 0 0 0 1px rgba(27,94,32,.15), 0 6px 16px rgba(20,33,61,.10); }
-.wc-mm-name {
+body.theme-wc .wc-modal .wc-mm-hdr-flag {
+  box-shadow: 0 0 0 1px rgba(27,94,32,.15), 0 4px 12px rgba(20,33,61,.10);
+}
+.wc-modal .match-modal-team { gap: 8px; min-width: 110px; }
+.wc-modal .match-modal-team-name { font-size: 12.5px; letter-spacing: .04em; }
+
+/* FIFA rank pill, sits under the team name in the header */
+.wc-modal .wc-mm-rank-inline {
+  display: inline-block;
+  margin-top: 2px;
   font-family: var(--font-display);
-  font-size: clamp(16px, 2vw, 20px);
-  font-weight: var(--weight-heavy);
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-  color: var(--text);
-  line-height: 1.15;
-  text-align: center;
-}
-.wc-mm-code {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: var(--weight-bold);
-  color: var(--sub);
-  letter-spacing: .12em;
-}
-.wc-mm-rank {
-  font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: var(--weight-bold);
   letter-spacing: .14em;
   color: var(--fire);
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 999px;
   background: rgba(255,87,34,.10);
   border: 1px solid rgba(255,87,34,.30);
   text-transform: uppercase;
 }
-body.theme-wc .wc-mm-rank {
+body.theme-wc .wc-modal .wc-mm-rank-inline {
   color: #C8102E;
   background: rgba(200,16,46,.06);
   border-color: rgba(200,16,46,.25);
 }
-.wc-mm-vs {
+
+/* Centered score block (stage eyebrow + scoreline + status + countdown) */
+.wc-modal .match-modal-scoreline-sep { color: var(--muted); font-weight: var(--weight-semi); margin: 0 4px; }
+.wc-modal .wc-mm-hdr-stage {
   font-family: var(--font-display);
-  font-size: 32px;
-  font-weight: var(--weight-heavy);
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--sub);
+  font-weight: var(--weight-bold);
+  margin-top: 6px;
+}
+.wc-modal .wc-mm-hdr-countdown {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
   letter-spacing: .04em;
+  color: var(--fire);
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+body.theme-wc .wc-modal .wc-mm-hdr-countdown { color: #C8102E; }
+
+/* Per-team column header (flag + name) and the placeholder/teaser body */
+.wc-modal .wc-mm-col-team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--border);
+}
+.wc-modal .wc-mm-col-flag {
+  width: 32px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.18);
+  flex-shrink: 0;
+}
+.wc-modal .wc-mm-col-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.wc-modal .wc-mm-col-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.005em;
+  color: var(--text);
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.wc-modal .wc-mm-col-sub {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--sub);
+  letter-spacing: .1em;
+}
+.wc-modal .wc-mm-body-empty {
+  padding: 22px 12px;
+  text-align: center;
+}
+.wc-modal .wc-mm-body-empty-title {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--muted);
+  margin-bottom: 4px;
 }
-.wc-mm-when {
+.wc-modal .wc-mm-body-empty-text {
   font-family: var(--font-body);
-  font-size: 14px;
-  color: var(--text);
-  font-weight: var(--weight-semi);
-  padding: 10px 0;
-  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+  color: var(--sub);
+  line-height: 1.45;
 }
-.wc-mm-countdown {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--fire);
-  letter-spacing: .04em;
-  margin-top: 6px;
-  font-variant-numeric: tabular-nums;
-}
-body.theme-wc .wc-mm-countdown { color: #C8102E; }
-@keyframes wcMmFade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes wcMmRise {
-  from { opacity: 0; transform: translateY(20px) scale(.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
+
+/* Force the body column divider to match WC theme borders */
+body.theme-wc .wc-modal .match-modal-col:first-child { border-right-color: rgba(27,94,32,.12); }
+body.theme-wc .wc-modal .match-player-row { border-bottom-color: rgba(27,94,32,.06); }
 
 /* ── WC live countdown to the opener ── */
 .wc-countdown-host {
@@ -6157,9 +6139,10 @@ function startWcCountdown() {
   _wcCountdownTimer = setInterval(tick, 1000);
 }
 
-// Lightweight WC match popup — shown when the user clicks a row in the
-// Schedule view. No live data exists yet, so we surface what we have:
-// teams, ranks, group, stage, kickoff (Bucharest), and a per-match countdown.
+// WC match popup — mirrors the UCL match modal's structure (two-team
+// header + two-column body for player/fantasy stats). Pre-tournament we
+// don't have lineups, so the body shows a placeholder; once finished
+// matches arrive, the same shell will render the squad + points.
 function openWcMatchModal(payload) {
   let m;
   try { m = JSON.parse(decodeURIComponent(payload)); } catch(_) { return; }
@@ -6170,18 +6153,16 @@ function openWcMatchModal(payload) {
   const homeRank = ranks[m.home];
   const awayRank = ranks[m.away];
   const kickoffMs = m.kickoffUtc ? Date.parse(m.kickoffUtc) : null;
-  const kickoffLine = m.kickoffUtc
-    ? new Date(m.kickoffUtc).toLocaleString('ro-RO', {
-        timeZone: 'Europe/Bucharest',
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-      }) + ' (Bucureşti)'
-    : 'TBD';
+  const now = Date.now();
+  const isFinished = (m.scoreHome != null && m.scoreAway != null);
+  const isLive = kickoffMs != null && now >= kickoffMs && !isFinished;
+  const isUpcoming = !isFinished && !isLive;
+
   const stageMap = {
     GROUP_STAGE: m.group ? `Grupa ${m.group}` : 'Grupă',
     ROUND_OF_32: 'Round of 32',
-    ROUND_OF_16: 'Optimi de finală',
-    QUARTER_FINAL: 'Sferturi de finală',
+    ROUND_OF_16: 'Optimi',
+    QUARTER_FINAL: 'Sferturi',
     SEMI_FINAL: 'Semifinale',
     THIRD_PLACE: 'Finala mică',
     FINAL: 'Finala',
@@ -6190,46 +6171,103 @@ function openWcMatchModal(payload) {
   const flag = (iso2) => iso2 && iso2 !== 'xx'
     ? `https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/4x3/${iso2.toLowerCase()}.svg`
     : '/static/flag-placeholder.svg';
-  const rankPill = r => (r != null) ? `<div class="wc-mm-rank">FIFA #${r}</div>` : '';
-  const overlay = document.createElement('div');
-  overlay.className = 'wc-mm-overlay';
-  overlay.id = 'wcMatchModalOverlay';
-  overlay.innerHTML = `
-    <div class="wc-mm" role="dialog" aria-modal="true">
-      <button class="wc-mm-close" aria-label="Închide" onclick="closeWcMatchModal()">×</button>
-      <div class="wc-mm-stage">${stageLine}</div>
-      <div class="wc-mm-teams">
-        <div class="wc-mm-team">
-          <img class="wc-mm-flag" src="${flag(home.iso2)}" alt="" onerror="this.onerror=null;this.src='/static/flag-placeholder.svg'"/>
-          <div class="wc-mm-name">${home.name || m.home}</div>
-          <div class="wc-mm-code">${m.home}</div>
-          ${rankPill(homeRank)}
-        </div>
-        <div class="wc-mm-vs">vs</div>
-        <div class="wc-mm-team">
-          <img class="wc-mm-flag" src="${flag(away.iso2)}" alt="" onerror="this.onerror=null;this.src='/static/flag-placeholder.svg'"/>
-          <div class="wc-mm-name">${away.name || m.away}</div>
-          <div class="wc-mm-code">${m.away}</div>
-          ${rankPill(awayRank)}
+
+  // Scoreline: actual score if finished; otherwise "VS"
+  const scoreline = isFinished
+    ? `${m.scoreHome}<span class="match-modal-scoreline-sep"> – </span>${m.scoreAway}`
+    : 'VS';
+
+  // Status line: FT for finished, LIVE 67' for in-play, formatted date for upcoming.
+  let statusHtml = '';
+  let statusCls = '';
+  if (isFinished) {
+    statusHtml = 'FT'; statusCls = 'ft';
+  } else if (isLive) {
+    statusHtml = 'LIVE'; statusCls = 'live';
+  } else if (kickoffMs) {
+    const d = new Date(m.kickoffUtc);
+    const datePart = d.toLocaleDateString('ro-RO', { timeZone: 'Europe/Bucharest', weekday: 'short', day: '2-digit', month: 'short' });
+    const timePart = d.toLocaleTimeString('ro-RO', { timeZone: 'Europe/Bucharest', hour: '2-digit', minute: '2-digit' });
+    statusHtml = `${datePart} · ${timePart}`;
+  } else {
+    statusHtml = 'TBD';
+  }
+
+  const rankPill = r => (r != null) ? `<span class="wc-mm-rank-inline">FIFA #${r}</span>` : '';
+
+  // Empty/teaser content for the body columns. For finished matches we'd
+  // populate from real fantasy data (not available yet); for upcoming we
+  // show a "scores unlock after kickoff" hint with the group/stage.
+  const bodyTeaser = isFinished
+    ? `<div class="wc-mm-body-empty">
+         <div class="wc-mm-body-empty-title">Top jucători</div>
+         <div class="wc-mm-body-empty-text">Punctajele Fantasy sunt în curs de procesare.</div>
+       </div>`
+    : `<div class="wc-mm-body-empty">
+         <div class="wc-mm-body-empty-title">Lineup-uri și puncte Fantasy</div>
+         <div class="wc-mm-body-empty-text">Se deblochează după primul fluier al meciului.</div>
+       </div>`;
+
+  const teamColumn = (teamObj, teamCode, rank) => `
+    <div class="match-modal-col">
+      <div class="wc-mm-col-team">
+        <img class="wc-mm-col-flag" src="${flag(teamObj.iso2)}" alt="" onerror="this.onerror=null;this.src='/static/flag-placeholder.svg'"/>
+        <div class="wc-mm-col-meta">
+          <div class="wc-mm-col-name">${teamObj.name || teamCode}</div>
+          <div class="wc-mm-col-sub">${teamCode}${rank != null ? ' · FIFA #' + rank : ''}</div>
         </div>
       </div>
-      <div class="wc-mm-when">${kickoffLine}</div>
-      ${kickoffMs ? `<div class="wc-mm-countdown" id="wcMmCountdown"></div>` : ''}
+      ${bodyTeaser}
+    </div>`;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'match-modal-overlay wc-modal';
+  overlay.id = 'wcMatchModalOverlay';
+  overlay.innerHTML = `
+    <div class="match-modal" role="dialog" aria-modal="true">
+      <div class="match-modal-hdr">
+        <div class="match-modal-team">
+          <img src="${flag(home.iso2)}" alt="" class="wc-mm-hdr-flag" onerror="this.onerror=null;this.src='/static/flag-placeholder.svg'"/>
+          <div class="match-modal-team-name">${home.name || m.home}</div>
+          ${rankPill(homeRank)}
+        </div>
+        <div class="match-modal-score">
+          <div>
+            <div class="match-modal-scoreline">${scoreline}</div>
+            <div class="match-modal-status ${statusCls}">${statusHtml}</div>
+            <div class="wc-mm-hdr-stage">${stageLine}</div>
+            ${isUpcoming && kickoffMs ? `<div class="wc-mm-hdr-countdown" id="wcMmCountdown"></div>` : ''}
+          </div>
+        </div>
+        <div class="match-modal-team">
+          <img src="${flag(away.iso2)}" alt="" class="wc-mm-hdr-flag" onerror="this.onerror=null;this.src='/static/flag-placeholder.svg'"/>
+          <div class="match-modal-team-name">${away.name || m.away}</div>
+          ${rankPill(awayRank)}
+        </div>
+        <button class="match-modal-close" aria-label="Închide" onclick="closeWcMatchModal()">×</button>
+      </div>
+      <div class="match-modal-body">
+        ${teamColumn(home, m.home, homeRank)}
+        ${teamColumn(away, m.away, awayRank)}
+      </div>
     </div>`;
   overlay.addEventListener('click', e => { if (e.target === overlay) closeWcMatchModal(); });
   document.body.appendChild(overlay);
-  // Per-match countdown
-  if (kickoffMs) {
+
+  // Per-match countdown shown in header for upcoming matches.
+  if (isUpcoming && kickoffMs) {
     const cdEl = overlay.querySelector('#wcMmCountdown');
-    const tick = () => {
-      const left = kickoffMs - Date.now();
-      if (left <= 0) { cdEl.textContent = 'Meciul a început.'; clearInterval(cdEl._t); return; }
-      const d = Math.floor(left/86400000), h = Math.floor(left/3600000)%24,
-            mn = Math.floor(left/60000)%60, s = Math.floor(left/1000)%60;
-      cdEl.textContent = `${d}z ${String(h).padStart(2,'0')}h ${String(mn).padStart(2,'0')}m ${String(s).padStart(2,'0')}s până la kickoff`;
-    };
-    tick();
-    cdEl._t = setInterval(tick, 1000);
+    if (cdEl) {
+      const tick = () => {
+        const left = kickoffMs - Date.now();
+        if (left <= 0) { cdEl.textContent = 'În curând…'; clearInterval(cdEl._t); return; }
+        const d = Math.floor(left/86400000), h = Math.floor(left/3600000)%24,
+              mn = Math.floor(left/60000)%60, s = Math.floor(left/1000)%60;
+        cdEl.textContent = `${d}z ${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      };
+      tick();
+      cdEl._t = setInterval(tick, 1000);
+    }
   }
   // ESC to close
   const esc = e => { if (e.key === 'Escape') { closeWcMatchModal(); document.removeEventListener('keydown', esc); } };
