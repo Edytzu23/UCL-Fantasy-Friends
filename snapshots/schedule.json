@@ -11,7 +11,7 @@
       "date": "2026-05-30",
       "time": "20:45",
       "label": "FTM1",
-      "fired": false
+      "fired": true
     },
     {
       "date": "2026-05-31",
